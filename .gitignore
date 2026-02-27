@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ML artifacts
+*.pt
+*.pth
+*.ckpt
+checkpoints/
+
+# Data
+*.wav
+*.mp3
+*.flac
+data/
+
+# Results (keep .gitkeep)
+results/*.csv
+results/*.json
+results/figures/*.png
+results/figures/*.pdf
+
+# Jupyter
+.ipynb_checkpoints/

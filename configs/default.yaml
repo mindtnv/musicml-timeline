@@ -1,0 +1,58 @@
+audio:
+  sr: 22050
+  mono: true
+
+features:
+  mode: "log_mel"  # "log_mel" or "log_mel_chroma"
+  n_fft: 2048
+  hop_length: 512
+  win_length: 2048
+  n_mels: 128
+  fmin: 30.0
+  fmax: null  # sr / 2
+  n_mfcc: 20
+
+windowing:
+  window_seconds: 8.0
+  hop_seconds: 1.0
+
+model:
+  in_channels: 1
+  n_segment_classes: 4
+  n_arousal_classes: 3
+  n_valence_classes: 3
+  dropout: 0.4
+
+training:
+  seed: 42
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  batch_size: 64
+  epochs: 30
+  early_stopping_patience: 7
+  scheduler: onecycle
+
+loss_weights:
+  segment: 1.0
+  arousal: 1.0
+  valence: 1.0
+
+postprocess:
+  smooth_kernel: 5
+  min_segment_duration: 6.0
+
+segment_classes:
+  - Calm
+  - Build-up
+  - Climax
+  - Outro
+
+arousal_classes:
+  - Low
+  - Mid
+  - High
+
+valence_classes:
+  - Dark
+  - Neutral
+  - Bright
