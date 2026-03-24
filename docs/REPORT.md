@@ -479,9 +479,33 @@ Segment — задача, где temporal context наиболее важен (�
 
 4. **Документированный путь улучшений**: segment accuracy вырос с 24.3% до 35.3% (+45% относительно) через систематическую диагностику и 5 направлений оптимизации.
 
+5. **AST (Audio Spectrogram Transformer)**: дополнительный эксперимент с pretrained transformer backbone (MIT/ast-finetuned-audioset, 85M params). AST достиг **segment 40.3%** — лучший результат проекта (+5.0% над CNN v2), подтверждая гипотезу о преимуществе pretrained transformer representations для структурной сегментации.
+
+### 8.1.1 Эксперимент с AST
+
+Для проверки гипотезы о влиянии мощности backbone был добавлен 5-й конфиг: **Audio Spectrogram Transformer** (AST), pretrained на AudioSet (2M аудиозаписей, 527 классов). Архитектура: 12-слойный Vision Transformer с patch size 16×16 на log-mel спектрограммах.
+
+**Конфигурация**: freeze первых 10 из 12 слоёв (fine-tune только 2 верхних + classification heads), differential learning rate (backbone 5e-5, heads 1e-3), dropout 0.3, weight_decay 0.01.
+
+**Оптимизация скорости**: hop_seconds увеличен с 1.0 до 5.0 (в 5 раз меньше training samples), что сократило обучение с ~24 часов до ~2 часов. Обучение: 8 эпох (early stopping, patience=4).
+
+**Результаты AST (test set)**:
+
+| Checkpoint | Segment acc/F1 | Arousal acc/F1 | Valence acc/F1 | Genre acc/F1 |
+|------------|---------------|----------------|----------------|--------------|
+| AST last.pt | **40.3/31.5** | 61.9/61.9 | 48.8/49.0 | 81.1/79.7 |
+| AST best.pt | 33.0/28.2 | 59.9/60.0 | 51.6/51.9 | 81.3/80.4 |
+
+**Анализ**: AST показал лучший результат по segment (+5.0%), но не улучшил остальные задачи. Причины:
+- **Переобучение**: train accuracy достигала 96–100%, а val стагнировала (~60%). С hop=5.0 train set уменьшился в 5 раз — pretrained модель недополучала данные.
+- **Frozen layers**: 10 из 12 слоёв заморожены — модель не могла адаптировать нижние представления под музыкальные задачи.
+- **Отсутствие mixup**: для transformer augmentation особенно важна, но mixup не применялся.
+
+Направления улучшения AST: (1) вернуть hop=1.0 с gradient accumulation, (2) разморозить больше слоёв с меньшим LR, (3) добавить SpecAugment + CutMix.
+
 ### 8.2 Ограничения
 
-1. **Segment accuracy 35.3%** — хотя это 2× random baseline (17%), для production-системы недостаточно. Основная причина: 6-классовая сегментация с сильным дисбалансом на малом датасете (746 треков).
+1. **Segment accuracy 40.3%** (AST) / 35.3% (CNN) — хотя это 2.4× random baseline (17%), для production-системы недостаточно. Основная причина: 6-классовая сегментация с сильным дисбалансом на малом датасете (746 треков).
 
 2. **Valence ~55%** — нейтральный класс плохо разделяется. Это известная проблема в MER, связанная с субъективностью аннотаций.
 
@@ -548,3 +572,7 @@ Segment — задача, где temporal context наиболее важен (�
 | results/eval_panns_linear_v2.csv | PANNs v2 |
 | results/eval_panns_lstm.csv | PANNs+BiLSTM v1 |
 | results/eval_panns_lstm_v2.csv | PANNs+BiLSTM v2 |
+| results/eval_ast_best.csv | AST (best val_loss) |
+| results/eval_ast_last.csv | AST (last epoch, лучший segment) |
+| logs/ast_train.log | AST training log (epochs 1-3) |
+| logs/ast_train_resume.log | AST training log (epochs 4-8) |

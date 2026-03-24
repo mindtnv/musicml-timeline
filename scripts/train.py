@@ -576,11 +576,15 @@ def main() -> None:
     print(f"Architecture: {arch}")
     print("Building datasets...")
 
-    if arch == "cnn":
+    if arch in ("cnn", "ast"):
         train_loader, val_loader, class_labels = build_loaders(
             cfg, deam_dir, structure_dir, gtzan_dir, num_workers=args.num_workers,
         )
-        model = CNNMultiTask(**cfg["model"]).to(device)
+        if arch == "cnn":
+            model = CNNMultiTask(**cfg["model"]).to(device)
+        else:
+            from musicml.models.ast_multitask import ASTMultiTask
+            model = ASTMultiTask(**cfg["model"]).to(device)
     elif arch in ("cnn_lstm", "panns_lstm"):
         train_loader, val_loader, class_labels = build_embedding_loaders(
             cfg, deam_dir, structure_dir, gtzan_dir, num_workers=args.num_workers,
@@ -614,9 +618,15 @@ def main() -> None:
     epochs = cfg["training"]["epochs"]
     patience = cfg["training"]["early_stopping_patience"]
 
-    optimizer = torch.optim.AdamW(
-        model.parameters(), lr=lr, weight_decay=weight_decay,
-    )
+    # Differential learning rate for pretrained models (AST)
+    lr_head = cfg["training"].get("lr_head", None)
+    if lr_head is not None and hasattr(model, "get_param_groups"):
+        param_groups = model.get_param_groups(lr_backbone=lr, lr_head=lr_head)
+        optimizer = torch.optim.AdamW(param_groups, weight_decay=weight_decay)
+    else:
+        optimizer = torch.optim.AdamW(
+            model.parameters(), lr=lr, weight_decay=weight_decay,
+        )
 
     scheduler_type = cfg["training"].get("scheduler", "cosine")
     step_scheduler_per_batch = False
@@ -668,7 +678,7 @@ def main() -> None:
     print(f"  Weight decay:    {weight_decay}")
     print(f"  Patience:        {patience}")
     print(f"  Architecture:    {arch}")
-    if arch == "cnn":
+    if arch in ("cnn", "ast"):
         print(f"  Features:        {cfg['features']['mode']}")
     else:
         print(f"  Embeddings:      {cfg.get('embedding_source', 'n/a')}")

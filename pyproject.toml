@@ -32,6 +32,9 @@ web = [
 panns = [
     "panns-inference>=0.1.1",
 ]
+ast = [
+    "transformers>=4.30",
+]
 
 [tool.setuptools.packages.find]
 include = ["musicml*"]

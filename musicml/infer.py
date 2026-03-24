@@ -32,6 +32,9 @@ def load_model(
 
     if architecture == "cnn":
         model = CNNMultiTask(**model_cfg)
+    elif architecture == "ast":
+        from musicml.models.ast_multitask import ASTMultiTask
+        model = ASTMultiTask(**model_cfg)
     elif architecture in ("cnn_lstm", "panns_lstm"):
         model = LSTMMultiTask(**model_cfg)
     elif architecture == "panns_linear":

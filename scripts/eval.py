@@ -62,8 +62,8 @@ def main() -> None:
     feat_cfg = cfg["features"]
     win_cfg = cfg["windowing"]
 
-    if arch == "cnn":
-        # CNN: use spectrogram-based datasets
+    if arch in ("cnn", "ast"):
+        # CNN/AST: use spectrogram-based datasets
         if args.deam_dir:
             from musicml.datasets.deam import DEAMDataset
 

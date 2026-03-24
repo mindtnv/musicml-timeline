@@ -1,0 +1,94 @@
+# Config 5: Audio Spectrogram Transformer (pretrained on AudioSet)
+# Tests hypothesis: pretrained transformer backbone significantly improves all tasks
+
+architecture: "ast"
+
+audio:
+  sr: 22050
+  mono: true
+
+features:
+  mode: "log_mel"
+  n_fft: 2048
+  hop_length: 512
+  win_length: 2048
+  n_mels: 128
+  fmin: 30.0
+  fmax: null
+
+windowing:
+  window_seconds: 10.0
+  hop_seconds: 5.0              # increased from 1.0 to reduce training time (5x fewer samples)
+
+model:
+  pretrained_model: "MIT/ast-finetuned-audioset-10-10-0.4593"
+  freeze_layers: 10           # freeze first 10 of 12 transformer layers
+  hidden_dim: 768             # AST output dimension
+  shared_fc_dim: 256          # projection before heads
+  dropout: 0.3                # less dropout for pretrained model
+  n_segment_classes: 6
+  n_arousal_classes: 3
+  n_valence_classes: 3
+  n_genre_classes: 10
+  enable_regression: true
+
+training:
+  seed: 42
+  lr: 5.0e-5                  # low LR for pretrained backbone
+  lr_head: 1.0e-3             # high LR for heads (differential)
+  weight_decay: 0.01
+  batch_size: 48              # larger batch to reduce training time
+  epochs: 10                  # pretrained converges fast with 5s hop
+  early_stopping_patience: 4
+  scheduler: cosine_warm_restarts
+  loss_type: focal
+  focal_gamma: 1.5
+  mixup_alpha: 0.0            # no mixup for transformer
+  max_class_weight: 2.5
+
+loss_weights:
+  segment: 1.5
+  arousal_cls: 1.0
+  valence_cls: 1.0
+  arousal_reg: 0.5
+  valence_reg: 0.5
+  genre: 1.0
+
+spec_augment:
+  freq_mask: 20
+  time_mask: 60
+  n_masks: 2
+
+postprocess:
+  smooth_kernel: 5
+  min_segment_duration: 4.0
+
+segment_classes:
+  - Intro
+  - Verse
+  - Bridge
+  - Chorus
+  - Instrumental
+  - Outro
+
+arousal_classes:
+  - Low
+  - Mid
+  - High
+
+valence_classes:
+  - Dark
+  - Neutral
+  - Bright
+
+genre_classes:
+  - blues
+  - classical
+  - country
+  - disco
+  - hiphop
+  - jazz
+  - metal
+  - pop
+  - reggae
+  - rock

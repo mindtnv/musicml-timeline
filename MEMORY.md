@@ -80,11 +80,41 @@ Precomputed embeddings для ускорения обучения конфиго
 - Valence: PANNs+LSTM v1 (55.9%) / PANNs+LSTM v2 (55.0%)
 - Genre: CNN per-window (83.9%)
 
+## Этап 10: AST (Audio Spectrogram Transformer)
+
+Добавлен 5-й конфиг: pretrained AST (MIT/ast-finetuned-audioset, 85M params).
+- freeze_layers: 10 из 12 (fine-tune только 2 верхних + heads)
+- Differential LR: backbone 5e-5, heads 1e-3
+- hop_seconds=5.0 (вместо 1.0) для ускорения — 1335 батчей/эпоха вместо 9894
+- 14.4M trainable params
+- Обучение: 8 эпох (early stopping patience=4), ~108 мин
+
+### Результаты AST:
+
+| Checkpoint | Segment acc/F1 | Arousal acc/F1 | Valence acc/F1 | Genre acc/F1 |
+|------------|---------------|----------------|----------------|--------------|
+| AST last | **40.3/31.5** | 61.9/61.9 | 48.8/49.0 | 81.1/79.7 |
+| AST best | 33.0/28.2 | 59.9/60.0 | 51.6/51.9 | 81.3/80.4 |
+
+**Segment 40.3% — лучший результат проекта** (+5.0% над CNN v2).
+Но arousal/valence/genre не улучшились — переобучение (train acc 96-100%, val ~60%).
+Причина: hop=5.0 уменьшил train set в 5x, pretrained модели чувствительны к объёму данных.
+
+## Итоговая сводка лучших результатов
+
+| Задача | Лучший конфиг | Accuracy | F1 | vs Random |
+|--------|--------------|----------|----|-----------|
+| Segment (6 кл.) | **AST last** | **40.3%** | 31.5% | ×2.4 |
+| Arousal (3 кл.) | PANNs+LSTM v2 | **64.9%** | 64.0% | ×1.9 |
+| Valence (3 кл.) | PANNs+LSTM v1 | **55.9%** | 56.0% | ×1.7 |
+| Genre (10 кл.) | CNN v2 | **83.9%** | 83.3% | ×8.4 |
+
 ## Нерешённые проблемы
-- Segment 35% — 2× рандома, но в абсолюте низкая точность
+- Segment 40% — лучше, но абсолютно невысоко для 6 классов
 - Valence ~55% — нейтральный класс плохо различается
-- BiLSTM конфиги слабее per-window на genre (переобучение на малых данных)
-- PANNs не дал ожидаемого преимущества над обученным CNN
+- AST переобучается из-за малого train set (hop=5.0)
+- BiLSTM конфиги слабее per-window на genre (переобучение)
+- PANNs per-window не дал преимущества над обученным CNN
 
 ## Технические проблемы и решения
 - yt-dlp: ffmpeg не найден в venv → pip install imageio-ffmpeg
@@ -102,3 +132,6 @@ Precomputed embeddings для ускорения обучения конфиго
 - `checkpoints/cnn_lstm/best.pt` — лучший CNN+BiLSTM
 - `checkpoints/panns_linear/best.pt` — лучший PANNs linear
 - `checkpoints/panns_lstm/best.pt` — лучший PANNs+BiLSTM
+- `checkpoints/ast/last.pt` — лучший AST (segment 40.3%)
+- `results/eval_ast_best.csv` / `eval_ast_last.csv` — AST eval
+- `logs/ast_train.log` / `ast_train_resume.log` — логи обучения AST
