@@ -35,11 +35,25 @@ checkpoints/
 *.flac
 data/
 
-# Results (keep .gitkeep)
-results/*.csv
-results/*.json
+# Results figures
 results/figures/*.png
 results/figures/*.pdf
+results/plots/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Node
+node_modules/
+
+# Claude
+.claude/
+
+# Temp scripts
+_build_infer.py
+_write_infer.py
+
+# Eval results (old location)
+eval_results/
+eval_results.csv
+infer_results/
