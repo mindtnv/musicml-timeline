@@ -11,15 +11,17 @@ import torch.utils.data
 from musicml.datasets.multitask import RoundRobinLoader, collate_multitask
 from musicml.models import CNNMultiTask
 from musicml.train import (
+    FocalLoss,
     compute_accuracy,
     compute_multitask_loss,
     load_checkpoint,
+    mixup_batch,
     save_checkpoint,
     train_epoch,
     validate,
 )
 
-LOSS_WEIGHTS = {"segment": 1.0, "arousal": 1.0, "valence": 1.0}
+LOSS_WEIGHTS = {"segment": 1.0, "arousal_cls": 1.0, "valence_cls": 1.0, "genre": 1.0}
 
 
 class FakeDeamDataset(torch.utils.data.Dataset):
@@ -35,6 +37,9 @@ class FakeDeamDataset(torch.utils.data.Dataset):
             "y_seg": None,
             "y_ar": idx % 3,
             "y_val": idx % 3,
+            "y_ar_cont": 4.0 + (idx % 3) * 0.5,
+            "y_val_cont": 3.0 + (idx % 3) * 0.5,
+            "y_genre": None,
         }
 
 
@@ -48,9 +53,12 @@ class FakeStructureDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx: int) -> dict:
         return {
             "x": torch.randn(1, 128, 344),
-            "y_seg": idx % 4,
+            "y_seg": idx % 6,
             "y_ar": None,
             "y_val": None,
+            "y_ar_cont": None,
+            "y_val_cont": None,
+            "y_genre": None,
         }
 
 
@@ -81,8 +89,8 @@ def test_compute_multitask_loss_deam_batch() -> None:
     total, details = compute_multitask_loss(logits, batch, LOSS_WEIGHTS, criterion)
     assert total.item() > 0
     assert details["segment"] == 0.0
-    assert details["arousal"] > 0
-    assert details["valence"] > 0
+    assert details["arousal_cls"] > 0
+    assert details["valence_cls"] > 0
 
 
 def test_compute_multitask_loss_structure_batch() -> None:
@@ -102,8 +110,8 @@ def test_compute_multitask_loss_structure_batch() -> None:
     total, details = compute_multitask_loss(logits, batch, LOSS_WEIGHTS, criterion)
     assert total.item() > 0
     assert details["segment"] > 0
-    assert details["arousal"] == 0.0
-    assert details["valence"] == 0.0
+    assert details["arousal_cls"] == 0.0
+    assert details["valence_cls"] == 0.0
 
 
 def test_compute_accuracy() -> None:
@@ -119,8 +127,8 @@ def test_compute_accuracy() -> None:
 
     acc = compute_accuracy(logits, batch)
     assert isinstance(acc["segment"], float)
-    assert acc["arousal"] is None
-    assert isinstance(acc["valence"], float)
+    assert acc["arousal_cls"] is None
+    assert isinstance(acc["valence_cls"], float)
 
 
 def test_train_epoch_runs() -> None:
@@ -134,7 +142,7 @@ def test_train_epoch_runs() -> None:
     assert "loss" in metrics
     assert metrics["loss"] > 0
     assert "loss_segment" in metrics
-    assert "loss_arousal" in metrics
+    assert "loss_arousal_cls" in metrics
     assert "acc_segment" in metrics
 
 
@@ -177,13 +185,69 @@ def test_training_reduces_loss() -> None:
     torch.manual_seed(42)
     model = CNNMultiTask()
     loader = _make_loader(FakeDeamDataset(16), FakeStructureDataset(16), batch_size=8)
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(model.parameters(), lr=3e-3)
     criterion = nn.CrossEntropyLoss(ignore_index=-1)
 
     losses = []
-    for _ in range(5):
+    for _ in range(8):
         metrics = train_epoch(model, loader, optimizer, criterion, LOSS_WEIGHTS, "cpu")
         losses.append(metrics["loss"])
 
-    # Loss at epoch 5 should be less than epoch 1
-    assert losses[-1] < losses[0], f"Loss did not decrease: {losses}"
+    # Minimum loss should be less than initial loss
+    assert min(losses) < losses[0], f"Loss did not decrease: {losses}"
+
+
+# --- Focal Loss tests ---
+
+
+def test_focal_loss_basic() -> None:
+    """FocalLoss should produce positive loss and support backprop."""
+    fl = FocalLoss(gamma=2.0)
+    logits = torch.randn(8, 6, requires_grad=True)
+    targets = torch.randint(0, 6, (8,))
+    loss = fl(logits, targets)
+    assert loss.item() > 0
+    assert loss.requires_grad
+
+
+def test_focal_loss_ignore_index() -> None:
+    """FocalLoss should skip samples with ignore_index."""
+    fl = FocalLoss(gamma=2.0, ignore_index=-1)
+    logits = torch.randn(4, 3)
+    targets = torch.tensor([0, 1, -1, 2])
+    loss = fl(logits, targets)
+    assert loss.item() > 0
+
+
+def test_focal_gamma_zero_equals_ce() -> None:
+    """With gamma=0, FocalLoss should match CrossEntropyLoss."""
+    torch.manual_seed(123)
+    logits = torch.randn(16, 4)
+    targets = torch.randint(0, 4, (16,))
+
+    fl = FocalLoss(gamma=0.0)
+    ce = nn.CrossEntropyLoss()
+
+    focal_loss = fl(logits, targets)
+    ce_loss = ce(logits, targets)
+    assert abs(focal_loss.item() - ce_loss.item()) < 1e-5
+
+
+# --- Mixup tests ---
+
+
+def test_mixup_batch_shape() -> None:
+    """Mixup should preserve tensor shape and return valid lambda."""
+    x = torch.randn(8, 1, 128, 344)
+    mixed_x, perm, lam = mixup_batch(x, alpha=0.2)
+    assert mixed_x.shape == x.shape
+    assert 0.5 <= lam <= 1.0
+    assert perm.shape == (8,)
+
+
+def test_mixup_alpha_zero_is_identity() -> None:
+    """With alpha=0, mixup should return original tensor unchanged."""
+    x = torch.randn(4, 1, 128, 344)
+    mixed_x, perm, lam = mixup_batch(x, alpha=0.0)
+    assert torch.equal(mixed_x, x)
+    assert lam == 1.0

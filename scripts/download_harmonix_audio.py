@@ -19,7 +19,23 @@ from pathlib import Path
 import pandas as pd
 
 
-def download_track(url: str, track_id: str, output_dir: Path) -> bool:
+def _find_ffmpeg() -> str | None:
+    """Try to find ffmpeg binary."""
+    import shutil
+
+    path = shutil.which("ffmpeg")
+    if path:
+        return path
+    try:
+        import imageio_ffmpeg
+
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except ImportError:
+        return None
+
+
+def download_track(url: str, track_id: str, output_dir: Path,
+                   ffmpeg_location: str | None = None) -> bool:
     """Download a single track as MP3 using yt-dlp."""
     output_path = output_dir / f"{track_id}.%(ext)s"
     cmd = [
@@ -32,6 +48,8 @@ def download_track(url: str, track_id: str, output_dir: Path) -> bool:
         "--no-playlist",
         "--quiet",
     ]
+    if ffmpeg_location:
+        cmd.extend(["--ffmpeg-location", ffmpeg_location])
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True, timeout=120,
@@ -78,6 +96,12 @@ def main() -> None:
         df = df.head(args.limit)
         total = len(df)
 
+    ffmpeg_loc = _find_ffmpeg()
+    if ffmpeg_loc:
+        print(f"Using ffmpeg: {ffmpeg_loc}")
+    else:
+        print("Warning: ffmpeg not found, conversion may fail")
+
     print(f"Downloading {total} tracks to {output_dir}...")
 
     success = 0
@@ -94,7 +118,7 @@ def main() -> None:
             skipped += 1
             continue
 
-        ok = download_track(url, track_id, output_dir)
+        ok = download_track(url, track_id, output_dir, ffmpeg_loc)
         if ok:
             success += 1
             print(f"  [{success + failed + skipped}/{total}] OK: {track_id}")

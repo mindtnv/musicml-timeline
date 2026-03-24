@@ -16,12 +16,21 @@ dependencies = [
     "matplotlib>=3.8",
     "pandas>=2.1",
     "pyyaml>=6.0",
+    "tqdm>=4.66",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4",
     "ruff>=0.1",
+]
+web = [
+    "fastapi>=0.104",
+    "uvicorn[standard]>=0.24",
+    "python-multipart>=0.0.6",
+]
+panns = [
+    "panns-inference>=0.1.1",
 ]
 
 [tool.setuptools.packages.find]

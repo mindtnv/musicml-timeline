@@ -14,16 +14,7 @@ def compute_head_metrics(
     y_pred: np.ndarray,
     class_names: list[str],
 ) -> dict[str, Any]:
-    """Compute classification metrics for a single head.
-
-    Args:
-        y_true: Ground-truth class indices, shape (N,).
-        y_pred: Predicted class indices, shape (N,).
-        class_names: List of class name strings.
-
-    Returns:
-        Dict with accuracy, macro_f1, per_class metrics, and confusion_matrix.
-    """
+    """Compute classification metrics for a single head."""
     from sklearn.metrics import (
         accuracy_score,
         confusion_matrix,
@@ -57,6 +48,27 @@ def compute_head_metrics(
     }
 
 
+def compute_regression_metrics(
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+) -> dict[str, float]:
+    """Compute regression metrics: MAE, RMSE, R-squared, Pearson correlation."""
+    mae = float(np.mean(np.abs(y_true - y_pred)))
+    rmse = float(np.sqrt(np.mean((y_true - y_pred) ** 2)))
+
+    ss_res = float(np.sum((y_true - y_pred) ** 2))
+    ss_tot = float(np.sum((y_true - np.mean(y_true)) ** 2))
+    r2 = 1.0 - ss_res / (ss_tot + 1e-8)
+
+    # Pearson correlation (pure numpy)
+    mx, my = np.mean(y_true), np.mean(y_pred)
+    num = float(np.sum((y_true - mx) * (y_pred - my)))
+    den = float(np.sqrt(np.sum((y_true - mx) ** 2) * np.sum((y_pred - my) ** 2)))
+    pearson_r = num / (den + 1e-8)
+
+    return {"mae": mae, "rmse": rmse, "r2": r2, "pearson_r": pearson_r}
+
+
 def evaluate_dataset(
     model,
     dataset,
@@ -64,32 +76,39 @@ def evaluate_dataset(
     class_names: list[str],
     device: str,
     batch_size: int = 32,
+    collate_fn=None,
 ) -> dict[str, Any]:
-    """Evaluate model on a dataset for a specific head.
+    """Evaluate model on a dataset for a specific classification head.
 
-    Args:
-        model: CNNMultiTask in eval mode.
-        dataset: Dataset returning dicts with "x" and label keys.
-        head_key: One of "segment", "arousal", "valence".
-        class_names: Class name list for the head.
-        device: Device string.
-        batch_size: Batch size for DataLoader.
-
-    Returns:
-        Metrics dict from compute_head_metrics.
+    Supports both 2D logits (B, C) from CNN/Linear models and 3D logits
+    (B, T, C) from LSTM sequence models.
     """
     import torch
     import torch.utils.data
 
-    from musicml.datasets.multitask import collate_multitask
+    if collate_fn is None:
+        from musicml.datasets.multitask import collate_multitask
+        collate_fn = collate_multitask
 
-    label_key_map = {"segment": "y_seg", "arousal": "y_ar", "valence": "y_val"}
+    label_key_map = {
+        "segment": "y_seg",
+        "arousal": "y_ar",
+        "valence": "y_val",
+        "genre": "y_genre",
+    }
     label_key = label_key_map[head_key]
 
-    head_index = {"segment": 0, "arousal": 1, "valence": 2}[head_key]
+    # Map head_key to model output dict key
+    output_key_map = {
+        "segment": "segment",
+        "arousal": "arousal_cls",
+        "valence": "valence_cls",
+        "genre": "genre",
+    }
+    output_key = output_key_map[head_key]
 
     loader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_multitask,
+        dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn,
     )
 
     all_true: list[int] = []
@@ -102,8 +121,19 @@ def evaluate_dataset(
                 continue
 
             x = batch["x"].to(device)
-            logits = model(x)
-            preds = logits[head_index].argmax(dim=1).cpu()
+            lengths = batch.get("lengths")
+
+            if lengths is not None:
+                logits = model(x, lengths=lengths)
+            else:
+                logits = model(x)
+
+            pred = logits[output_key]
+            # Flatten 3D sequence logits: (B, T, C) → (B*T, C)
+            if pred.dim() == 3:
+                pred = pred.reshape(-1, pred.size(-1))
+                targets = targets.reshape(-1)
+            preds = pred.argmax(dim=1).cpu()
 
             if isinstance(targets, torch.Tensor):
                 targets_np = targets.numpy()
@@ -127,19 +157,10 @@ def evaluate_all_heads(
     structure_dataset,
     cfg: dict[str, Any],
     device: str,
+    gtzan_dataset=None,
+    collate_fn=None,
 ) -> dict[str, dict[str, Any]]:
-    """Evaluate all 3 heads using appropriate datasets.
-
-    Args:
-        model: CNNMultiTask in eval mode.
-        deam_dataset: DEAMDataset (for arousal/valence). Can be None.
-        structure_dataset: StructureDataset (for segment). Can be None.
-        cfg: Full config dict.
-        device: Device string.
-
-    Returns:
-        Dict mapping head name to metrics dict.
-    """
+    """Evaluate all heads using appropriate datasets."""
     batch_size = cfg["training"].get("batch_size", 32)
     results: dict[str, dict[str, Any]] = {}
 
@@ -148,9 +169,13 @@ def evaluate_all_heads(
             model,
             structure_dataset,
             "segment",
-            cfg.get("segment_classes", ["Calm", "Build-up", "Climax", "Outro"]),
+            cfg.get(
+                "segment_classes",
+                ["Intro", "Verse", "Bridge", "Chorus", "Instrumental", "Outro"],
+            ),
             device,
             batch_size,
+            collate_fn=collate_fn,
         )
 
     if deam_dataset is not None:
@@ -161,6 +186,7 @@ def evaluate_all_heads(
             cfg.get("arousal_classes", ["Low", "Mid", "High"]),
             device,
             batch_size,
+            collate_fn=collate_fn,
         )
         results["valence"] = evaluate_dataset(
             model,
@@ -169,6 +195,21 @@ def evaluate_all_heads(
             cfg.get("valence_classes", ["Dark", "Neutral", "Bright"]),
             device,
             batch_size,
+            collate_fn=collate_fn,
+        )
+
+    if gtzan_dataset is not None:
+        results["genre"] = evaluate_dataset(
+            model,
+            gtzan_dataset,
+            "genre",
+            cfg.get("genre_classes", [
+                "blues", "classical", "country", "disco", "hiphop",
+                "jazz", "metal", "pop", "reggae", "rock",
+            ]),
+            device,
+            batch_size,
+            collate_fn=collate_fn,
         )
 
     return results
@@ -178,17 +219,7 @@ def extract_boundaries(
     predictions: np.ndarray,
     hop_seconds: float = 1.0,
 ) -> list[float]:
-    """Extract boundary times from a sequence of class predictions.
-
-    A boundary occurs wherever the predicted class changes.
-
-    Args:
-        predictions: Array of class indices, shape (T,).
-        hop_seconds: Time step between predictions.
-
-    Returns:
-        Sorted list of boundary times (in seconds).
-    """
+    """Extract boundary times from a sequence of class predictions."""
     boundaries: list[float] = []
     for i in range(1, len(predictions)):
         if predictions[i] != predictions[i - 1]:
@@ -201,20 +232,7 @@ def compute_boundary_f1(
     pred_boundaries: list[float],
     tolerance: float = 3.0,
 ) -> dict[str, float]:
-    """Compute Precision, Recall, F1 for boundary detection.
-
-    A predicted boundary is a true positive if there exists a ground-truth
-    boundary within ±tolerance seconds (each ground-truth boundary can
-    match at most one prediction).
-
-    Args:
-        true_boundaries: Ground-truth boundary times.
-        pred_boundaries: Predicted boundary times.
-        tolerance: Matching tolerance in seconds.
-
-    Returns:
-        Dict with precision, recall, f1.
-    """
+    """Compute Precision, Recall, F1 for boundary detection."""
     if len(pred_boundaries) == 0 and len(true_boundaries) == 0:
         return {"precision": 1.0, "recall": 1.0, "f1": 1.0}
     if len(pred_boundaries) == 0:
@@ -254,14 +272,7 @@ def metrics_to_csv(
     all_metrics: dict[str, dict[str, Any]],
     output_path: str | Path,
 ) -> None:
-    """Export metrics to CSV file.
-
-    Columns: head, class, precision, recall, f1, accuracy, macro_f1.
-
-    Args:
-        all_metrics: Output of evaluate_all_heads.
-        output_path: Path to CSV file.
-    """
+    """Export metrics to CSV file."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -291,14 +302,7 @@ def plot_confusion_matrix(
     title: str,
     output_path: str | Path,
 ) -> None:
-    """Plot and save a confusion matrix heatmap.
-
-    Args:
-        cm: Confusion matrix as list of lists.
-        class_names: Class labels for axes.
-        title: Plot title.
-        output_path: Path to save PNG.
-    """
+    """Plot and save a confusion matrix heatmap."""
     import matplotlib
 
     matplotlib.use("Agg")

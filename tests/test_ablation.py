@@ -61,14 +61,14 @@ def test_window_features_2d_backward_compat() -> None:
 def test_model_accepts_2_channels() -> None:
     model = CNNMultiTask(in_channels=2)
     x = torch.randn(2, 2, 128, 344)
-    seg, aro, val = model(x)
-    assert seg.shape == (2, 4)
-    assert aro.shape == (2, 3)
-    assert val.shape == (2, 3)
+    output = model(x)
+    assert output["segment"].shape == (2, 6)
+    assert output["arousal_cls"].shape == (2, 3)
+    assert output["valence_cls"].shape == (2, 3)
 
 
 def test_model_1_channel_default() -> None:
     model = CNNMultiTask()
     x = torch.randn(2, 1, 128, 344)
-    seg, aro, val = model(x)
-    assert seg.shape == (2, 4)
+    output = model(x)
+    assert output["segment"].shape == (2, 6)

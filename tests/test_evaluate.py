@@ -30,9 +30,11 @@ class FakeStructureDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx: int) -> dict:
         return {
             "x": torch.randn(1, 128, 344),
-            "y_seg": idx % 4,
+            "y_seg": idx % 6,
             "y_ar": None,
             "y_val": None,
+            "y_ar_cont": None,
+            "y_val_cont": None,
         }
 
 
@@ -97,8 +99,8 @@ def test_metrics_to_csv_creates_file(tmp_path: Path) -> None:
             "accuracy": 0.75,
             "macro_f1": 0.7,
             "per_class": {
-                "Calm": {"precision": 0.8, "recall": 0.7, "f1": 0.75},
-                "Climax": {"precision": 0.7, "recall": 0.8, "f1": 0.75},
+                "Intro": {"precision": 0.8, "recall": 0.7, "f1": 0.75},
+                "Chorus": {"precision": 0.7, "recall": 0.8, "f1": 0.75},
             },
             "confusion_matrix": [[7, 3], [2, 8]],
         },
@@ -174,13 +176,13 @@ def test_boundary_f1_empty_both() -> None:
 def test_evaluate_dataset_with_fake_model() -> None:
     from musicml.models import CNNMultiTask
 
-    model = CNNMultiTask()
+    model = CNNMultiTask(n_segment_classes=6)
     model.eval()
     dataset = FakeStructureDataset(size=16)
 
     metrics = evaluate_dataset(
         model, dataset, "segment",
-        ["Calm", "Build-up", "Climax", "Outro"],
+        ["Intro", "Verse", "Bridge", "Chorus", "Instrumental", "Outro"],
         device="cpu", batch_size=8,
     )
     assert "accuracy" in metrics

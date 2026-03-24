@@ -1,48 +1,52 @@
+# Config 4: PANNs pretrained embeddings + BiLSTM temporal model
+# Tests hypothesis: pretrained features + temporal context = best quality
+
+architecture: "panns_lstm"
+embedding_source: "panns_embeddings"  # subfolder name in data dirs
+sequence_mode: true
+
 audio:
   sr: 22050
   mono: true
 
 features:
-  mode: "log_mel"  # "log_mel" or "log_mel_chroma"
+  mode: "log_mel"
   n_fft: 2048
   hop_length: 512
   win_length: 2048
   n_mels: 128
   fmin: 30.0
-  fmax: null  # sr / 2
-  n_mfcc: 20
+  fmax: null
 
 windowing:
   window_seconds: 10.0
   hop_seconds: 1.0
 
 model:
-  in_channels: 1
+  embedding_dim: 2048       # PANNs CNN14 output dimension
+  projection_dim: 512       # projection layer
+  lstm_hidden: 256          # BiLSTM: 256*2 = 512 total
+  lstm_layers: 2
+  lstm_dropout: 0.3
+  head_dropout: 0.4
   n_segment_classes: 6
   n_arousal_classes: 3
   n_valence_classes: 3
-  dropout: 0.4
-  backbone_dropout: 0.25
+  n_genre_classes: 10
   enable_regression: true
-  n_genre_classes: 10    # 0 to disable
 
 training:
   seed: 42
-  lr: 1.0e-3
-  weight_decay: 5.0e-4
-  batch_size: 64
+  lr: 3.0e-4
+  weight_decay: 1.0e-4
+  batch_size: 16            # smaller batch for sequences
   epochs: 50
   early_stopping_patience: 15
-  scheduler: cosine_warm_restarts  # "cosine", "onecycle", or "cosine_warm_restarts"
-  loss_type: focal         # "cross_entropy" or "focal"
+  scheduler: onecycle
+  loss_type: focal
   focal_gamma: 1.5
-  mixup_alpha: 0.2         # 0.0 to disable
+  mixup_alpha: 0.0          # no mixup for sequences
   max_class_weight: 2.5
-
-spec_augment:
-  freq_mask: 27
-  time_mask: 60
-  n_masks: 2
 
 loss_weights:
   segment: 1.5

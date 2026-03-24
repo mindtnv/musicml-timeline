@@ -28,9 +28,9 @@ def cfg() -> dict:
 
 
 @pytest.fixture
-def fake_checkpoint(tmp_path: Path) -> Path:
+def fake_checkpoint(tmp_path: Path, cfg: dict) -> Path:
     """Save a random CNNMultiTask as a checkpoint."""
-    model = CNNMultiTask()
+    model = CNNMultiTask(**cfg["model"])
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     ckpt_path = tmp_path / "fake.pt"
     save_checkpoint(model, optimizer, None, epoch=0, metrics={}, path=ckpt_path)
@@ -55,10 +55,10 @@ def test_load_model(fake_checkpoint: Path, cfg: dict) -> None:
     model = load_model(fake_checkpoint, cfg["model"], device="cpu")
     assert not model.training
     x = torch.randn(1, 1, 128, 344)
-    seg, aro, val = model(x)
-    assert seg.shape == (1, 4)
-    assert aro.shape == (1, 3)
-    assert val.shape == (1, 3)
+    output = model(x)
+    assert output["segment"].shape == (1, 6)
+    assert output["arousal_cls"].shape == (1, 3)
+    assert output["valence_cls"].shape == (1, 3)
 
 
 def test_extract_features_shape(fake_audio: Path, cfg: dict) -> None:
@@ -90,7 +90,7 @@ def test_predict_windows_value_ranges(fake_checkpoint: Path, cfg: dict) -> None:
     windows = np.random.randn(5, 1, 128, 344).astype(np.float32)
     result = predict_windows(model, windows, "cpu")
 
-    for head, n_classes in [("segment", 4), ("arousal", 3), ("valence", 3)]:
+    for head, n_classes in [("segment", 6), ("arousal", 3), ("valence", 3)]:
         preds = result[head]["predictions"]
         probs = result[head]["probabilities"]
         assert np.all(preds >= 0)
@@ -101,7 +101,7 @@ def test_predict_windows_value_ranges(fake_checkpoint: Path, cfg: dict) -> None:
 
 def test_build_timeline_structure(cfg: dict) -> None:
     raw = {}
-    for head, n_cls in [("segment", 4), ("arousal", 3), ("valence", 3)]:
+    for head, n_cls in [("segment", 6), ("arousal", 3), ("valence", 3)]:
         raw[head] = {
             "predictions": np.random.randint(0, n_cls, size=20),
             "probabilities": np.random.rand(20),
@@ -125,7 +125,10 @@ def test_build_timeline_structure(cfg: dict) -> None:
 def test_run_inference_end_to_end(
     fake_audio: Path, fake_checkpoint: Path, cfg: dict
 ) -> None:
-    timeline = run_inference(fake_audio, fake_checkpoint, cfg, device="cpu")
+    timeline = run_inference(
+        fake_audio, fake_checkpoint, cfg, device="cpu",
+        include_audio_features=False,
+    )
 
     assert "metadata" in timeline
     assert "segment" in timeline
@@ -138,8 +141,8 @@ def test_plot_timeline_creates_file(tmp_path: Path, cfg: dict) -> None:
     timeline = {
         "metadata": {"duration_sec": 30.0, "window_seconds": 8.0, "hop_seconds": 1.0},
         "segment": [
-            {"start": 0, "end": 10, "label": "Calm", "confidence": 0.9},
-            {"start": 10, "end": 30, "label": "Climax", "confidence": 0.8},
+            {"start": 0, "end": 10, "label": "Intro", "confidence": 0.9},
+            {"start": 10, "end": 30, "label": "Chorus", "confidence": 0.8},
         ],
         "arousal": [
             {"start": 0, "end": 30, "label": "Mid", "confidence": 0.7},
@@ -162,7 +165,7 @@ def test_predict_windows_all_probs(
     windows = np.random.randn(5, 1, 128, 344).astype(np.float32)
     result = predict_windows(model, windows, "cpu")
 
-    for head, n_classes in [("segment", 4), ("arousal", 3), ("valence", 3)]:
+    for head, n_classes in [("segment", 6), ("arousal", 3), ("valence", 3)]:
         all_probs = result[head]["all_probs"]
         assert all_probs.shape == (5, n_classes)
         # Each row sums to ~1
@@ -183,7 +186,7 @@ def test_frame_predictions_in_timeline(
     assert "valence_probs" in fp
     # Each entry is a list of lists
     assert len(fp["segment_probs"]) > 0
-    assert len(fp["segment_probs"][0]) == 4  # 4 segment classes
+    assert len(fp["segment_probs"][0]) == 6  # 6 segment classes
     assert len(fp["arousal_probs"][0]) == 3
     assert len(fp["valence_probs"][0]) == 3
 
@@ -191,7 +194,10 @@ def test_frame_predictions_in_timeline(
 def test_timeline_json_serializable(
     fake_audio: Path, fake_checkpoint: Path, cfg: dict,
 ) -> None:
-    timeline = run_inference(fake_audio, fake_checkpoint, cfg, device="cpu")
+    timeline = run_inference(
+        fake_audio, fake_checkpoint, cfg, device="cpu",
+        include_audio_features=False,
+    )
     serialized = json.dumps(timeline)
     assert isinstance(serialized, str)
     parsed = json.loads(serialized)

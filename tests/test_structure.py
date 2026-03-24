@@ -102,23 +102,25 @@ def test_getitem_shape(toy_structure: dict[str, Path]) -> None:
     assert x.ndim == 3  # (1, F, T)
     assert x.shape[0] == 1
     assert x.shape[1] == 128  # n_mels
-    assert sample["y_seg"] in (0, 1, 2, 3)
+    assert sample["y_seg"] in range(6)
     assert sample["y_ar"] is None
     assert sample["y_val"] is None
+    assert sample["y_ar_cont"] is None
+    assert sample["y_val_cont"] is None
 
 
 def test_map_label_known() -> None:
-    assert map_label("chorus") == "Climax"
-    assert map_label("Chorus") == "Climax"
-    assert map_label("intro") == "Calm"
-    assert map_label("verse") == "Calm"
-    assert map_label("bridge") == "Build-up"
+    assert map_label("chorus") == "Chorus"
+    assert map_label("Chorus") == "Chorus"
+    assert map_label("intro") == "Intro"
+    assert map_label("verse") == "Verse"
+    assert map_label("bridge") == "Bridge"
     assert map_label("outro") == "Outro"
 
 
 def test_map_label_unknown() -> None:
-    assert map_label("unknown") == "Calm"
-    assert map_label("weird_thing") == "Calm"
+    assert map_label("unknown") == "Verse"
+    assert map_label("weird_thing") == "Verse"
 
 
 def test_dominant_label_simple() -> None:
@@ -128,12 +130,12 @@ def test_dominant_label_simple() -> None:
         (10.0, 20.0, "chorus"),
         (20.0, 30.0, "outro"),
     ]
-    # Window fully inside intro → Calm
-    assert dominant_label(2.0, 8.0, intervals) == "Calm"
-    # Window fully inside chorus → Climax
-    assert dominant_label(12.0, 18.0, intervals) == "Climax"
-    # Window overlapping intro(3s) and chorus(5s) → Climax wins
-    assert dominant_label(7.0, 15.0, intervals) == "Climax"
+    # Window fully inside intro → Intro
+    assert dominant_label(2.0, 8.0, intervals) == "Intro"
+    # Window fully inside chorus → Chorus
+    assert dominant_label(12.0, 18.0, intervals) == "Chorus"
+    # Window overlapping intro(3s) and chorus(5s) → Chorus wins
+    assert dominant_label(7.0, 15.0, intervals) == "Chorus"
     # Window overlapping chorus(2s) and outro(6s) → Outro wins
     assert dominant_label(18.0, 26.0, intervals) == "Outro"
 

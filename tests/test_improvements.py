@@ -107,7 +107,7 @@ def test_cnn_gap_produces_256_features() -> None:
     # Access internal features
     features = model.backbone(x)
     pooled = model.gap(features).flatten(1)
-    assert pooled.shape[1] == 256
+    assert pooled.shape[1] == 512
 
 
 # --- Per-head criterions ---
@@ -120,20 +120,20 @@ def test_compute_multitask_loss_with_dict_criterion() -> None:
 
     criterions = {
         "segment": nn.CrossEntropyLoss(ignore_index=-1),
-        "arousal": nn.CrossEntropyLoss(ignore_index=-1),
-        "valence": nn.CrossEntropyLoss(ignore_index=-1),
+        "arousal_cls": nn.CrossEntropyLoss(ignore_index=-1),
+        "valence_cls": nn.CrossEntropyLoss(ignore_index=-1),
     }
     batch = {
         "y_seg": None,
         "y_ar": torch.tensor([0, 1, 2, 0]),
         "y_val": torch.tensor([1, 1, 0, 2]),
     }
-    loss_weights = {"segment": 1.0, "arousal": 1.0, "valence": 1.0}
+    loss_weights = {"segment": 1.0, "arousal_cls": 1.0, "valence_cls": 1.0}
     total, details = compute_multitask_loss(logits, batch, loss_weights, criterions)
     assert total.item() > 0
     assert details["segment"] == 0.0
-    assert details["arousal"] > 0
-    assert details["valence"] > 0
+    assert details["arousal_cls"] > 0
+    assert details["valence_cls"] > 0
 
 
 def test_compute_multitask_loss_with_weighted_criterion() -> None:
@@ -144,15 +144,15 @@ def test_compute_multitask_loss_with_weighted_criterion() -> None:
     ar_weights = torch.tensor([1.0, 2.0, 1.5])
     criterions = {
         "segment": nn.CrossEntropyLoss(ignore_index=-1),
-        "arousal": nn.CrossEntropyLoss(weight=ar_weights, ignore_index=-1),
-        "valence": nn.CrossEntropyLoss(ignore_index=-1),
+        "arousal_cls": nn.CrossEntropyLoss(weight=ar_weights, ignore_index=-1),
+        "valence_cls": nn.CrossEntropyLoss(ignore_index=-1),
     }
     batch = {
         "y_seg": None,
         "y_ar": torch.tensor([0, 1, 2, 0]),
         "y_val": torch.tensor([1, 1, 0, 2]),
     }
-    loss_weights = {"segment": 1.0, "arousal": 1.0, "valence": 1.0}
+    loss_weights = {"segment": 1.0, "arousal_cls": 1.0, "valence_cls": 1.0}
     total, details = compute_multitask_loss(logits, batch, loss_weights, criterions)
     assert total.item() > 0
 
@@ -292,6 +292,8 @@ def test_train_epoch_with_scheduler() -> None:
                 "y_seg": None,
                 "y_ar": idx % 3,
                 "y_val": idx % 3,
+                "y_ar_cont": 4.0,
+                "y_val_cont": 3.5,
             }
 
     loader = RoundRobinLoader(
@@ -302,15 +304,15 @@ def test_train_epoch_with_scheduler() -> None:
 
     model = CNNMultiTask()
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(
-        optimizer, max_lr=3e-3, epochs=1, steps_per_epoch=len(loader),
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=10, eta_min=1e-6,
     )
     criterion = nn.CrossEntropyLoss(ignore_index=-1)
-    loss_weights = {"segment": 1.0, "arousal": 1.0, "valence": 1.0}
+    loss_weights = {"segment": 1.0, "arousal_cls": 1.0, "valence_cls": 1.0}
 
     metrics = train_epoch(
         model, loader, optimizer, criterion, loss_weights, "cpu",
-        scheduler=scheduler,
     )
+    scheduler.step()
     assert "loss" in metrics
     assert metrics["loss"] > 0

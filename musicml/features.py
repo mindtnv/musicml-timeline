@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 
 
@@ -81,6 +83,82 @@ def compute_rms(
     import librosa
 
     return librosa.feature.rms(y=y, hop_length=hop_length)
+
+
+def compute_spectral_centroid(
+    y: np.ndarray,
+    sr: int = 22050,
+    hop_length: int = 512,
+) -> np.ndarray:
+    """Compute spectral centroid. Returns array of shape (1, T)."""
+    import librosa
+
+    return librosa.feature.spectral_centroid(y=y, sr=sr, hop_length=hop_length)
+
+
+def compute_onset_strength(
+    y: np.ndarray,
+    sr: int = 22050,
+    hop_length: int = 512,
+) -> np.ndarray:
+    """Compute onset strength envelope. Returns array of shape (T,)."""
+    import librosa
+
+    return librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length)
+
+
+def estimate_tempo(
+    y: np.ndarray,
+    sr: int = 22050,
+    hop_length: int = 512,
+) -> float:
+    """Estimate tempo in BPM."""
+    import librosa
+
+    tempo = librosa.beat.tempo(y=y, sr=sr, hop_length=hop_length)
+    return float(tempo[0]) if hasattr(tempo, '__len__') else float(tempo)
+
+
+def estimate_key(
+    y: np.ndarray,
+    sr: int = 22050,
+) -> dict[str, Any]:
+    """Estimate musical key using Krumhansl-Schmuckler algorithm on chroma.
+
+    Returns dict with "key", "mode", and "confidence".
+    """
+    import librosa
+
+    chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+    chroma_avg = chroma.mean(axis=1)  # (12,)
+
+    # Krumhansl-Schmuckler key profiles
+    major_profile = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09,
+                              2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
+    minor_profile = np.array([6.33, 2.68, 3.52, 5.38, 2.60, 3.53,
+                              2.54, 4.75, 3.98, 2.69, 3.34, 3.17])
+
+    pitch_names = ["C", "C#", "D", "D#", "E", "F",
+                   "F#", "G", "G#", "A", "A#", "B"]
+
+    best_corr = -2.0
+    best_key = "C"
+    best_mode = "major"
+
+    for shift in range(12):
+        rotated = np.roll(chroma_avg, -shift)
+        for profile, mode in [(major_profile, "major"), (minor_profile, "minor")]:
+            corr = float(np.corrcoef(rotated, profile)[0, 1])
+            if corr > best_corr:
+                best_corr = corr
+                best_key = pitch_names[shift]
+                best_mode = mode
+
+    return {
+        "key": best_key,
+        "mode": best_mode,
+        "confidence": round(best_corr, 4),
+    }
 
 
 def compute_features(

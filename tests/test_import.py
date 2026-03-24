@@ -45,4 +45,12 @@ def test_import_datasets():
     assert hasattr(deam, "DEAMDataset")
     assert hasattr(structure, "SEGMENT_CLASSES")
     assert hasattr(structure, "LABEL_MAP")
-    assert len(structure.SEGMENT_CLASSES) == 4
+    assert len(structure.SEGMENT_CLASSES) == 6
+
+
+def test_import_gtzan_dataset():
+    from musicml.datasets import gtzan
+
+    assert hasattr(gtzan, "GTZANDataset")
+    assert hasattr(gtzan, "GENRE_CLASSES")
+    assert len(gtzan.GENRE_CLASSES) == 10

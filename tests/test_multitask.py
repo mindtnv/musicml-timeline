@@ -23,6 +23,9 @@ class FakeDeamDataset(torch.utils.data.Dataset):
             "y_seg": None,
             "y_ar": idx % 3,
             "y_val": idx % 3,
+            "y_ar_cont": 4.0 + (idx % 3) * 0.5,
+            "y_val_cont": 3.0 + (idx % 3) * 0.5,
+            "y_genre": None,
         }
 
 
@@ -38,9 +41,31 @@ class FakeStructureDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx: int) -> dict:
         return {
             "x": torch.randn(1, 128, 344),
-            "y_seg": idx % 4,
+            "y_seg": idx % 6,
             "y_ar": None,
             "y_val": None,
+            "y_ar_cont": None,
+            "y_val_cont": None,
+            "y_genre": None,
+        }
+
+
+class FakeGTZANDataset(torch.utils.data.Dataset):
+    def __init__(self, size=8):
+        self.size = size
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        return {
+            "x": torch.randn(1, 128, 344),
+            "y_genre": idx % 10,
+            "y_seg": None,
+            "y_ar": None,
+            "y_val": None,
+            "y_ar_cont": None,
+            "y_val_cont": None,
         }
 
 
@@ -54,6 +79,8 @@ def test_collate_deam_batch() -> None:
     assert isinstance(collated["y_ar"], torch.Tensor)
     assert isinstance(collated["y_val"], torch.Tensor)
     assert collated["y_ar"].shape == (4,)
+    assert isinstance(collated["y_ar_cont"], torch.Tensor)
+    assert isinstance(collated["y_val_cont"], torch.Tensor)
 
 
 def test_collate_structure_batch() -> None:
@@ -66,6 +93,8 @@ def test_collate_structure_batch() -> None:
     assert collated["y_seg"].shape == (4,)
     assert collated["y_ar"] is None
     assert collated["y_val"] is None
+    assert collated["y_ar_cont"] is None
+    assert collated["y_val_cont"] is None
 
 
 def test_round_robin_alternates() -> None:
@@ -107,7 +136,7 @@ def test_round_robin_cycles_shorter() -> None:
 
 
 def test_round_robin_len() -> None:
-    """__len__ should return sum of individual loader lengths."""
+    """__len__ should return max(loader_lens) * n_loaders."""
     ds1 = FakeDeamDataset(size=4)
     ds2 = FakeStructureDataset(size=6)
     loader1 = torch.utils.data.DataLoader(
@@ -117,4 +146,19 @@ def test_round_robin_len() -> None:
         ds2, batch_size=2, collate_fn=collate_multitask,
     )
     rr = RoundRobinLoader(loader1, loader2)
-    assert len(rr) == 5  # 2 + 3
+    assert len(rr) == 6  # max(2, 3) * 2
+
+
+def test_collate_with_genre():
+    from musicml.datasets.multitask import collate_multitask
+    sample = {
+        "y_seg": None, "y_ar": None, "y_val": None,
+        "y_ar_cont": None, "y_val_cont": None,
+    }
+    batch = [
+        {"x": torch.randn(1, 128, 344), "y_genre": 3, **sample},
+        {"x": torch.randn(1, 128, 344), "y_genre": 7, **sample},
+    ]
+    result = collate_multitask(batch)
+    assert result["y_genre"].tolist() == [3, 7]
+    assert result["y_seg"] is None

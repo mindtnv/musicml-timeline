@@ -1,107 +1,34 @@
-"""Structure segmentation dataset (Harmonix Set).
+"""GTZAN dataset for genre classification.
 
-Loads pre-computed log-mel features and mapped segment labels
-derived from boundary annotations.
+Loads audio files, computes log-mel spectrograms on-the-fly,
+and returns windowed features with genre labels (track-level).
 """
 
 from __future__ import annotations
 
+import json
 import random
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-SEGMENT_CLASSES = ["Intro", "Verse", "Bridge", "Chorus", "Instrumental", "Outro"]
-
-LABEL_MAP: dict[str, str] = {
-    "intro": "Intro",
-    "verse": "Verse",
-    "break": "Verse",
-    "interlude": "Verse",
-    "bridge": "Bridge",
-    "pre-chorus": "Bridge",
-    "prechorus": "Bridge",
-    "build": "Bridge",
-    "transition": "Bridge",
-    "chorus": "Chorus",
-    "drop": "Chorus",
-    "inst": "Instrumental",
-    "solo": "Instrumental",
-    "outro": "Outro",
-    "ending": "Outro",
-}
-
-DEFAULT_SEGMENT = "Verse"
+GENRE_CLASSES = [
+    "blues", "classical", "country", "disco", "hiphop",
+    "jazz", "metal", "pop", "reggae", "rock",
+]
 
 
-def map_label(raw_label: str) -> str:
-    """Map a raw annotation label to one of SEGMENT_CLASSES."""
-    return LABEL_MAP.get(raw_label.lower().strip(), DEFAULT_SEGMENT)
+class GTZANDataset:
+    """Dataset for GTZAN genre classification.
 
-
-def parse_annotations(annotation_path: Path) -> list[tuple[float, str]]:
-    """Parse a Harmonix annotation file (TSV or space-separated)."""
-    entries: list[tuple[float, str]] = []
-    with open(annotation_path, encoding="utf-8", errors="replace") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            parts = line.split("\t") if "\t" in line else line.split(None, 1)
-            if len(parts) < 2:
-                continue
-            try:
-                time_sec = float(parts[0])
-            except ValueError:
-                continue
-            label = parts[1].strip()
-            entries.append((time_sec, label))
-    entries.sort(key=lambda e: e[0])
-    return entries
-
-
-def boundaries_to_intervals(
-    entries: list[tuple[float, str]],
-) -> list[tuple[float, float, str]]:
-    """Convert boundary list to intervals [(start, end, label), ...]."""
-    intervals: list[tuple[float, float, str]] = []
-    for i in range(len(entries)):
-        start = entries[i][0]
-        label = entries[i][1]
-        if i + 1 < len(entries):
-            end = entries[i + 1][0]
-        else:
-            end = start
-        intervals.append((start, end, label))
-    return intervals
-
-
-def dominant_label(
-    window_start: float,
-    window_end: float,
-    intervals: list[tuple[float, float, str]],
-) -> str:
-    """Find the label with maximum overlap in the given window."""
-    overlap: dict[str, float] = {}
-    for seg_start, seg_end, raw_label in intervals:
-        ov_start = max(window_start, seg_start)
-        ov_end = min(window_end, seg_end)
-        if ov_end > ov_start:
-            mapped = map_label(raw_label)
-            overlap[mapped] = overlap.get(mapped, 0.0) + (ov_end - ov_start)
-
-    if not overlap:
-        return DEFAULT_SEGMENT
-    return max(overlap, key=overlap.get)
-
-
-class StructureDataset:
-    """Dataset for structure segmentation annotations."""
+    Each sample is a fixed-length window of log-mel spectrogram features
+    with a genre label inherited from the track-level annotation.
+    """
 
     def __init__(
         self,
-        annotations_dir: str | Path,
+        genre_map_json: str | Path,
         audio_dir: str | Path | None = None,
         feature_cache_dir: str | Path | None = None,
         track_ids: list[str] | None = None,
@@ -114,20 +41,19 @@ class StructureDataset:
         stats_path: str | Path | None = None,
         spec_augment: dict | None = None,
     ) -> None:
-        self.annotations_dir = Path(annotations_dir)
-        self.audio_dir = Path(audio_dir) if audio_dir else None
-        self.feature_cache_dir = (
-            Path(feature_cache_dir) if feature_cache_dir else None
-        )
         self.sr = sr
         self.hop_length = hop_length
         self.n_mels = n_mels
         self.window_seconds = window_seconds
         self.hop_seconds = hop_seconds
-        self.training = training
         self.spec_augment = spec_augment or {
             "freq_mask": 15, "time_mask": 25, "n_masks": 2,
         }
+        self.audio_dir = Path(audio_dir) if audio_dir else None
+        self.feature_cache_dir = (
+            Path(feature_cache_dir) if feature_cache_dir else None
+        )
+        self.training = training
 
         self.frames_per_sec = sr / hop_length
         self.window_frames = int(window_seconds * self.frames_per_sec)
@@ -141,18 +67,25 @@ class StructureDataset:
             self.feat_mean = stats["mean"]  # (n_mels, 1)
             self.feat_std = stats["std"]    # (n_mels, 1)
 
-        available_ids = self._discover_track_ids()
+        # Load genre map
+        with open(genre_map_json, encoding="utf-8") as f:
+            self.genre_map: dict[str, int] = json.load(f)
+
+        # Filter to requested track_ids if provided
         if track_ids is not None:
-            available_ids = [t for t in available_ids if t in set(track_ids)]
+            self.genre_map = {
+                tid: idx for tid, idx in self.genre_map.items()
+                if tid in set(track_ids)
+            }
 
         # Filter to tracks that have pre-computed features
         if self.feature_cache_dir is not None:
-            before = len(available_ids)
-            available_ids = [
-                t for t in available_ids
-                if (self.feature_cache_dir / f"{t}.npz").exists()
-            ]
-            skipped = before - len(available_ids)
+            before = len(self.genre_map)
+            self.genre_map = {
+                tid: idx for tid, idx in self.genre_map.items()
+                if (self.feature_cache_dir / f"{tid}.npz").exists()
+            }
+            skipped = before - len(self.genre_map)
             if skipped > 0:
                 import warnings
                 warnings.warn(
@@ -161,54 +94,33 @@ class StructureDataset:
 
         self._feature_cache: dict[str, np.ndarray] = {}
 
-        self.samples = self._build_samples(available_ids)
+        self.samples = self._build_samples()
 
         # Preload all features into RAM
         self._preload_features()
 
-    def _discover_track_ids(self) -> list[str]:
-        """Discover track IDs from annotation files (.tsv or .txt)."""
-        ids = []
-        for path in sorted(self.annotations_dir.iterdir()):
-            if path.suffix in (".tsv", ".txt"):
-                ids.append(path.stem)
-        return ids
+    def _build_samples(self) -> list[dict[str, Any]]:
+        """Build list of windowed samples with genre labels.
 
-    def _find_annotation(self, track_id: str) -> Path | None:
-        """Find annotation file for a track (supports .tsv and .txt)."""
-        for ext in (".tsv", ".txt"):
-            path = self.annotations_dir / f"{track_id}{ext}"
-            if path.exists():
-                return path
-        return None
-
-    def _build_samples(self, track_ids: list[str]) -> list[dict[str, Any]]:
-        """Build list of windowed samples from annotations."""
+        For each track, compute the number of windows from the feature
+        duration. Every window inherits the track-level genre label.
+        """
         samples: list[dict[str, Any]] = []
 
-        for track_id in track_ids:
-            ann_path = self._find_annotation(track_id)
-            if ann_path is None:
-                continue
-            entries = parse_annotations(ann_path)
-            if len(entries) < 2:
-                continue
+        for track_id in sorted(self.genre_map.keys()):
+            genre_idx = self.genre_map[track_id]
 
-            intervals = boundaries_to_intervals(entries)
-            duration = entries[-1][0]
-            if duration <= 0:
-                continue
+            # Load features to determine duration
+            features = self._load_features(track_id)
+            total_frames = features.shape[1]
+            duration_sec = total_frames / self.frames_per_sec
 
             start = 0.0
-            while start + self.window_seconds <= duration + 1e-6:
-                window_end = start + self.window_seconds
-                label = dominant_label(start, window_end, intervals)
-                y_seg = SEGMENT_CLASSES.index(label)
-
+            while start + self.window_seconds <= duration_sec + 1e-6:
                 samples.append({
                     "track_id": track_id,
                     "window_start_sec": start,
-                    "y_seg": y_seg,
+                    "y_genre": genre_idx,
                 })
                 start += self.hop_seconds
 
@@ -239,17 +151,8 @@ class StructureDataset:
         track_id = sample["track_id"]
         start_sec = sample["window_start_sec"]
 
-        # Temporal jitter: ±1s random shift during training
-        if self.training:
-            jitter = random.uniform(-1.0, 1.0)
-            start_sec = max(0.0, start_sec + jitter)
-
         features = self._load_features(track_id)
         start_frame = int(start_sec * self.frames_per_sec)
-        end_frame = start_frame + self.window_frames
-
-        # Clamp start_frame to valid range
-        start_frame = min(start_frame, max(features.shape[1] - 1, 0))
         end_frame = start_frame + self.window_frames
 
         if end_frame <= features.shape[1]:
@@ -271,7 +174,8 @@ class StructureDataset:
 
         return {
             "x": x,
-            "y_seg": sample["y_seg"],
+            "y_genre": sample["y_genre"],
+            "y_seg": None,
             "y_ar": None,
             "y_val": None,
             "y_ar_cont": None,
@@ -309,11 +213,21 @@ class StructureDataset:
         log_mel = compute_log_mel(
             y, sr=sr, hop_length=self.hop_length, n_mels=self.n_mels,
         )
+        self._feature_cache[track_id] = log_mel
         return log_mel
 
     def _find_audio(self, track_id: str) -> Path:
-        """Find audio file for a track_id in audio_dir."""
+        """Find audio file for a track_id in audio_dir.
+
+        GTZAN structure: {genre}/{genre}.{number}.wav
+        where track_id = "{genre}.{number}" (e.g. "blues.00000").
+        """
         assert self.audio_dir is not None
+        genre = track_id.split(".")[0]
+        candidate = self.audio_dir / genre / f"{track_id}.wav"
+        if candidate.exists():
+            return candidate
+        # Fallback: search directly in audio_dir
         for ext in (".wav", ".mp3", ".flac", ".ogg"):
             candidate = self.audio_dir / f"{track_id}{ext}"
             if candidate.exists():
