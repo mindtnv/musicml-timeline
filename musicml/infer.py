@@ -52,8 +52,13 @@ def load_model(
 def extract_features(
     audio_path: str | Path,
     cfg: dict[str, Any],
+    stats_path: str | Path | None = None,
 ) -> tuple[np.ndarray, float]:
     """Extract windowed features from an audio file.
+
+    Args:
+        stats_path: Path to stats.npz with mean/std for normalization.
+            If None, attempts to find stats in default data directories.
 
     Returns:
         (windows, duration_sec) where windows has shape (N, C, F, W).
@@ -78,6 +83,21 @@ def extract_features(
         fmin=feat_cfg["fmin"],
         fmax=feat_cfg.get("fmax"),
     )
+
+    # Normalize features using training set statistics
+    if stats_path is None:
+        for candidate in ["data/deam/features/stats.npz",
+                          "data/gtzan/features/stats.npz",
+                          "data/structure/features/stats.npz"]:
+            if Path(candidate).exists():
+                stats_path = candidate
+                break
+    if stats_path is not None:
+        stats = np.load(stats_path)
+        feat_mean = stats["mean"]  # (n_mels, 1)
+        feat_std = stats["std"]    # (n_mels, 1)
+        feat_std = np.where(feat_std < 1e-6, 1.0, feat_std)
+        feats = (feats - feat_mean) / feat_std
 
     windows = window_features(
         feats,
