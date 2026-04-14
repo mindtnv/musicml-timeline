@@ -473,6 +473,14 @@ def build_timeline(
             min_duration=post_cfg["min_segment_duration"],
             class_names=class_names_map[head_name],
         )
+        # Extend last segment to full audio duration
+        if segments and segments[-1].end < audio_duration:
+            segments[-1] = type(segments[-1])(
+                start=segments[-1].start,
+                end=round(audio_duration, 1),
+                label=segments[-1].label,
+                confidence=segments[-1].confidence,
+            )
         timeline[head_name] = [asdict(seg) for seg in segments]
 
         all_probs = head_data.get("all_probs")
@@ -482,13 +490,16 @@ def build_timeline(
                 for row in all_probs
             ]
 
-    # Regression curves
+    # Regression curves — pad to full duration
+    expected_frames = int(audio_duration / hop_seconds) + 1
     for reg_key in ("arousal_reg", "valence_reg"):
         reg_data = raw_predictions.get(reg_key)
         if reg_data is not None:
-            frame_predictions[reg_key] = [
-                round(float(v), 4) for v in reg_data
-            ]
+            values = [round(float(v), 4) for v in reg_data]
+            # Pad with last value to cover full duration
+            while len(values) < expected_frames:
+                values.append(values[-1] if values else 0.0)
+            frame_predictions[reg_key] = values
 
     timeline["frame_predictions"] = frame_predictions
 
