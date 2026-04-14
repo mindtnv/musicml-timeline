@@ -45,7 +45,7 @@ function TrackCard() {
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load track");
+      setError(err instanceof Error ? err.message : "Не удалось загрузить трек");
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ function TrackCard() {
 
   const handleDelete = useCallback(async () => {
     if (!id || deleting) return;
-    if (!window.confirm("Delete this track?")) return;
+    if (!window.confirm("Удалить этот трек?")) return;
     setDeleting(true);
     try {
       await deleteTrack(id);
@@ -88,7 +88,7 @@ function TrackCard() {
   );
 
   if (loading) {
-    return <LoadingState message="Loading track..." />;
+    return <LoadingState message="Загрузка трека..." />;
   }
 
   if (error) {
@@ -96,7 +96,7 @@ function TrackCard() {
       <div className="error-state">
         <p className="error-message">{error}</p>
         <button className="btn btn-secondary" onClick={() => navigate("/")}>
-          Back to list
+          К списку
         </button>
       </div>
     );
@@ -105,9 +105,9 @@ function TrackCard() {
   if (!track) {
     return (
       <div className="error-state">
-        <p className="error-message">Track not found.</p>
+        <p className="error-message">Трек не найден.</p>
         <button className="btn btn-secondary" onClick={() => navigate("/")}>
-          Back to list
+          К списку
         </button>
       </div>
     );
@@ -124,14 +124,14 @@ function TrackCard() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
           </svg>
-          Back to list
+          К списку
         </button>
         <button
           className="btn btn-danger"
           onClick={handleDelete}
           disabled={deleting}
         >
-          {deleting ? "Deleting..." : "Delete"}
+          {deleting ? "Удаление..." : "Удалить"}
         </button>
       </div>
 
@@ -144,12 +144,12 @@ function TrackCard() {
 
       {/* Loading / Error states */}
       {(track.status === "analyzing" || track.status === "pending") && (
-        <LoadingState message="Analyzing audio... This may take a moment." />
+        <LoadingState message="Анализ аудио... Это может занять некоторое время." />
       )}
 
       {track.status === "error" && (
         <div className="analysis-error">
-          <p className="error-message">Analysis failed: {track.error || "Unknown error"}</p>
+          <p className="error-message">Ошибка анализа: {track.error || "Неизвестная ошибка"}</p>
         </div>
       )}
 
@@ -167,7 +167,7 @@ function TrackCard() {
       {/* Timelines */}
       {track.status === "ready" && tl && (
         <div className="track-card-section fade-in">
-          <h3 className="section-title">Timeline</h3>
+          <h3 className="section-title">Таймлайн</h3>
           <div className="timeline-container">
             {tl.segment && tl.segment.length > 0 && (
               <Timeline
@@ -175,7 +175,7 @@ function TrackCard() {
                 duration={dur}
                 currentTime={smoothTime}
                 colorMap={SEGMENT_COLORS}
-                label="Structure"
+                label="Структура"
                 onSeek={handleSeek}
               />
             )}
@@ -185,7 +185,7 @@ function TrackCard() {
                 duration={dur}
                 currentTime={smoothTime}
                 colorMap={AROUSAL_COLORS}
-                label="Arousal"
+                label="Энергия"
                 onSeek={handleSeek}
               />
             )}
@@ -195,7 +195,7 @@ function TrackCard() {
                 duration={dur}
                 currentTime={smoothTime}
                 colorMap={VALENCE_COLORS}
-                label="Valence"
+                label="Настроение"
                 onSeek={handleSeek}
               />
             )}
@@ -205,7 +205,7 @@ function TrackCard() {
                 duration={dur}
                 currentTime={smoothTime}
                 colorMap={GENRE_COLORS}
-                label="Genre"
+                label="Жанр"
                 onSeek={handleSeek}
               />
             )}

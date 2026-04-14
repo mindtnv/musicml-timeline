@@ -28,7 +28,7 @@ function AudioPlayer({ src, player }: AudioPlayerProps) {
     <div className="audio-player">
       <audio ref={audioRef} src={src} preload="metadata" />
 
-      <button className="play-btn" onClick={toggle} aria-label={isPlaying ? "Pause" : "Play"}>
+      <button className="play-btn" onClick={toggle} aria-label={isPlaying ? "Пауза" : "Воспроизвести"}>
         {isPlaying ? (
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <rect x="6" y="4" width="4" height="16" rx="1" />

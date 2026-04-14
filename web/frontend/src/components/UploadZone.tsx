@@ -32,7 +32,7 @@ function UploadZone() {
   const handleFile = useCallback((file: File) => {
     setError(null);
     if (!isAudioFile(file)) {
-      setError("Please select an audio file (MP3, WAV, FLAC, OGG).");
+      setError("Выберите аудиофайл (MP3, WAV, FLAC, OGG).");
       return;
     }
     setSelectedFile(file);
@@ -108,7 +108,7 @@ function UploadZone() {
         {uploading ? (
           <div className="upload-zone-uploading">
             <div className="spinner" />
-            <p>Uploading and starting analysis...</p>
+            <p>Загрузка и запуск анализа...</p>
           </div>
         ) : selectedFile ? (
           <div className="upload-zone-selected">
@@ -121,10 +121,10 @@ function UploadZone() {
             </p>
             <div className="upload-actions">
               <button className="btn btn-primary" onClick={handleUpload}>
-                Upload &amp; Analyze
+                Загрузить и анализировать
               </button>
               <button className="btn btn-secondary" onClick={handleClear}>
-                Clear
+                Очистить
               </button>
             </div>
           </div>
@@ -134,7 +134,7 @@ function UploadZone() {
               <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
             </svg>
             <p className="upload-prompt">
-              Drag &amp; drop an audio file here, or click to browse
+              Перетащите аудиофайл сюда или нажмите для выбора
             </p>
             <p className="upload-hint">MP3, WAV, FLAC, OGG</p>
           </div>

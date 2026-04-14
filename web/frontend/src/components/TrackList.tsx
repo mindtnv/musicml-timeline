@@ -23,13 +23,13 @@ function statusBadgeClass(status: Track["status"]): string {
 function statusLabel(status: Track["status"]): string {
   switch (status) {
     case "ready":
-      return "Ready";
+      return "Готов";
     case "analyzing":
-      return "Analyzing...";
+      return "Анализ...";
     case "error":
-      return "Error";
+      return "Ошибка";
     default:
-      return "Pending";
+      return "Ожидание";
   }
 }
 
@@ -89,14 +89,14 @@ function TrackListPage() {
       <UploadZone />
 
       {loading && tracks.length === 0 && (
-        <LoadingState message="Loading tracks..." />
+        <LoadingState message="Загрузка треков..." />
       )}
 
       {error && <p className="error-message">{error}</p>}
 
       {!loading && tracks.length === 0 && !error && (
         <div className="empty-state">
-          <p>No tracks yet. Upload an audio file to get started.</p>
+          <p>Треков пока нет. Загрузите аудиофайл, чтобы начать.</p>
         </div>
       )}
 

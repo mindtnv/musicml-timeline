@@ -3,7 +3,7 @@ interface LoadingStateProps {
   progress?: number;
 }
 
-function LoadingState({ message = "Analyzing audio...", progress }: LoadingStateProps) {
+function LoadingState({ message = "Анализ аудио...", progress }: LoadingStateProps) {
   return (
     <div className="loading-state">
       <div className="spinner" />

@@ -150,15 +150,15 @@ function EmotionCurves({
   return (
     <div className="emotion-curves">
       <div className="emotion-curves-header">
-        <h3 className="section-title">Emotion Curves</h3>
+        <h3 className="section-title">Кривые эмоций</h3>
         <div className="emotion-curves-legend">
           <span className="legend-item">
             <span className="legend-dot" style={{ background: AROUSAL_COLOR }} />
-            Arousal
+            Энергия (arousal)
           </span>
           <span className="legend-item">
             <span className="legend-dot" style={{ background: VALENCE_COLOR }} />
-            Valence
+            Настроение (valence)
           </span>
         </div>
       </div>

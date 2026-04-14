@@ -10,7 +10,7 @@ function App() {
           <a href="/" className="app-logo-link">
             <h1 className="app-title">MusicML Timeline</h1>
           </a>
-          <p className="app-subtitle">AI-powered music analysis</p>
+          <p className="app-subtitle">Анализ музыкальных композиций на основе ИИ</p>
         </header>
         <main className="app-main">
           <Routes>
