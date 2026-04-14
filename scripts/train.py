@@ -711,10 +711,12 @@ def main() -> None:
             ncols=100,
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
         )
+        grad_accum = cfg.get("training", {}).get("grad_accumulation_steps", 1)
         train_metrics = train_epoch(
             model, train_pbar, optimizer, criterions, loss_weights, device,
             scheduler=scheduler if step_scheduler_per_batch else None,
             mixup_alpha=mixup_alpha,
+            grad_accumulation_steps=grad_accum,
         )
 
         val_pbar = ProgressLoader(

@@ -18,11 +18,11 @@ features:
 
 windowing:
   window_seconds: 10.0
-  hop_seconds: 5.0              # increased from 1.0 to reduce training time (5x fewer samples)
+  hop_seconds: 1.0              # full resolution for proper fine-tuning
 
 model:
   pretrained_model: "MIT/ast-finetuned-audioset-10-10-0.4593"
-  freeze_layers: 10           # freeze first 10 of 12 transformer layers
+  freeze_layers: 8            # freeze first 8 of 12 transformer layers (4 unfrozen for better adaptation)
   hidden_dim: 768             # AST output dimension
   shared_fc_dim: 256          # projection before heads
   dropout: 0.3                # less dropout for pretrained model
@@ -37,9 +37,10 @@ training:
   lr: 5.0e-5                  # low LR for pretrained backbone
   lr_head: 1.0e-3             # high LR for heads (differential)
   weight_decay: 0.01
-  batch_size: 48              # larger batch to reduce training time
-  epochs: 10                  # pretrained converges fast with 5s hop
-  early_stopping_patience: 4
+  batch_size: 16              # smaller batch, use grad accumulation for effective batch=64
+  grad_accumulation_steps: 4  # effective batch = 16*4 = 64
+  epochs: 8                   # sufficient with full data (hop=1.0)
+  early_stopping_patience: 3
   scheduler: cosine_warm_restarts
   loss_type: focal
   focal_gamma: 1.5

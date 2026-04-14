@@ -195,10 +195,12 @@ def train_epoch(
     scheduler=None,
     max_grad_norm: float = 1.0,
     mixup_alpha: float = 0.0,
+    grad_accumulation_steps: int = 1,
 ) -> dict[str, Any]:
     """Run one training epoch.
 
     Returns dict with loss, per-head losses, and per-head accuracies.
+    Supports gradient accumulation via grad_accumulation_steps.
     """
     model.train()
     total_loss = 0.0
@@ -210,6 +212,7 @@ def train_epoch(
     head_acc_sums: dict[str, float] = {k: 0.0 for k in cls_keys}
     head_acc_counts: dict[str, int] = {k: 0 for k in cls_keys}
     n_batches = 0
+    optimizer.zero_grad(set_to_none=True)
 
     for batch in loader:
         x = batch["x"].to(device, non_blocking=True)
@@ -251,13 +254,15 @@ def train_epoch(
                 logits, batch, loss_weights, criterion,
             )
 
-        optimizer.zero_grad(set_to_none=True)
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=max_grad_norm)
-        optimizer.step()
+        scaled_loss = loss / grad_accumulation_steps
+        scaled_loss.backward()
 
-        if scheduler is not None:
-            scheduler.step()
+        if (n_batches + 1) % grad_accumulation_steps == 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=max_grad_norm)
+            optimizer.step()
+            optimizer.zero_grad(set_to_none=True)
+            if scheduler is not None:
+                scheduler.step()
 
         total_loss += loss.item()
         for k in head_losses:
