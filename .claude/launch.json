@@ -1,0 +1,25 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ml-api",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["scripts/serve_ml.py", "--ckpt", "checkpoints/last.pt", "--config", "configs/default.yaml", "--port", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "web/backend",
+      "port": 3000
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "web/frontend",
+      "port": 5173
+    }
+  ]
+}
