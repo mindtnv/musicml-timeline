@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import type { TimelineSegment } from "../api/types";
 import { formatTime } from "../utils/formatTime";
+import { ru } from "../utils/labels";
 
 interface TimelineProps {
   segments: TimelineSegment[];
@@ -70,8 +71,8 @@ function Timeline({
         ctx.textBaseline = "middle";
         const text =
           segW > 80
-            ? `${seg.label} (${(seg.confidence * 100).toFixed(0)}%)`
-            : seg.label;
+            ? `${ru(seg.label)} (${(seg.confidence * 100).toFixed(0)}%)`
+            : ru(seg.label);
         ctx.fillText(text, x1 + segW / 2, ROW_HEIGHT / 2, segW - 8);
       }
 
@@ -180,8 +181,8 @@ function Timeline({
               top: tooltip.y - 60,
             }}
           >
-            <strong>{tooltip.label}</strong>
-            <span>{(tooltip.confidence * 100).toFixed(1)}% confidence</span>
+            <strong>{ru(tooltip.label)}</strong>
+            <span>Уверенность: {(tooltip.confidence * 100).toFixed(1)}%</span>
             <span>
               {formatTime(tooltip.start)} - {formatTime(tooltip.end)}
             </span>

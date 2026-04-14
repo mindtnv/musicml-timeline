@@ -4,6 +4,7 @@ import type { Track } from "../api/types";
 import { fetchTracks } from "../api/client";
 import { getGenreColor } from "../utils/colors";
 import { formatTime } from "../utils/formatTime";
+import { ru } from "../utils/labels";
 import UploadZone from "./UploadZone";
 import LoadingState from "./LoadingState";
 
@@ -177,7 +178,7 @@ function TrackListPage() {
                           className="genre-mini-badge"
                           style={{ backgroundColor: getGenreColor(genre) }}
                         >
-                          {genre}
+                          {ru(genre)}
                         </span>
                       )}
 

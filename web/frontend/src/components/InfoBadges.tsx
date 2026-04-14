@@ -1,6 +1,7 @@
 import type { AudioFeatures, TimelineSegment } from "../api/types";
 import { getGenreColor } from "../utils/colors";
 import { formatTime } from "../utils/formatTime";
+import { ru } from "../utils/labels";
 
 interface InfoBadgesProps {
   duration: number;
@@ -23,7 +24,7 @@ function InfoBadges({ duration, audioFeatures, genreSegments }: InfoBadgesProps)
           style={{ backgroundColor: getGenreColor(topGenre.label), color: "#fff" }}
         >
           <span className="badge-label">Жанр</span>
-          <span className="badge-value">{topGenre.label}</span>
+          <span className="badge-value">{ru(topGenre.label)}</span>
         </div>
       )}
 

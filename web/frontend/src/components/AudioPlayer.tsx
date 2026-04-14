@@ -3,6 +3,7 @@ import type { AudioPlayerState } from "../hooks/useAudioPlayer";
 import type { TimelineSegment } from "../api/types";
 import { SEGMENT_COLORS, getSegmentColor } from "../utils/colors";
 import { formatTime } from "../utils/formatTime";
+import { ru } from "../utils/labels";
 
 interface AudioPlayerProps {
   src: string;
@@ -65,7 +66,7 @@ function AudioPlayer({ src, player, segments, duration: propDuration }: AudioPla
               className="player-segment-badge"
               style={{ backgroundColor: getSegmentColor(currentSegment.label) }}
             >
-              {currentSegment.label}
+              {ru(currentSegment.label)}
             </span>
           )}
         </div>
