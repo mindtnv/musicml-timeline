@@ -139,7 +139,12 @@ function TrackCard() {
 
       {/* Audio Player */}
       {track.status === "ready" && (
-        <AudioPlayer src={audioSrc} player={player} />
+        <AudioPlayer
+          src={audioSrc}
+          player={player}
+          segments={tl?.segment}
+          duration={dur}
+        />
       )}
 
       {/* Loading / Error states */}
