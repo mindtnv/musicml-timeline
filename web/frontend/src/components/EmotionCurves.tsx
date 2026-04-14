@@ -13,8 +13,8 @@ const CHART_HEIGHT = 180;
 const PADDING = { top: 20, right: 16, bottom: 24, left: 40 };
 const AROUSAL_COLOR = "#EF5350";
 const VALENCE_COLOR = "#7E57C2";
-const GRID_COLOR = "rgba(255,255,255,0.08)";
-const GRID_TEXT_COLOR = "rgba(255,255,255,0.35)";
+const GRID_COLOR = "rgba(0,0,0,0.06)";
+const GRID_TEXT_COLOR = "rgba(0,0,0,0.35)";
 const PLAYHEAD_COLOR = "#FF1744";
 const FONT = '11px "Segoe UI", system-ui, sans-serif';
 
@@ -49,7 +49,7 @@ function EmotionCurves({
     ctx.clearRect(0, 0, w, h);
 
     // Background
-    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillStyle = "#f8f9fb";
     ctx.fillRect(PADDING.left, PADDING.top, plotW, plotH);
 
     // Grid lines & labels
