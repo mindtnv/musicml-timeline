@@ -38,7 +38,7 @@ data/
 # Results figures
 results/figures/*.png
 results/figures/*.pdf
-results/plots/
+# results/plots/  # keep plots in repo for thesis
 
 # Jupyter
 .ipynb_checkpoints/
