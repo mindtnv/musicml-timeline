@@ -28,6 +28,56 @@ export async function uploadTrack(file: File): Promise<Track> {
   });
 }
 
+/**
+ * Upload with progress reporting via XHR. `onProgress(0..1)` fires as bytes are sent;
+ * it may also fire with `null` once the browser has finished sending and is waiting
+ * for the server response (analysis kickoff, disk write, etc.) — use that to switch
+ * the UI from a deterministic bar to an indeterminate "finalizing" state.
+ */
+export function uploadTrackWithProgress(
+  file: File,
+  onProgress: (ratio: number | null) => void,
+  signal?: AbortSignal,
+): Promise<Track> {
+  return new Promise<Track>((resolve, reject) => {
+    const form = new FormData();
+    form.append("file", file);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${BASE}/tracks`);
+    xhr.responseType = "text";
+
+    xhr.upload.addEventListener("progress", (e) => {
+      if (e.lengthComputable) onProgress(e.total > 0 ? e.loaded / e.total : 0);
+    });
+    xhr.upload.addEventListener("load", () => onProgress(null));
+
+    xhr.addEventListener("load", () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText) as Track);
+        } catch (err) {
+          reject(err instanceof Error ? err : new Error("Invalid server response"));
+        }
+      } else {
+        reject(new Error(`API ${xhr.status}: ${xhr.responseText || xhr.statusText}`));
+      }
+    });
+    xhr.addEventListener("error", () => reject(new Error("Сбой сети при загрузке")));
+    xhr.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
+
+    if (signal) {
+      if (signal.aborted) {
+        xhr.abort();
+        return;
+      }
+      signal.addEventListener("abort", () => xhr.abort(), { once: true });
+    }
+
+    xhr.send(form);
+  });
+}
+
 export async function analyzeTrack(id: string): Promise<Track> {
   return request<Track>(`/tracks/${encodeURIComponent(id)}/analyze`, {
     method: "POST",

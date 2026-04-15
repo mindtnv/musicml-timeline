@@ -26,8 +26,10 @@ function TrackCard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const audioSrc = id ? getAudioUrl(id) : "";
 
@@ -66,9 +68,30 @@ function TrackCard() {
     };
   }, [track?.status, loadTrack]);
 
+  const clearConfirmTimer = useCallback(() => {
+    if (confirmTimerRef.current) {
+      clearTimeout(confirmTimerRef.current);
+      confirmTimerRef.current = null;
+    }
+  }, []);
+
+  const requestDelete = useCallback(() => {
+    if (deleting) return;
+    setConfirmDelete(true);
+    clearConfirmTimer();
+    // Auto-dismiss the confirmation after 4s to prevent accidental clicks later
+    confirmTimerRef.current = setTimeout(() => setConfirmDelete(false), 4000);
+  }, [deleting, clearConfirmTimer]);
+
+  const cancelDelete = useCallback(() => {
+    clearConfirmTimer();
+    setConfirmDelete(false);
+  }, [clearConfirmTimer]);
+
   const handleDelete = useCallback(async () => {
     if (!id || deleting) return;
-    if (!window.confirm("Удалить этот трек?")) return;
+    clearConfirmTimer();
+    setConfirmDelete(false);
     setDeleting(true);
     try {
       await deleteTrack(id);
@@ -76,7 +99,20 @@ function TrackCard() {
     } catch {
       setDeleting(false);
     }
-  }, [id, deleting, navigate]);
+  }, [id, deleting, navigate, clearConfirmTimer]);
+
+  // Dismiss confirmation on Escape
+  useEffect(() => {
+    if (!confirmDelete) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") cancelDelete();
+    };
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [confirmDelete, cancelDelete]);
+
+  // Cleanup confirmation timer on unmount
+  useEffect(() => () => clearConfirmTimer(), [clearConfirmTimer]);
 
   // Keyboard shortcuts:
   //   Space              — play / pause
@@ -198,13 +234,36 @@ function TrackCard() {
         </div>
         <div className="dashboard-header-right">
           <ShortcutsHelp />
-          <button
-            className="btn btn-danger btn-sm"
-            onClick={handleDelete}
-            disabled={deleting}
-          >
-            {deleting ? "Удаление..." : "Удалить"}
-          </button>
+          {confirmDelete ? (
+            <div className="delete-confirm" role="group" aria-label="Подтвердите удаление">
+              <span className="delete-confirm-text">Удалить трек?</span>
+              <button
+                className="btn btn-danger btn-sm delete-confirm-yes"
+                onClick={handleDelete}
+                disabled={deleting}
+                autoFocus
+              >
+                {deleting ? "Удаление..." : "Да, удалить"}
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={cancelDelete}
+                disabled={deleting}
+                aria-label="Отменить"
+              >
+                Отмена
+              </button>
+            </div>
+          ) : (
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={requestDelete}
+              disabled={deleting}
+              title="Удалить трек"
+            >
+              Удалить
+            </button>
+          )}
         </div>
       </header>
 
