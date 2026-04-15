@@ -553,6 +553,15 @@ a:hover { color: var(--accent-light); }
   transform: translateY(-1px);
 }
 
+/* Mood-tinted left rail — gives the list a scannable emotional signature.
+   The rail is quiet at rest (thin sliver) and blooms on hover. */
+.track-preview-card--has-mood {
+  border-left-color: color-mix(in srgb, var(--track-mood) 45%, transparent);
+}
+.track-preview-card--has-mood:hover {
+  border-left-color: var(--track-mood);
+}
+
 .track-preview-icon {
   flex-shrink: 0;
   width: 36px; height: 36px;
@@ -562,6 +571,17 @@ a:hover { color: var(--accent-light); }
   background: var(--accent-bg);
   border-radius: 8px;
   color: var(--accent);
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+}
+
+/* Genre-tinted icon: subtle background wash + saturated glyph so the genre
+   reads instantly without shouting. */
+.track-preview-icon--tinted {
+  background: var(--track-tint-bg, var(--accent-bg));
+  color: var(--track-tint, var(--accent));
+}
+.track-preview-card:hover .track-preview-icon--tinted {
+  transform: scale(1.04);
 }
 
 .track-preview-info { flex: 1; min-width: 0; }
@@ -1064,6 +1084,32 @@ body:has(.dashboard-page) .app-container {
   border: 1px solid var(--dash-border);
   color: var(--dash-text-2);
   line-height: 1.45;
+  white-space: nowrap;
+}
+
+/* Solid variant (genre) carries the dominant hue; muted variant demotes
+   supporting metadata (duration/segment count) so the eye lands on
+   genre + mood first. */
+.dashboard-meta-pill--solid { letter-spacing: 0.01em; }
+.dashboard-meta-pill--muted {
+  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: transparent;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-color: transparent;
+}
+.dashboard-meta-pill--mood {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dashboard-meta-pill-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .btn-sm { padding: 6px 12px; font-size: 0.82rem; }

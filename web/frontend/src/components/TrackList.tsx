@@ -7,7 +7,7 @@ import { formatTime } from "../utils/formatTime";
 import { ru } from "../utils/labels";
 import UploadZone from "./UploadZone";
 import MiniStructureStrip from "./MiniStructureStrip";
-import MoodBadge from "./MoodBadge";
+import MoodBadge, { computeMood } from "./MoodBadge";
 import { TrackListSkeleton } from "./Skeleton";
 import { displayName } from "../utils/displayName";
 
@@ -250,15 +250,33 @@ function TrackListPage() {
               const dur = getDuration(track);
               const segments = track.timeline?.segment;
               const segCount = segments?.length ?? 0;
+              const mood = computeMood(track.timeline?.arousal, track.timeline?.valence);
+              const genreColor = genre ? getGenreColor(genre) : null;
+
+              // CSS variables drive the icon tint (genre) and the left rail
+              // (mood). When either is missing we fall back to the default
+              // accent tokens so cards still look intentional.
+              const cardStyle = {
+                ...(genreColor
+                  ? {
+                      ["--track-tint" as string]: genreColor,
+                      ["--track-tint-bg" as string]: `${genreColor}1a`,
+                    }
+                  : {}),
+                ...(mood ? { ["--track-mood" as string]: mood.color } : {}),
+              } as React.CSSProperties;
 
               return (
                 <div
                   key={track.id}
-                  className="track-preview-card"
+                  className={`track-preview-card${mood ? " track-preview-card--has-mood" : ""}`}
+                  style={cardStyle}
                   onClick={() => navigate(`/tracks/${track.id}`)}
                 >
-                  <div className="track-preview-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" opacity="0.5">
+                  <div
+                    className={`track-preview-icon${genreColor ? " track-preview-icon--tinted" : ""}`}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 3v10.55A4 4 0 1014 17V7h4V3h-6z" />
                     </svg>
                   </div>

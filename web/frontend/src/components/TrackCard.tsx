@@ -5,6 +5,7 @@ import { fetchTrack, deleteTrack, getAudioUrl } from "../api/client";
 import AudioPlayer from "./AudioPlayer";
 import LoadingState from "./LoadingState";
 import ShortcutsHelp from "./ShortcutsHelp";
+import { computeMood } from "./MoodBadge";
 import { DashboardSkeleton } from "./Skeleton";
 import { DashboardProvider } from "../dashboard/DashboardContext";
 import TimeAxis from "../dashboard/TimeAxis";
@@ -17,6 +18,7 @@ import SpectrogramPanel from "../dashboard/panels/SpectrogramPanel";
 import { getGenreColor } from "../utils/colors";
 import { ru } from "../utils/labels";
 import { displayName } from "../utils/displayName";
+import { formatTime } from "../utils/formatTime";
 
 function TrackCard() {
   const { id } = useParams<{ id: string }>();
@@ -191,6 +193,9 @@ function TrackCard() {
     ? tl.genre.reduce((best, seg) => (seg.confidence > best.confidence ? seg : best))
     : null;
 
+  const mood = computeMood(tl?.arousal, tl?.valence);
+  const segCount = tl?.segment?.length ?? 0;
+
   return (
     <div className="dashboard-page fade-in">
       {/* Sticky header */}
@@ -209,13 +214,34 @@ function TrackCard() {
             <div className="dashboard-meta">
               {topGenre && (
                 <span
-                  className="dashboard-meta-pill"
+                  className="dashboard-meta-pill dashboard-meta-pill--solid"
                   style={{
                     backgroundColor: getGenreColor(topGenre.label),
                     color: "#fff",
+                    borderColor: "transparent",
                   }}
                 >
                   {ru(topGenre.label)}
+                </span>
+              )}
+              {mood && (
+                <span
+                  className="dashboard-meta-pill dashboard-meta-pill--mood"
+                  style={{
+                    backgroundColor: `${mood.color}1f`,
+                    color: mood.color,
+                    borderColor: `${mood.color}40`,
+                  }}
+                  title={`Настроение: ${mood.label.toLowerCase()} · valence ${Math.round(
+                    mood.valence * 100
+                  )}% · arousal ${Math.round(mood.arousal * 100)}%`}
+                >
+                  <span
+                    className="dashboard-meta-pill-dot"
+                    style={{ backgroundColor: mood.color }}
+                    aria-hidden="true"
+                  />
+                  {mood.label}
                 </span>
               )}
               {tl?.audio_features?.tempo_bpm != null && (
@@ -227,6 +253,12 @@ function TrackCard() {
                 <span className="dashboard-meta-pill">
                   {tl.audio_features.key.key}{" "}
                   {tl.audio_features.key.mode === "Major" ? "мажор" : "минор"}
+                </span>
+              )}
+              {dur > 0 && (
+                <span className="dashboard-meta-pill dashboard-meta-pill--muted">
+                  {formatTime(dur)}
+                  {segCount > 0 && ` · ${segCount} сегм.`}
                 </span>
               )}
             </div>
