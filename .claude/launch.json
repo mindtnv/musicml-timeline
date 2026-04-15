@@ -2,9 +2,15 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "musicml",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "scripts/dev-all.ts"],
+      "port": 5173
+    },
+    {
       "name": "ml-api",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["scripts/serve_ml.py", "--ckpt", "checkpoints/last.pt", "--config", "configs/default.yaml", "--port", "8000"],
+      "runtimeArgs": ["scripts/serve_ml.py", "--ckpt", "checkpoints/ast_v2/best.pt", "--config", "configs/ast.yaml", "--port", "8000"],
       "port": 8000
     },
     {
