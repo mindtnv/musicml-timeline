@@ -48,6 +48,7 @@ node_modules/
 
 # Claude
 .claude/
+!.claude/launch.json
 
 # Temp scripts
 _build_infer.py
