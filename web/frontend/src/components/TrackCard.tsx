@@ -4,6 +4,7 @@ import type { Track } from "../api/types";
 import { fetchTrack, deleteTrack, getAudioUrl } from "../api/client";
 import AudioPlayer from "./AudioPlayer";
 import LoadingState from "./LoadingState";
+import ShortcutsHelp from "./ShortcutsHelp";
 import { DashboardSkeleton } from "./Skeleton";
 import { DashboardProvider } from "../dashboard/DashboardContext";
 import TimeAxis from "../dashboard/TimeAxis";
@@ -77,17 +78,50 @@ function TrackCard() {
     }
   }, [id, deleting, navigate]);
 
-  // Keyboard: space = play/pause (when not typing in input)
+  // Keyboard shortcuts:
+  //   Space              — play / pause
+  //   ← / →              — seek −5 / +5 sec
+  //   Shift + ← / →      — seek −15 / +15 sec
+  //   Home / End         — jump to start / end
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.code !== "Space") return;
-      const target = e.target as HTMLElement;
+      const target = e.target as HTMLElement | null;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
-      e.preventDefault();
+
       const audio = audioRef.current;
       if (!audio) return;
-      if (audio.paused) audio.play().catch(() => {});
-      else audio.pause();
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        if (audio.paused) audio.play().catch(() => {});
+        else audio.pause();
+        return;
+      }
+
+      if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
+        if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+        e.preventDefault();
+        const base = e.shiftKey ? 15 : 5;
+        const delta = e.code === "ArrowLeft" ? -base : base;
+        audio.currentTime = Math.max(
+          0,
+          Math.min(audio.duration, audio.currentTime + delta)
+        );
+        return;
+      }
+
+      if (e.code === "Home") {
+        e.preventDefault();
+        audio.currentTime = 0;
+        return;
+      }
+
+      if (e.code === "End") {
+        if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+        e.preventDefault();
+        audio.currentTime = Math.max(0, audio.duration - 0.1);
+        return;
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -163,6 +197,7 @@ function TrackCard() {
           </div>
         </div>
         <div className="dashboard-header-right">
+          <ShortcutsHelp />
           <button
             className="btn btn-danger btn-sm"
             onClick={handleDelete}
@@ -188,10 +223,12 @@ function TrackCard() {
       {/* Dashboard */}
       {track.status === "ready" && tl && dur > 0 && (
         <DashboardProvider audioRef={audioRef} duration={dur}>
-          <div className="dashboard-player-row">
-            <AudioPlayer src={audioSrc} audioRef={audioRef} />
+          <div className="dashboard-sticky">
+            <div className="dashboard-player-row">
+              <AudioPlayer src={audioSrc} audioRef={audioRef} />
+            </div>
+            <TimeAxis />
           </div>
-          <TimeAxis />
 
           <div className="dashboard-grid">
             {tl.segment && <StructurePanel segments={tl.segment} />}

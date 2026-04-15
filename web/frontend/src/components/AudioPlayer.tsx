@@ -58,7 +58,11 @@ function AudioPlayer({ src, audioRef }: AudioPlayerProps) {
         onClick={togglePlay}
         disabled={!ready}
         aria-label={isPlaying ? "Пауза" : "Воспроизвести"}
-        title={isPlaying ? "Пауза (Space)" : "Воспроизвести (Space)"}
+        title={
+          isPlaying
+            ? "Пауза (Space) · Перемотка ← / → на 5 с, Shift+← / → на 15 с"
+            : "Воспроизвести (Space) · Перемотка ← / → на 5 с, Shift+← / → на 15 с"
+        }
       >
         {isPlaying ? (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">

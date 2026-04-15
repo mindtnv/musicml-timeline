@@ -885,6 +885,12 @@ body:has(.dashboard-page) .app-container {
   text-overflow: ellipsis;
   max-width: 640px;
 }
+.dashboard-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
 .dashboard-meta { display: flex; flex-wrap: wrap; gap: 6px; }
 .dashboard-meta-pill {
   font-size: 0.74rem;
@@ -898,6 +904,124 @@ body:has(.dashboard-page) .app-container {
 }
 
 .btn-sm { padding: 6px 12px; font-size: 0.82rem; }
+
+/* ===== Keyboard shortcuts help ===== */
+.shortcuts-help { position: relative; }
+.shortcuts-help-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--dash-surface);
+  border: 1px solid var(--dash-border);
+  color: var(--dash-text-2);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.shortcuts-help-btn:hover {
+  background: var(--dash-bg);
+  border-color: var(--dash-text-3);
+  color: var(--dash-text);
+}
+.shortcuts-help-btn--open {
+  background: var(--dash-accent-soft, rgba(37, 99, 235, 0.1));
+  border-color: var(--dash-accent);
+  color: var(--dash-accent);
+}
+.shortcuts-help-btn-label { letter-spacing: 0.01em; }
+
+.shortcuts-help-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 300px;
+  background: var(--dash-surface);
+  border: 1px solid var(--dash-border);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.08);
+  padding: 12px 14px 10px;
+  z-index: 50;
+  animation: shortcuts-fade 0.12s ease-out;
+}
+@keyframes shortcuts-fade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.shortcuts-help-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--dash-text);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--dash-border);
+}
+.shortcuts-help-close {
+  background: transparent;
+  border: none;
+  color: var(--dash-text-3);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 4px;
+}
+.shortcuts-help-close:hover { color: var(--dash-text); }
+.shortcuts-help-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.shortcuts-help-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.78rem;
+}
+.shortcuts-help-keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.shortcuts-help-plus {
+  color: var(--dash-text-3);
+  margin: 0 2px;
+  font-size: 0.7rem;
+}
+.shortcuts-help-kbd {
+  display: inline-block;
+  background: var(--dash-bg);
+  border: 1px solid var(--dash-border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--dash-text);
+  min-width: 22px;
+  text-align: center;
+  line-height: 1.35;
+}
+.shortcuts-help-label {
+  color: var(--dash-text-2);
+  text-align: right;
+}
+.shortcuts-help-hint {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--dash-border);
+  font-size: 0.7rem;
+  color: var(--dash-text-3);
+  text-align: center;
+}
 
 /* ===== Player v2 ===== */
 .dashboard-player-row {
@@ -1025,6 +1149,22 @@ body:has(.dashboard-page) .app-container {
   font-size: 0.8rem;
   color: var(--dash-play);
   padding-top: 6px;
+}
+
+/* ===== Sticky player cluster =====
+   Keep playback controls + time axis always visible while scrolling
+   through analysis panels. */
+.dashboard-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--bg);
+  padding: 10px 0 8px;
+  margin: -10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 10px 14px -10px rgba(15, 23, 42, 0.18);
 }
 
 /* ===== Time Axis ===== */
