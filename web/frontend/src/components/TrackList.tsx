@@ -121,6 +121,40 @@ function TrackListPage() {
 
   return (
     <div className="track-list-page">
+      {/* Hero — editorial framing for the landing page */}
+      <section className="landing-hero" aria-labelledby="hero-title">
+        <p className="landing-hero-eyebrow">
+          <span className="landing-hero-eyebrow-dot" aria-hidden="true" />
+          Магистерская НИР · ТвГУ 2026
+        </p>
+        <h1 id="hero-title" className="landing-hero-title">
+          Временная ось <em>музыкальной формы</em>
+        </h1>
+        <p className="landing-hero-lede">
+          Одна мульти-задачная сеть размечает структуру, восстанавливает
+          траекторию энергии и настроения и определяет жанр — в едином
+          проходе по аудио.
+        </p>
+        <div className="landing-hero-tasks" aria-label="Решаемые задачи">
+          <span className="landing-hero-task">
+            <span className="landing-hero-task-dot" style={{ background: "#f59e0b" }} aria-hidden="true" />
+            Структура
+          </span>
+          <span className="landing-hero-task">
+            <span className="landing-hero-task-dot" style={{ background: "#dc2626" }} aria-hidden="true" />
+            Энергия
+          </span>
+          <span className="landing-hero-task">
+            <span className="landing-hero-task-dot" style={{ background: "#2563eb" }} aria-hidden="true" />
+            Настроение
+          </span>
+          <span className="landing-hero-task">
+            <span className="landing-hero-task-dot" style={{ background: "#16a34a" }} aria-hidden="true" />
+            Жанр
+          </span>
+        </div>
+      </section>
+
       {/* System description */}
       <section className="system-info">
         <div className="system-info-grid">
