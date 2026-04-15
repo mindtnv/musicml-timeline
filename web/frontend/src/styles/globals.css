@@ -29,8 +29,11 @@
   --radius-sm: 6px;
   --radius-xs: 4px;
   --transition: 0.12s ease;
-  --font: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font-display: "Fraunces", "IBM Plex Serif", "Iowan Old Style", Georgia, serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", "Consolas", monospace;
+  /* Fraunces variation axes — editorial, slight optical size for display */
+  --font-display-settings: "opsz" 72, "SOFT" 30;
 }
 
 /* ===== Reset ===== */
@@ -46,6 +49,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
+  font-feature-settings: "ss01", "cv11";
   line-height: 1.55;
   min-height: 100vh;
 }
@@ -88,10 +92,19 @@ a:hover { color: var(--accent-light); }
 .app-logo-link:hover { color: var(--text); }
 
 .app-title {
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 40;
+  font-size: 1.22rem;
+  font-weight: 500;
   letter-spacing: -0.02em;
   color: var(--text);
+  /* italic stress gives the wordmark a distinctive editorial signature */
+  font-style: italic;
+}
+
+.app-title::first-letter {
+  /* subtle drop cap emphasis on the M */
+  font-weight: 600;
 }
 
 .app-version {
@@ -155,6 +168,7 @@ a:hover { color: var(--accent-light); }
   border-radius: 10px;
   font-family: var(--font-mono);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .section-title {
@@ -167,7 +181,7 @@ a:hover { color: var(--accent-light); }
 }
 
 /* ===== System Info ===== */
-.system-info { margin-bottom: 24px; }
+.system-info { margin-bottom: 28px; }
 
 .system-info-grid {
   display: grid;
@@ -176,26 +190,48 @@ a:hover { color: var(--accent-light); }
 }
 
 .system-info-block {
+  position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px 16px;
+  padding: 16px 18px;
   box-shadow: var(--shadow-sm);
 }
 
+/* Lead block (description) gets a subtle editorial accent */
+.system-info-block:first-child {
+  padding-left: 20px;
+}
+.system-info-block:first-child::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
 .system-info-title {
-  font-size: 0.62rem;
+  font-size: 0.6rem;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 8px;
+  letter-spacing: 0.14em;
+  margin-bottom: 10px;
 }
 
+/* Editorial lede — serif, slightly larger, looser leading */
 .system-info-text {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.65;
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 14, "SOFT" 50;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
 }
 
 .system-info-table {
@@ -222,11 +258,14 @@ a:hover { color: var(--accent-light); }
   font-size: 0.75rem;
   text-align: right;
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .metric-value {
   color: var(--accent) !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
 }
 
 /* ===== Buttons ===== */
@@ -496,19 +535,22 @@ a:hover { color: var(--accent-light); }
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   background: var(--bg-card);
   border: 1px solid var(--border);
+  border-left: 3px solid transparent;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all var(--transition);
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
   box-shadow: var(--shadow-sm);
 }
 
 .track-preview-card:hover {
-  background: var(--bg-subtle);
+  background: var(--bg-card);
   border-color: var(--border-strong);
+  border-left-color: var(--accent);
   box-shadow: var(--shadow);
+  transform: translateY(-1px);
 }
 
 .track-preview-icon {
@@ -541,14 +583,34 @@ a:hover { color: var(--accent-light); }
   font-family: var(--font-mono);
 }
 
+.track-preview-segcount {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.track-preview-strip {
+  margin-top: 7px;
+  border-radius: 3px;
+  overflow: hidden;
+  line-height: 0;
+  opacity: 0.78;
+  transition: opacity var(--transition);
+}
+.track-preview-card:hover .track-preview-strip { opacity: 1; }
+.mini-structure-strip { display: block; }
+
 .track-preview-arrow {
   flex-shrink: 0;
   opacity: 0.15;
   color: var(--text-muted);
-  transition: opacity var(--transition);
+  transition: opacity var(--transition), transform var(--transition);
 }
 
-.track-preview-card:hover .track-preview-arrow { opacity: 0.4; }
+.track-preview-card:hover .track-preview-arrow {
+  opacity: 0.55;
+  transform: translateX(2px);
+}
 
 /* ===== Badges ===== */
 .status-badge {
@@ -589,11 +651,14 @@ a:hover { color: var(--accent-light); }
 }
 
 .track-card-title {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 25;
+  font-size: 1.55rem;
+  font-weight: 500;
   color: var(--text);
   margin-bottom: 14px;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 .track-card-section { margin-top: 22px; }
@@ -1697,10 +1762,13 @@ body:has(.dashboard-page) .app-container {
   margin-bottom: 4px;
 }
 .empty-state-title {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-size: 1.35rem;
+  font-weight: 500;
   color: var(--text);
   margin: 0;
+  letter-spacing: -0.015em;
 }
 .empty-state-text {
   color: var(--text-secondary);
