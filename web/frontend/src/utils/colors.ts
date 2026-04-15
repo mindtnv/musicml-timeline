@@ -1,38 +1,68 @@
+// Muted academic palette — one accent + low-saturation categorical colors.
+// Inspired by Tableau 10 (muted) + IBM design system.
+
 export const SEGMENT_COLORS: Record<string, string> = {
-  Intro: "#81C784",
-  Verse: "#4CAF50",
-  Bridge: "#FF9800",
-  Chorus: "#F44336",
-  Instrumental: "#42A5F5",
-  Outro: "#9E9E9E",
+  Intro: "#94a3b8",
+  Verse: "#64748b",
+  Chorus: "#2563eb",
+  Bridge: "#7c3aed",
+  Instrumental: "#0ea5e9",
+  Outro: "#475569",
 };
 
+// Cold → neutral → warm diverging scale (arousal)
 export const AROUSAL_COLORS: Record<string, string> = {
-  Low: "#81D4FA",
-  Mid: "#FFF176",
-  High: "#EF5350",
+  Low: "#93c5fd",
+  Mid: "#cbd5e1",
+  High: "#f87171",
 };
 
+// Dark → neutral → bright diverging scale (valence)
 export const VALENCE_COLORS: Record<string, string> = {
-  Dark: "#7E57C2",
-  Neutral: "#BDBDBD",
-  Bright: "#FFEB3B",
+  Dark: "#6366f1",
+  Neutral: "#cbd5e1",
+  Bright: "#fbbf24",
 };
 
+// Tableau 10 (muted hand-picked) — 10 distinct but low-saturation hues
 export const GENRE_COLORS: Record<string, string> = {
-  blues: "#1565C0",
-  classical: "#8E24AA",
-  country: "#F9A825",
-  disco: "#E91E63",
-  hiphop: "#FF6D00",
-  jazz: "#00897B",
-  metal: "#424242",
-  pop: "#AB47BC",
-  reggae: "#2E7D32",
-  rock: "#C62828",
+  blues: "#4c78a8",
+  classical: "#9d755d",
+  country: "#b79a20",
+  disco: "#d67195",
+  hiphop: "#e0824c",
+  jazz: "#59a14f",
+  metal: "#555c6e",
+  pop: "#b07aa1",
+  reggae: "#499894",
+  rock: "#d25a5a",
 };
 
-const FALLBACK_COLOR = "#607D8B";
+// Fixed genre order for stacked area (matches model's output order)
+export const GENRE_ORDER = [
+  "blues",
+  "classical",
+  "country",
+  "disco",
+  "hiphop",
+  "jazz",
+  "metal",
+  "pop",
+  "reggae",
+  "rock",
+];
+
+const FALLBACK_COLOR = "#94a3b8";
+
+// Semantic design tokens (used by dashboard primitives)
+export const DASHBOARD_TOKENS = {
+  playhead: "#dc2626",      // red-600, solid
+  pinned: "#2563eb",        // blue-600, solid
+  hover: "#2563eb",         // blue-600, dashed
+  gridLine: "rgba(15, 23, 42, 0.06)",
+  gridText: "rgba(71, 85, 105, 0.7)",
+  axisText: "#475569",
+};
 
 export function getSegmentColor(label: string): string {
   return SEGMENT_COLORS[label] ?? FALLBACK_COLOR;

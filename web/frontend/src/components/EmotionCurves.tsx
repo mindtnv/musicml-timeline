@@ -1,30 +1,34 @@
 import { useRef, useEffect } from "react";
+import type { TimeScale } from "../dashboard/useTimeScale";
 
 interface EmotionCurvesProps {
   arousalReg: number[];
   valenceReg: number[];
   hopSeconds: number;
   duration: number;
-  currentTime: number;
-  onSeek?: (time: number) => void;
+  timeScale: TimeScale;
+  width: number;
+  height: number;
 }
 
-const CHART_HEIGHT = 180;
-const PADDING = { top: 20, right: 16, bottom: 24, left: 40 };
-const AROUSAL_COLOR = "#EF5350";
-const VALENCE_COLOR = "#7E57C2";
-const GRID_COLOR = "rgba(0,0,0,0.06)";
-const GRID_TEXT_COLOR = "rgba(0,0,0,0.35)";
-const PLAYHEAD_COLOR = "#FF1744";
-const FONT = '11px "Segoe UI", system-ui, sans-serif';
+const AROUSAL_COLOR = "#ef4444";
+const VALENCE_COLOR = "#6366f1";
+const GRID_COLOR = "rgba(15,23,42,0.06)";
+const GRID_TEXT_COLOR = "rgba(71,85,105,0.7)";
+const FONT = '11px "Inter", "Segoe UI", system-ui, sans-serif';
 
+/**
+ * Two overlaid emotion regression curves drawn in Canvas.
+ * Cursor is overlaid by ChartFrame externally.
+ */
 function EmotionCurves({
   arousalReg,
   valenceReg,
   hopSeconds,
   duration,
-  currentTime,
-  onSeek,
+  timeScale,
+  width,
+  height,
 }: EmotionCurvesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -33,142 +37,65 @@ function EmotionCurves({
     if (!canvas || duration <= 0) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = CHART_HEIGHT * dpr;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, width, height);
 
-    const w = rect.width;
-    const h = CHART_HEIGHT;
-    const plotW = w - PADDING.left - PADDING.right;
-    const plotH = h - PADDING.top - PADDING.bottom;
+    const plotTop = 8;
+    const plotBottom = height - 20;
+    const plotHeight = plotBottom - plotTop;
 
-    ctx.clearRect(0, 0, w, h);
-
-    // Background
-    ctx.fillStyle = "#f8f9fb";
-    ctx.fillRect(PADDING.left, PADDING.top, plotW, plotH);
-
-    // Grid lines & labels
+    // Horizontal grid + labels (0, 0.25, 0.5, 0.75, 1.0)
     ctx.font = FONT;
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
-    for (const val of [0, 0.25, 0.5, 0.75, 1.0]) {
-      const y = PADDING.top + plotH * (1 - val);
+    ctx.fillStyle = GRID_TEXT_COLOR;
 
-      ctx.beginPath();
-      ctx.moveTo(PADDING.left, y);
-      ctx.lineTo(PADDING.left + plotW, y);
+    for (const val of [0, 0.25, 0.5, 0.75, 1.0]) {
+      const y = plotTop + plotHeight * (1 - val);
       ctx.strokeStyle = GRID_COLOR;
       ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(timeScale.paddingLeft, y);
+      ctx.lineTo(timeScale.paddingLeft + timeScale.plotWidth, y);
       ctx.stroke();
 
-      ctx.fillStyle = GRID_TEXT_COLOR;
-      ctx.fillText(val.toFixed(2), PADDING.left - 6, y);
+      ctx.fillText(val.toFixed(2), timeScale.paddingLeft - 6, y);
     }
 
-    // Draw curve helper
-    function drawCurve(
-      c: CanvasRenderingContext2D,
-      data: number[],
-      color: string,
-      lw: number,
-    ) {
+    function drawCurve(data: number[], color: string) {
       if (data.length === 0) return;
-      c.beginPath();
-      c.strokeStyle = color;
-      c.lineWidth = lw;
-      c.lineJoin = "round";
+      ctx!.beginPath();
+      ctx!.strokeStyle = color;
+      ctx!.lineWidth = 2;
+      ctx!.lineJoin = "round";
+      ctx!.lineCap = "round";
 
       for (let i = 0; i < data.length; i++) {
         const t = i * hopSeconds;
-        const x = PADDING.left + (t / duration) * plotW;
-        const y = PADDING.top + plotH * (1 - Math.max(0, Math.min(1, data[i])));
-        if (i === 0) {
-          c.moveTo(x, y);
-        } else {
-          c.lineTo(x, y);
-        }
+        if (t > duration) break;
+        const x = timeScale.scale(t);
+        const y = plotTop + plotHeight * (1 - Math.max(0, Math.min(1, data[i])));
+        if (i === 0) ctx!.moveTo(x, y);
+        else ctx!.lineTo(x, y);
       }
-      c.stroke();
+      ctx!.stroke();
     }
 
-    // Draw arousal
-    drawCurve(ctx, arousalReg, AROUSAL_COLOR, 2);
-
-    // Draw valence
-    drawCurve(ctx, valenceReg, VALENCE_COLOR, 2);
-
-    // Playhead
-    if (currentTime > 0 && currentTime <= duration) {
-      const px = PADDING.left + (currentTime / duration) * plotW;
-      ctx.beginPath();
-      ctx.moveTo(px, PADDING.top);
-      ctx.lineTo(px, PADDING.top + plotH);
-      ctx.strokeStyle = PLAYHEAD_COLOR;
-      ctx.lineWidth = 2;
-      ctx.shadowColor = PLAYHEAD_COLOR;
-      ctx.shadowBlur = 4;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-    }
-
-    // Time axis labels
-    ctx.fillStyle = GRID_TEXT_COLOR;
-    ctx.font = FONT;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    const timeStep = duration > 120 ? 30 : duration > 60 ? 15 : 10;
-    for (let t = 0; t <= duration; t += timeStep) {
-      const x = PADDING.left + (t / duration) * plotW;
-      const m = Math.floor(t / 60);
-      const s = Math.floor(t % 60)
-        .toString()
-        .padStart(2, "0");
-      ctx.fillText(`${m}:${s}`, x, PADDING.top + plotH + 6);
-    }
-  }, [arousalReg, valenceReg, hopSeconds, duration, currentTime]);
-
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!onSeek || duration <= 0) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const plotW = rect.width - PADDING.left - PADDING.right;
-    const relX = e.clientX - rect.left - PADDING.left;
-    const ratio = Math.max(0, Math.min(1, relX / plotW));
-    onSeek(ratio * duration);
-  };
-
-  if (arousalReg.length === 0 && valenceReg.length === 0) {
-    return null;
-  }
+    drawCurve(valenceReg, VALENCE_COLOR);
+    drawCurve(arousalReg, AROUSAL_COLOR);
+  }, [arousalReg, valenceReg, hopSeconds, duration, timeScale, width, height]);
 
   return (
-    <div className="emotion-curves">
-      <div className="emotion-curves-header">
-        <h3 className="section-title">Кривые эмоций</h3>
-        <div className="emotion-curves-legend">
-          <span className="legend-item">
-            <span className="legend-dot" style={{ background: AROUSAL_COLOR }} />
-            Энергия (arousal)
-          </span>
-          <span className="legend-item">
-            <span className="legend-dot" style={{ background: VALENCE_COLOR }} />
-            Настроение (valence)
-          </span>
-        </div>
-      </div>
-      <canvas
-        ref={canvasRef}
-        className="emotion-curves-canvas"
-        style={{ height: CHART_HEIGHT }}
-        onClick={handleClick}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="emotion-curves-canvas"
+      style={{ width, height, display: "block" }}
+    />
   );
 }
 

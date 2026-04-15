@@ -6,7 +6,8 @@ import { getGenreColor } from "../utils/colors";
 import { formatTime } from "../utils/formatTime";
 import { ru } from "../utils/labels";
 import UploadZone from "./UploadZone";
-import LoadingState from "./LoadingState";
+import { TrackListSkeleton } from "./Skeleton";
+import { displayName } from "../utils/displayName";
 
 function statusBadgeClass(status: Track["status"]): string {
   switch (status) {
@@ -34,11 +35,15 @@ function statusLabel(status: Track["status"]): string {
   }
 }
 
+type SortMode = "recent" | "name" | "duration" | "genre";
+
 function TrackListPage() {
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [sortMode, setSortMode] = useState<SortMode>("recent");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadTracks = useCallback(async () => {
@@ -81,6 +86,36 @@ function TrackListPage() {
   const getDuration = (track: Track): number => {
     return track.timeline?.metadata?.duration_sec ?? 0;
   };
+
+  const filteredTracks = tracks
+    .filter((t) => {
+      if (!query.trim()) return true;
+      const q = query.trim().toLowerCase();
+      const display = displayName(t.originalName).toLowerCase();
+      const genre = getTopGenre(t)?.toLowerCase() ?? "";
+      return (
+        display.includes(q) ||
+        t.originalName.toLowerCase().includes(q) ||
+        genre.includes(q) ||
+        ru(genre).toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      switch (sortMode) {
+        case "name":
+          return displayName(a.originalName).localeCompare(displayName(b.originalName), "ru");
+        case "duration":
+          return getDuration(b) - getDuration(a);
+        case "genre": {
+          const ga = getTopGenre(a) ?? "";
+          const gb = getTopGenre(b) ?? "";
+          return ga.localeCompare(gb);
+        }
+        case "recent":
+        default:
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
 
   return (
     <div className="track-list-page">
@@ -128,26 +163,87 @@ function TrackListPage() {
 
       {/* Track list */}
       <section className="tracks-section">
-        <h2 className="section-heading">
-          Обработанные треки
-          {tracks.length > 0 && <span className="section-count">{tracks.length}</span>}
-        </h2>
+        <div className="tracks-section-header">
+          <h2 className="section-heading">
+            Обработанные треки
+            {tracks.length > 0 && <span className="section-count">{tracks.length}</span>}
+          </h2>
 
-        {loading && tracks.length === 0 && (
-          <LoadingState message="Загрузка треков..." />
-        )}
+          {tracks.length > 0 && (
+            <div className="tracks-toolbar">
+              <div className="tracks-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                </svg>
+                <input
+                  type="text"
+                  className="tracks-search-input"
+                  placeholder="Поиск по названию или жанру..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  aria-label="Поиск треков"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    className="tracks-search-clear"
+                    onClick={() => setQuery("")}
+                    title="Очистить"
+                    aria-label="Очистить поиск"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+
+              <select
+                value={sortMode}
+                onChange={(e) => setSortMode(e.target.value as SortMode)}
+                className="tracks-sort"
+                aria-label="Сортировка треков"
+              >
+                <option value="recent">Новые сверху</option>
+                <option value="name">По названию</option>
+                <option value="duration">По длительности</option>
+                <option value="genre">По жанру</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {loading && tracks.length === 0 && <TrackListSkeleton count={5} />}
 
         {error && <p className="error-message">{error}</p>}
 
         {!loading && tracks.length === 0 && !error && (
           <div className="empty-state">
-            <p>Треков пока нет. Загрузите аудиофайл для анализа.</p>
+            <div className="empty-state-icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M9 17V5l12-2v12" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="6" cy="17" r="3" />
+                <circle cx="18" cy="15" r="3" />
+              </svg>
+            </div>
+            <h3 className="empty-state-title">Треков пока нет</h3>
+            <p className="empty-state-text">
+              Загрузите аудиофайл выше — и система автоматически проанализирует его структуру,
+              эмоции и жанр. Поддерживаются форматы MP3, WAV, FLAC, OGG.
+            </p>
           </div>
         )}
 
-        {tracks.length > 0 && (
+        {!loading && tracks.length > 0 && filteredTracks.length === 0 && (
+          <div className="empty-state empty-state--compact">
+            <p>По запросу «{query}» ничего не найдено.</p>
+            <button className="btn btn-ghost btn-sm" onClick={() => setQuery("")}>
+              Очистить поиск
+            </button>
+          </div>
+        )}
+
+        {filteredTracks.length > 0 && (
           <div className="track-grid">
-            {tracks.map((track) => {
+            {filteredTracks.map((track) => {
               const genre = getTopGenre(track);
               const dur = getDuration(track);
 
@@ -165,7 +261,7 @@ function TrackListPage() {
 
                   <div className="track-preview-info">
                     <h3 className="track-preview-name" title={track.originalName}>
-                      {track.originalName}
+                      {displayName(track.originalName)}
                     </h3>
 
                     <div className="track-preview-meta">

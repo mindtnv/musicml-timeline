@@ -43,3 +43,15 @@ export async function deleteTrack(id: string): Promise<void> {
 export function getAudioUrl(id: string): string {
   return `${BASE}/tracks/${encodeURIComponent(id)}/audio`;
 }
+
+export interface SpectrogramData {
+  n_mels: number;
+  n_frames: number;
+  hop_seconds: number;
+  duration_sec: number;
+  mel: number[][]; // (n_mels, T), values in [0, 1]
+}
+
+export async function fetchSpectrogram(id: string): Promise<SpectrogramData> {
+  return request<SpectrogramData>(`/tracks/${encodeURIComponent(id)}/spectrogram`);
+}
