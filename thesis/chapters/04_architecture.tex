@@ -1,0 +1,384 @@
+\section{Архитектура и методы}\label{ch:4}
+
+В работе исследуется пять архитектурных конфигураций, отражающих три измерения дизайна: \textbf{способ извлечения признаков} (обучаемая с нуля CNN vs предобученная PANNs vs трансформер AST), \textbf{наличие temporal modeling} (per-window vs BiLSTM-последовательность) и \textbf{парадигму трансфера} (обучение с нуля vs fine-tuning). Все пять архитектур выпускают одинаковый интерфейс — четыре независимые классификационные головы и две головы регрессии (arousal/valence continuous), что обеспечивает корректное сравнение качества при едином пост-процессинге. Финальная модель прототипа — Audio Spectrogram Transformer v2 с пост-процессингом через Viterbi-декодирование и musicological position priors.
+
+\subsection{Обзор многоархитектурного эксперимента}\label{sec:4-1}
+
+Сводная характеристика пяти архитектур приведена в таблице 4.1.
+
+\begin{table}[H]
+\centering
+\caption{Таблица 4.1. Сравнение пяти архитектур}
+\begin{tabular}{L{0.5cm}L{2.5cm}L{3cm}L{2.2cm}L{3cm}L{1.8cm}L{2.5cm}}
+\toprule
+№ & Конфиг & Backbone & Temporal & Pretraining & Параметров & Trainable \\
+\midrule
+1 & CNN & 5-блочная CNN с SE & per-window & нет & $\sim$800K & $\sim$800K \\
+2 & CNN+BiLSTM & CNN→BiLSTM(128) & sequence & нет & $\sim$1.2M & $\sim$1.2M \\
+3 & PANNs+Linear & PANNs CNN14 & per-window & AudioSet (frozen) & $\sim$80M & $\sim$210K (heads only) \\
+4 & PANNs+BiLSTM & PANNs→Proj→BiLSTM(256) & sequence & AudioSet (frozen) & $\sim$81M & $\sim$750K \\
+5 & AST v2 & Vision Transformer & per-window (global attn) & AudioSet (fine-tuned) & $\sim$87M & \textbf{$\sim$14M} (heads + 4 unfrozen layers) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Конфигурации 1–4 формируют 2$\times$2 факторный эксперимент, отвечающий на RQ1–RQ4 (см. §2.2). Конфигурация 5 — расширение эксперимента трансформер-парадигмой, отвечает на RQ5 и используется как финальная модель прототипа.
+
+\subsection{CNN backbone (конфигурация 1)}\label{sec:4-2}
+
+\subsubsection{Архитектура}
+
+\begin{lstlisting}
+Input: (B, 1, 128, T)   batch x channels x mel_bins x time_frames
+
+Conv Block 1: Conv2D(1->32,    3x3) -> BN -> ReLU -> SE(32)  -> MaxPool(2x2)
+Conv Block 2: Conv2D(32->64,   3x3) -> BN -> ReLU -> SE(64)  -> MaxPool(2x2)
+Conv Block 3: Conv2D(64->128,  3x3) -> BN -> ReLU -> SE(128) -> MaxPool(2x2)
+Conv Block 4: Conv2D(128->256, 3x3) -> BN -> ReLU -> SE(256) -> MaxPool(2x2)
+Conv Block 5: Conv2D(256->512, 3x3) -> BN -> ReLU -> SE(512) -> MaxPool(2x2)
+
+Global Average Pooling -> (B, 512)
+Shared FC: Linear(512->256) -> BN -> ReLU -> Dropout(0.4)
+
+Head segment: Linear(256->6)
+Head arousal: Linear(256->3)
+Head valence: Linear(256->3)
+Head genre:   Linear(256->10)
+\end{lstlisting}
+
+Общее число параметров: $\sim$800\,тыс. (backbone $\approx$ 750\,тыс., shared FC + 4 головы $\approx$ 50\,тыс.).
+
+\subsubsection{Squeeze-and-Excitation как механизм channel attention}
+
+После каждого свёрточного блока встроен модуль Squeeze-and-Excitation~\cite{hu2018se}:
+
+\begin{lstlisting}
+SE(C):  GAP -> Linear(C->C/16) -> ReLU -> Linear(C/16->C) -> Sigmoid -> channel-wise multiply
+\end{lstlisting}
+
+Squeeze шаг агрегирует пространственную информацию в один вектор размерности C. Excitation шаг через две полносвязные операции вычисляет маску важности для каждого канала. Финальное умножение позволяет модели динамически усиливать «нужные» частотные диапазоны и подавлять неинформативные.
+
+В контексте мульти-задачного обучения SE-блок особенно полезен: разные задачи требуют разных частотных признаков (спектральная плотность атак — для arousal, гармонические соотношения — для valence, ритмические паттерны — для genre). Без SE общий backbone вынужден поддерживать все эти признаки одинаково, с SE — может «маршрутизировать» их через перевзвешивание каналов.
+
+\subsubsection{Shared FC проекция}
+
+Между GAP и task-headers вставлен общий полносвязный слой:
+
+\begin{lstlisting}
+Linear(512->256) -> BatchNorm1d -> ReLU -> Dropout(0.4)
+\end{lstlisting}
+
+В первой версии модели (v1) головы подключались напрямую к GAP. Эксперимент показал, что добавление shared FC улучшает обобщение: размерность 256 структурирует представления для классификации, BatchNorm стабилизирует распределение между батчами, Dropout=0.4 регуляризует. Все 4 головы работают с этим адаптированным 256-мерным представлением.
+
+\subsection{CNN + BiLSTM (конфигурация 2)}\label{sec:4-3}
+
+Конфигурация 2 надстраивает над CNN-эмбеддингами рекуррентный слой для учёта долгосрочного контекста:
+
+\begin{lstlisting}
+Audio (3 min) -> N=180 windows 10s with hop 1s
+Each window -> CNN backbone -> 512-dim embedding
+Sequence (B, 180, 512) -> BiLSTM(hidden=128, layers=2, bidirectional)
+                       -> FC(256->256) -> 4 task heads
+\end{lstlisting}
+
+BiLSTM выбран вместо трансформера по следующим соображениям:
+
+\begin{enumerate}
+  \item \textbf{Размер обучающей выборки} — 522 трека Harmonix формируют только $\sim$522 уникальных последовательности (в отличие от 100K+ окон). Трансформеру требуется больше данных для обучения self-attention.
+  \item \textbf{Длина последовательности} — 180–300 окон при средней длине трека 3–5 минут. BiLSTM эффективно работает с такой длиной; квадратичная сложность трансформера $O(n^2)$ была бы избыточна.
+  \item \textbf{Количество дополнительных параметров} — BiLSTM с hidden=128, 2 layers добавляет $\sim$400K параметров. Эквивалентный трансформер потребовал бы 2–5M параметров.
+  \item \textbf{Bidirectional моделирование} — структура музыки симметрична: знание о Chorus впереди помогает классифицировать текущее окно как Verse. BiLSTM естественно моделирует это через forward и backward проход.
+\end{enumerate}
+
+\subsection{PANNs+Linear и PANNs+BiLSTM (конфигурации 3, 4)}\label{sec:4-4}
+
+PANNs CNN14~\cite{kong2020panns} — модель с 80M параметрами, предобученная на AudioSet ($\sim$2M аудиоклипов, 527 категорий звуков). Используется как \textbf{frozen feature extractor}: 1-секундное окно аудио → 2048-мерный embedding.
+
+В нашей работе:
+
+\begin{itemize}
+  \item \textbf{Конфиг 3 (PANNs+Linear)} — embedding пропускается напрямую через 4 линейные головы. Trainable параметров всего $\sim$210K (только головы).
+  \item \textbf{Конфиг 4 (PANNs+BiLSTM)} — embedding проецируется в 512-мерное пространство через Linear(2048→512), затем подаётся в BiLSTM(hidden=256) поверх последовательности. Trainable параметров $\sim$750K.
+\end{itemize}
+
+Использование frozen режима обусловлено двумя соображениями:
+
+\begin{enumerate}
+  \item \textbf{Ёмкость предобученных весов} — 80M параметров CNN14 содержит обширное представление о звуковом мире. Fine-tuning этих весов на наших $\sim$2.5K треков почти гарантированно вызывает catastrophic forgetting и переобучение.
+  \item \textbf{Скорость обучения} — заморозка backbone позволяет precompute эмбеддинги один раз. Обучение голов и BiLSTM занимает 8–12 минут вместо часов с распакованным backbone.
+\end{enumerate}
+
+\subsection{Audio Spectrogram Transformer v2 (конфигурация 5, финальная)}\label{sec:4-5}
+
+Финальная модель прототипа — fine-tuned Audio Spectrogram Transformer на основе чекпоинта \code{MIT/ast-finetuned-audioset-10-10-0.4593} (Gong et al., 2021~\cite{gong2021ast}). Из всех пяти архитектур AST v2 показал лучшее качество по совокупности задач (см. §5.4) и был выбран как production-модель веб-демонстратора.
+
+\subsubsection{Базовая архитектура}
+
+AST применяет парадигму Vision Transformer~\cite{dosovitskiy2021vit} к лог-мел спектрограмме:
+
+\begin{enumerate}
+  \item \textbf{Patch embedding.} Спектрограмма размером 128 $\times$ T делится на патчи 16 $\times$ 16 со сдвигом 10 пикселей по времени и 10 пикселей по частоте (такие параметры используются в \code{MIT/ast-finetuned-audioset-10-10-*}). Каждый патч линейно проецируется в 768-мерный токен через \code{nn.Conv2d} с kernel=patch\_size, stride=overlap.
+
+  \item \textbf{CLS token и positional embedding.} К последовательности патчей в начало добавляется обучаемый CLS-токен. Каждой позиции добавляется learnable positional embedding. Фиксированные synthетические embeddings AudioSet в наших экспериментах заменяются обучаемыми, что лучше адаптируется под музыкальный контент.
+
+  \item \textbf{Transformer encoder.} 12 идентичных слоёв, каждый содержит:
+  \begin{itemize}
+    \item Multi-head self-attention с 12 головами (\code{d\_head = 64}).
+    \item Feed-forward сеть \code{Linear(768→3072) → GELU → Linear(3072→768)}.
+    \item Layer normalization + residual connection вокруг обоих компонентов.
+  \end{itemize}
+
+  \item \textbf{Classification heads.} Из выхода трансформера берётся CLS-токен (768-мерный) и подаётся в 4 task-специфичные головы по той же схеме, что и в CNN-варианте.
+\end{enumerate}
+
+Общее число параметров: $\sim$87\,млн (encoder $\approx$ 85M, patch embedding + CLS + position $\approx$ 1.2M, heads $\approx$ 1.5M).
+
+\subsubsection{Pretraining на AudioSet}
+
+AudioSet~\cite{gemmeke2017audioset} — крупнейший открытый датасет аудио, собранный Google в 2017 году: $\sim$2M 10-секундных YouTube-фрагментов, размеченных weakly-supervised в 527 категорий звуков (музыкальные инструменты, бытовые звуки, речь, природа, машины и т.п.). Авторы AST~\cite{gong2021ast} предобучили модель на классификации этих 527 категорий через multi-label cross-entropy, достигнув mAP=45.9\% (что близко к SOTA).
+
+Веса предобученной модели распространяются под HuggingFace-идентификатором \code{MIT/ast-finetuned-audioset-10-10-0.4593}, где числа означают \code{frequency\_stride=10, time\_stride=10, AudioSet mAP=0.4593}. Размер чекпоинта: 574\,МБ.
+
+\subsubsection{Стратегия fine-tuning}
+
+Прямое обучение всех 87M параметров AST на наших $\sim$2.5K треков привело бы к катастрофическому переобучению. Применяется частичный fine-tuning — заморозка нижних слоёв с обучением верхних:
+
+\begin{itemize}
+  \item \textbf{Заморожены}: patch embedding, positional embedding, первые 8 из 12 transformer-слоёв.
+  \item \textbf{Обучаются}: последние 4 transformer-слоя, layer normalization, CLS-токен, 4 task-головы.
+\end{itemize}
+
+Trainable параметров: $\sim$14\,млн (вместо 87M полной модели). Обоснование числа размороженных слоёв (4):
+
+\begin{itemize}
+  \item При полной заморозке (только головы) AST становится feature extractor аналогично PANNs+Linear, но с худшим качеством (CLS-токен недостаточно адаптивен).
+  \item При размораживании всех 12 слоёв модель переобучается даже на коротком обучении (3 эпохи).
+  \item 4 верхних слоя — компромисс: достаточно ёмкости для адаптации к музыкальному контексту, недостаточно для переобучения на 2.5K треков.
+\end{itemize}
+
+\subsubsection{Differential learning rate}
+
+Размороженные слои и новые головы обучаются с разными скоростями:
+
+\begin{lstlisting}[language=Python]
+optimizer = AdamW([
+    {"params": backbone_params, "lr": 5e-5},      # unfrozen transformer layers
+    {"params": head_params,     "lr": 1e-3},      # new heads + CLS-token
+], weight_decay=0.01)
+\end{lstlisting}
+
+Backbone-слои уже инициализированы хорошими весами AudioSet — большой LR разрушил бы эти представления (catastrophic forgetting). Новые головы инициализированы случайно — им требуется быстрое обучение. Соотношение \code{lr\_head / lr\_backbone = 20} соответствует общепринятой практике fine-tuning~\cite{howard2018ulmfit}.
+
+\subsubsection{Gradient accumulation}
+
+Из-за большого числа параметров и промежуточных активаций attention-механизма, AST требует значительной видеопамяти. На GPU с 12GB VRAM удаётся поместить максимум \code{batch\_size=16}. Для сохранения effective batch=64 (как у CNN-моделей) применяется gradient accumulation:
+
+\begin{lstlisting}[language=Python]
+for step in range(num_micro_batches):
+    loss = forward_backward(batch[step]) / accum_steps   # accum_steps=4
+    if (step + 1) % accum_steps == 0:
+        optimizer.step()
+        optimizer.zero_grad()
+\end{lstlisting}
+
+Effective batch = \code{16 $\times$ 4 = 64}. Это эквивалентно одному gradient update на 64 примерах, но память распределяется между 4 микробатчами.
+
+\subsubsection{Обоснование выбора AST}
+
+После полного факторного эксперимента (см. главу 5) AST v2 обеспечил лучший результат по совокупности задач:
+
+\begin{itemize}
+  \item \textbf{Segment}: 40.6\% (vs 35.3\% у CNN v2, +5.3\,п.п.) — лучший среди всех 5 архитектур.
+  \item \textbf{Genre}: 81.5\% (vs 83.9\% у CNN v2, −2.4\,п.п.) — близко ко второму месту.
+  \item \textbf{Среднее по 4 задачам}: 58.5\% (vs 58.2\% у CNN v2) — лучшее среднее.
+\end{itemize}
+
+Преимущество AST особенно заметно на сегментной задаче, где self-attention позволяет «видеть» весь трек одновременно — критично для распознавания повторяющихся структурных паттернов (припев, реприза). На genre AST уступает CNN v2: 10-классовая classification на 30-секундных GTZAN-фрагментах не требует глобального контекста, и CNN с inductive bias (translation invariance, локальные свёртки) оказывается эффективнее.
+
+\subsection{Multi-task heads и функция потерь}\label{sec:4-6}
+
+\subsubsection{Структура голов}
+
+Каждая из 4 классификационных голов — линейный слой от 256/768-мерного представления (в зависимости от backbone) к числу классов. Дополнительно для arousal/valence обучаются регрессионные головы, выпускающие непрерывные значения в $[0, 1]$:
+
+\begin{lstlisting}
+Head segment_cls:  Linear(D->6),   activation=softmax
+Head arousal_cls:  Linear(D->3),   activation=softmax
+Head valence_cls:  Linear(D->3),   activation=softmax
+Head genre:        Linear(D->10),  activation=softmax
+Head arousal_reg:  Linear(D->1),   activation=sigmoid
+Head valence_reg:  Linear(D->1),   activation=sigmoid
+\end{lstlisting}
+
+Регрессионные головы предсказывают непрерывные DEAM-значения (после нормализации в $[0, 1]$) и используются в прототипе для отрисовки эмоциональных кривых, но в Russell circumplex применяется не регрессия, а классификационный score \code{0.5 + 0.5$\cdot$(P(positive) − P(negative))} — это даёт менее смещённые оценки (см. §6.3).
+
+\subsubsection{Focal Loss}
+
+Стандартная cross-entropy при сильном дисбалансе классов оптимизируется на мажоритарных. Применяется Focal Loss~\cite{lin2017focal}:
+
+\begin{equation}
+\mathcal{L}_{FL}(p_t) = -\alpha_t \cdot (1 - p_t)^\gamma \cdot \log(p_t)
+\end{equation}
+
+где $p_t$ — предсказанная вероятность правильного класса, $\alpha_t$ — class weight, $\gamma$ — фокусирующий параметр. При $\gamma = 0$ FL вырождается в weighted CE.
+
+\textbf{Выбор $\gamma = 1.5$.} В первой версии модели использовалось $\gamma = 2.0$ — слишком агрессивно: модель почти полностью игнорирует «лёгкие» примеры (Verse, Chorus с высокой $p_t$), фокусируясь на сложных миноритарных классах. Результат: Verse recall = 10\%, Outro recall = 60\%. Снижение до $\gamma = 1.5$ восстанавливает баланс — Verse recall вырос до 28\%, Outro упал до 45\% — что лучше отражает реальное распределение в треке.
+
+\subsubsection{Class weights}
+
+Вес каждого класса вычисляется как обратная частота, обрезанная по верхнему порогу:
+
+\begin{equation}
+w_c = \min\left( \frac{N_{\text{total}}}{K \cdot N_c}, \; w_{\max} \right)
+\end{equation}
+
+где $N_{\text{total}}$ — общее число примеров, $K$ — число классов, $N_c$ — число примеров класса $c$, $w_{\max} = 2.5$ — верхняя граница.
+
+\textbf{Обоснование $w_{\max} = 2.5$.} Без обрезания вес Outro был бы $\sim$5.0 (что соответствует ratio 5:1 относительно Verse). Это слишком агрессивно — модель переобучается на редкие классы и теряет precision. Эмпирическое правило: $w_{\max} \approx \sqrt{\text{ratio}_{\max}/\text{ratio}_{\min}}$, что для нашего соотношения $\approx 2.2$. Округлено до 2.5 по результатам валидации.
+
+\subsubsection{Per-task loss weight}
+
+Суммарный multi-task loss:
+
+\begin{equation}
+\mathcal{L}_{total} = w_{\text{seg}} \mathcal{L}_{\text{seg}} + w_{\text{aro}} \mathcal{L}_{\text{aro}} + w_{\text{val}} \mathcal{L}_{\text{val}} + w_{\text{gen}} \mathcal{L}_{\text{gen}} + w_{\text{aro\_reg}} \mathcal{L}_{\text{aro\_reg}} + w_{\text{val\_reg}} \mathcal{L}_{\text{val\_reg}}
+\end{equation}
+
+Веса: \code{segment: 1.5, arousal\_cls: 1.0, valence\_cls: 1.0, genre: 1.0, arousal\_reg: 0.5, valence\_reg: 0.5}.
+
+Повышенный вес сегментной задачи (1.5) компенсирует её относительно меньший вклад в общий градиент: при \code{loss\_weight = 1} для всех, segment loss быстро уменьшается и backbone оптимизируется преимущественно для остальных задач (где данных в 5–10 раз больше). Регрессионные головы получают вес 0.5 — они вторичны для классификационной задачи и могли бы доминировать MSE-loss при равных весах.
+
+\subsubsection{Оптимизатор и scheduler}
+
+\begin{lstlisting}
+AdamW(lr=1e-3, weight_decay=5e-4)   # for CNN/CNN+LSTM/PANNs architectures
+AdamW differential                   # for AST (see 4.5.4)
+
+Scheduler: CosineAnnealingWarmRestarts(T_0=10, T_mult=2)
+\end{lstlisting}
+
+CosineAnnealingWarmRestarts периодически «перезапускает» learning rate к начальному значению с косинусной декадой между перезапусками. T\_0=10 эпох — длина первого цикла, T\_mult=2 — каждый следующий цикл вдвое длиннее. Это позволяет модели на каждом цикле «выходить из локальных минимумов» и продолжать улучшение даже после плато.
+
+Альтернатива OneCycleLR (использовалась в v1) показала худшее качество на длинных тренировках: 30 эпох жёстко ограничивали возможность улучшения, тогда как warm restarts позволяют 50 эпохам с патиенс 15.
+
+\subsubsection{SpecAugment}
+
+Аудио-аналог CutOut/RandomErasing: на лог-мел спектрограмме случайным образом маскируется одна или несколько частотных полос (\code{freq\_mask=27} мел-полос) и временных полос (\code{time\_mask=60} фреймов)~\cite{park2019specaugment}. Применяется только при обучении, не при инференсе. Эффект: модель учится восстанавливать недостающую информацию из контекста, что улучшает robustness.
+
+\subsubsection{MixUp}
+
+С вероятностью 0.5 при формировании батча применяется MixUp~\cite{zhang2018mixup}: два случайных примера смешиваются с коэффициентом $\lambda \sim \text{Beta}(0.2, 0.2)$:
+
+\begin{equation}
+x_{\text{mix}} = \lambda \cdot x_1 + (1-\lambda) \cdot x_2, \quad y_{\text{mix}} = \lambda \cdot y_1 + (1-\lambda) \cdot y_2.
+\end{equation}
+
+Это создаёт «промежуточные» обучающие примеры, расширяя эффективную обучающую выборку и сглаживая решающие границы. Особенно полезен для малых датасетов как регуляризатор.
+
+\subsection{Post-processing pipeline}\label{sec:4-7}
+
+Сырые покадровые предсказания модели (один класс на каждое 1-секундное окно) непригодны для прямой подачи пользователю — они содержат локальные «всплески» (на одном фрейме модель сказала Outro, на соседних — Chorus), кратко-длительные (1–2 секунды) сегменты, и часто нарушают музыкальные априори (Intro в середине трека). Применяется трёхступенчатый pipeline пост-обработки.
+
+\subsubsection{Этап 1: Viterbi-декодирование с transition penalty}
+
+Вместо argmax по каждому фрейму применяется Viterbi-алгоритм, оптимизирующий \textbf{полную последовательность} меток с учётом штрафа за переходы между классами:
+
+\begin{equation}
+\hat{c}_{1:T} = \arg\max_{c_{1:T}} \sum_{t=1}^{T} \big[ \log P(c_t \mid X_t) + \pi_t(c_t) \big] - \lambda \cdot \sum_{t=2}^{T} \mathbb{1}[c_t \neq c_{t-1}]
+\end{equation}
+
+где $P(c_t \mid X_t)$ — вероятность класса $c_t$ из softmax модели, $\pi_t(c_t)$ — позиционный prior (см. §4.7.2), $\lambda$ — transition penalty.
+
+\textbf{Реализация.} Динамическое программирование над матрицей $\delta[t, c]$ — наилучший суммарный score, оканчивающийся в фрейме $t$ классом $c$:
+
+\begin{equation}
+\delta[t, c] = \log P(c \mid X_t) + \pi_t(c) + \max\big( \delta[t-1, c], \; \max_{c' \neq c} \delta[t-1, c'] - \lambda \big)
+\end{equation}
+
+Backtrace по матрице $\text{backptr}[t, c]$ восстанавливает оптимальную последовательность.
+
+\textbf{Выбор $\lambda = 1.0$.} Эксперименты с $\lambda \in [0.5, 5.0]$ показали:
+
+\begin{itemize}
+  \item $\lambda = 0.5$ — слишком мягко, оставляет короткие всплески (1–2 фрейма Outro в середине припева).
+  \item $\lambda = 1.0$ — оптимально: убирает всплески, сохраняет реальные переходы. На примере композиции Dynamite (Taio Cruz) — 7 устойчивых сегментов вместо 13 хаотичных.
+  \item $\lambda = 2.5$ — слишком жёстко, склеивает разные сегменты в монолитные блоки (например, объединяет 100 секунд Verse–Chorus в один Chorus).
+\end{itemize}
+
+\subsubsection{Этап 2: Musicological position priors}
+
+Из всех типов сегментов \textbf{Intro и Outro акустически идентичны} — оба характеризуются разреженной фактурой, сниженной динамикой, отсутствием вокала. Различить их можно только по позиции в треке: Intro по определению в начале, Outro — в конце. Вне этих позиций они структурно невозможны.
+
+Кодируется через дополнительный аддитивный prior $\pi_t(c)$ к log-probability:
+
+\begin{lstlisting}[language=Python]
+boundary_fraction = 0.22                # 22% track length for Intro/Outro zones
+penalty = 10.0                          # log-prob penalty
+
+priors[boundary_frames:, idx_Intro] -= penalty
+priors[:T - boundary_frames, idx_Outro] -= penalty
+\end{lstlisting}
+
+Эффект: за пределами первых 22\% трека Intro получает штраф $-10$ в log-space (что эквивалентно умножению вероятности на $e^{-10} \approx 4.5 \times 10^{-5}$). Симметрично для Outro вне последних 22\%. В пределах своих «законных» зон Intro и Outro не штрафуются.
+
+\textbf{Обоснование \code{boundary\_fraction} = 0.22.} Анализ Harmonix-аннотаций показал: 95\% Intro-сегментов укладываются в первые 22\% длительности трека, 95\% Outro — в последние 22\%. Это эмпирический threshold, отражающий реальное распределение.
+
+\textbf{Обоснование \code{penalty} = 10.} В первой версии использовалось значение 3.0 — недостаточно: при сильной уверенности модели в Outro (P(Outro) $>$ 0.5) штраф $-3$ не перебивал alternative. Подняли до 10 — гарантированно подавляет любое предсказание Intro/Outro вне разрешённой зоны. С точки зрения literature это типичное значение: Ullrich et al.~\cite{ullrich2014boundary} используют $\lambda = 5{-}15$ для аналогичных priors в их HMM-формулировке.
+
+\textbf{Академическая легитимность.} Position priors не «фабрикуют» данные — они кодируют объективное musicological знание (Intro и Outro \textbf{по определению} на границах трека). Это стандартный приём в literature~\cite{ullrich2014boundary,serra2018cnnhmm,gong2023structural}, не считающийся «читерством». В отчёте механизм явно документируется как часть методологии.
+
+\subsubsection{Этап 3: Iterative min-duration merge}
+
+Даже после Viterbi возможны короткие сегменты (3–5 секунд), которые музыкально неразумны: куплет короче 6 секунд не существует. Применяется итеративное слияние:
+
+\begin{lstlisting}[language=Python]
+while changed:
+    for seg in segments:
+        if seg.duration < min_duration:    # min_duration = 6.0 sec
+            if neighbor_left.label == neighbor_right.label:
+                merge_three_into_one()      # glue through
+            else:
+                merge_with_more_confident_neighbor()
+\end{lstlisting}
+
+Алгоритм предпочитает «прокидывать» короткий сегмент через одинаковый класс с обеих сторон (более вероятная ситуация) перед арбитражным присоединением к более уверенному соседу. Итеративность — после слияния могут появляться новые короткие сегменты, требующие повторного прохода.
+
+\subsubsection{Эффект пост-процессинга на качество}
+
+Эффект каждого этапа на test-сете Harmonix:
+
+\begin{table}[H]
+\centering
+\caption{Эффект пост-процессинга на test-сете Harmonix}
+\begin{tabular}{L{5cm}L{2cm}L{2.5cm}L{2.5cm}}
+\toprule
+Метод & Сегментов & Boundary F1 & Section F1 \\
+\midrule
+Argmax (без post-processing) & 28.4 ср & 0.31 & 0.32 \\
++ Median filter (kernel=5) & 14.2 ср & 0.36 & 0.34 \\
++ Viterbi ($\lambda=1.0$) & 9.8 ср & 0.42 & 0.37 \\
++ Position priors (penalty=10) & 8.7 ср & 0.43 & 0.38 \\
++ Min-duration merge (6\,с) & 7.5 ср & 0.45 & 0.39 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Полный pipeline даёт прирост Boundary F1 +14\,п.п. и Section F1 +7\,п.п. при сокращении среднего числа сегментов с 28 до 7.5 (более человеко-читаемое представление). Эти результаты сопоставимы с аналогичными post-processing-схемами в literature~\cite{ullrich2014boundary,gong2023structural}.
+
+\subsection{Inference и нормализация на пользовательских аудио}\label{sec:4-8}
+
+При обработке пользовательского аудио (через web-приложение) применяется тот же pipeline:
+
+\begin{enumerate}
+  \item Декодирование аудио librosa (\code{sr=22050}, mono).
+  \item Извлечение log-mel спектрограммы (n\_mels=128, hop=512).
+  \item \textbf{Загрузка \code{stats.npz}} с глобальными mean/std обучения и применение \code{(features - mean) / std}.
+  \item Окновая нарезка с window=10s, hop=1s.
+  \item Прогон через модель → softmax по 4 головам.
+  \item Post-processing pipeline (Viterbi + position priors + min-duration).
+  \item Сериализация в JSON timeline.
+\end{enumerate}
+
+\textbf{Критическое требование} — шаг 3. Без нормализации модель выдаёт смещённые предсказания: например, blues-трек был ошибочно классифицирован как hip-hop, потому что нормализация не была применена. После добавления auto-loading \code{stats.npz} в \code{musicml/infer.py:extract\_features()} качество inference на пользовательских треках восстановилось до eval-уровня.
+
+\textbf{Резюме главы 4.} Описаны пять архитектурных конфигураций для multi-task анализа музыки. CNN baseline с SE-блоками — простая обучаемая с нуля модель. CNN+BiLSTM добавляет temporal modeling. PANNs+Linear/BiLSTM используют frozen pretrained features. Audio Spectrogram Transformer v2 — финальная модель прототипа, fine-tuned на наших данных через differential learning rate и частичную заморозку слоёв. Multi-task функция потерь объединяет focal loss с class weights и per-task весами для борьбы с дисбалансом. Post-processing pipeline (Viterbi + musicological position priors + iterative min-duration merge) превращает покадровые предсказания в человеко-читаемую структурную разметку и улучшает Boundary F1 на 14 пунктов.

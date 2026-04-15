@@ -6,8 +6,7 @@ import { getGenreColor } from "../utils/colors";
 import { formatTime } from "../utils/formatTime";
 import { ru } from "../utils/labels";
 import UploadZone from "./UploadZone";
-import MiniStructureStrip from "./MiniStructureStrip";
-import MoodBadge, { computeMood } from "./MoodBadge";
+import { computeMood } from "./MoodBadge";
 import { TrackListSkeleton } from "./Skeleton";
 import { displayName } from "../utils/displayName";
 
@@ -39,13 +38,32 @@ function statusLabel(status: Track["status"]): string {
 
 type SortMode = "recent" | "name" | "duration" | "genre";
 
+const SORT_STORAGE_KEY = "musicml.trackSort";
+const GENRE_STORAGE_KEY = "musicml.trackGenre";
+
+function readStoredSort(): SortMode {
+  if (typeof window === "undefined") return "recent";
+  const raw = window.localStorage.getItem(SORT_STORAGE_KEY);
+  if (raw === "recent" || raw === "name" || raw === "duration" || raw === "genre") {
+    return raw;
+  }
+  return "recent";
+}
+
+function readStoredGenre(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(GENRE_STORAGE_KEY);
+}
+
 function TrackListPage() {
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [sortMode, setSortMode] = useState<SortMode>("recent");
+  const [sortMode, setSortMode] = useState<SortMode>(readStoredSort);
+  const [genreFilter, setGenreFilter] = useState<string | null>(readStoredGenre);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadTracks = useCallback(async () => {
@@ -77,6 +95,34 @@ function TrackListPage() {
     };
   }, [tracks, loadTracks]);
 
+  // Persist sort + genre filter across sessions.
+  useEffect(() => {
+    try { window.localStorage.setItem(SORT_STORAGE_KEY, sortMode); } catch { /* ignore */ }
+  }, [sortMode]);
+
+  useEffect(() => {
+    try {
+      if (genreFilter) window.localStorage.setItem(GENRE_STORAGE_KEY, genreFilter);
+      else window.localStorage.removeItem(GENRE_STORAGE_KEY);
+    } catch { /* ignore */ }
+  }, [genreFilter]);
+
+  // Keyboard shortcut: press `/` anywhere on the list page to focus search.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+        return;
+      }
+      e.preventDefault();
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const getTopGenre = (track: Track): string | null => {
     const genres = track.timeline?.genre;
     if (!genres || genres.length === 0) return null;
@@ -89,8 +135,34 @@ function TrackListPage() {
     return track.timeline?.metadata?.duration_sec ?? 0;
   };
 
+  // Count ready tracks per top genre so the filter rail shows usable chips
+  // only. Genres with zero tracks are hidden.
+  const genreCounts = tracks.reduce<Record<string, number>>((acc, t) => {
+    const g = getTopGenre(t)?.toLowerCase();
+    if (!g) return acc;
+    acc[g] = (acc[g] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const availableGenres = Object.entries(genreCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([genre]) => genre);
+
+  // If the stored genre filter no longer matches any track (e.g. user deleted
+  // the last classical track last session), silently drop it so the list
+  // isn't mysteriously empty on next visit.
+  useEffect(() => {
+    if (genreFilter && !availableGenres.includes(genreFilter)) {
+      setGenreFilter(null);
+    }
+  }, [genreFilter, availableGenres]);
+
   const filteredTracks = tracks
     .filter((t) => {
+      if (genreFilter) {
+        const g = getTopGenre(t)?.toLowerCase();
+        if (g !== genreFilter) return false;
+      }
       if (!query.trim()) return true;
       const q = query.trim().toLowerCase();
       const display = displayName(t.originalName).toLowerCase();
@@ -247,13 +319,23 @@ function TrackListPage() {
                   <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                 </svg>
                 <input
+                  ref={searchInputRef}
                   type="text"
                   className="tracks-search-input"
-                  placeholder="Поиск по названию или жанру..."
+                  placeholder="Поиск — название или жанр"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape" && query) {
+                      e.preventDefault();
+                      setQuery("");
+                    }
+                  }}
                   aria-label="Поиск треков"
                 />
+                {!query && (
+                  <kbd className="tracks-search-kbd" aria-hidden="true">/</kbd>
+                )}
                 {query && (
                   <button
                     type="button"
@@ -282,6 +364,45 @@ function TrackListPage() {
           )}
         </div>
 
+        {/* Genre filter rail — appears once the library is big enough to
+            warrant quick slicing. Each chip is tinted by its genre's palette
+            colour for instant visual recognition. */}
+        {tracks.length >= 5 && availableGenres.length >= 2 && (
+          <div className="genre-filter-rail" role="group" aria-label="Фильтр по жанру">
+            <button
+              type="button"
+              className={`genre-filter-chip genre-filter-chip--all${genreFilter === null ? " is-active" : ""}`}
+              onClick={() => setGenreFilter(null)}
+            >
+              <span className="genre-filter-label">Все</span>
+              <span className="genre-filter-count">{tracks.length}</span>
+            </button>
+            {availableGenres.map((g) => {
+              const color = getGenreColor(g);
+              const active = genreFilter === g;
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  className={`genre-filter-chip${active ? " is-active" : ""}`}
+                  style={
+                    {
+                      ["--chip-tint" as string]: color,
+                      ["--chip-tint-bg" as string]: `${color}1a`,
+                    } as React.CSSProperties
+                  }
+                  onClick={() => setGenreFilter(active ? null : g)}
+                  aria-pressed={active}
+                >
+                  <span className="genre-filter-dot" aria-hidden="true" />
+                  <span className="genre-filter-label">{ru(g)}</span>
+                  <span className="genre-filter-count">{genreCounts[g]}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {loading && tracks.length === 0 && <TrackListSkeleton count={5} />}
 
         {error && <p className="error-message">{error}</p>}
@@ -305,9 +426,23 @@ function TrackListPage() {
 
         {!loading && tracks.length > 0 && filteredTracks.length === 0 && (
           <div className="empty-state empty-state--compact">
-            <p>По запросу «{query}» ничего не найдено.</p>
-            <button className="btn btn-ghost btn-sm" onClick={() => setQuery("")}>
-              Очистить поиск
+            <p>
+              {query && genreFilter
+                ? `По запросу «${query}» в жанре «${ru(genreFilter)}» ничего не найдено.`
+                : query
+                ? `По запросу «${query}» ничего не найдено.`
+                : genreFilter
+                ? `В жанре «${ru(genreFilter)}» пока нет треков.`
+                : "Ничего не найдено."}
+            </p>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => {
+                setQuery("");
+                setGenreFilter(null);
+              }}
+            >
+              Сбросить фильтры
             </button>
           </div>
         )}
@@ -335,67 +470,70 @@ function TrackListPage() {
                 ...(mood ? { ["--track-mood" as string]: mood.color } : {}),
               } as React.CSSProperties;
 
+              const coverSrc = track.coverUrl ? track.coverUrl : null;
+              const displayTitle = track.title || displayName(track.originalName);
+
               return (
                 <div
                   key={track.id}
-                  className={`track-preview-card${mood ? " track-preview-card--has-mood" : ""}`}
+                  className="track-tile"
                   style={cardStyle}
                   onClick={() => navigate(`/tracks/${track.id}`)}
+                  role="button"
+                  tabIndex={0}
                 >
-                  <div
-                    className={`track-preview-icon${genreColor ? " track-preview-icon--tinted" : ""}`}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 3v10.55A4 4 0 1014 17V7h4V3h-6z" />
-                    </svg>
-                  </div>
-
-                  <div className="track-preview-info">
-                    <h3 className="track-preview-name" title={track.originalName}>
-                      {displayName(track.originalName)}
-                    </h3>
-
-                    <div className="track-preview-meta">
-                      <span className={statusBadgeClass(track.status)}>
-                        {statusLabel(track.status)}
-                      </span>
-
-                      {genre && (
-                        <span
-                          className="genre-mini-badge"
-                          style={{ backgroundColor: getGenreColor(genre) }}
-                        >
-                          {ru(genre)}
-                        </span>
-                      )}
-
-                      <MoodBadge
-                        arousalSegments={track.timeline?.arousal}
-                        valenceSegments={track.timeline?.valence}
+                  <div className="track-tile-cover">
+                    {coverSrc ? (
+                      <img
+                        src={coverSrc}
+                        alt=""
+                        className="track-tile-cover-img"
+                        loading="lazy"
                       />
+                    ) : (
+                      <div
+                        className="track-tile-cover-fallback"
+                        aria-hidden="true"
+                      >
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 3v10.55A4 4 0 1014 17V7h4V3h-6z" />
+                        </svg>
+                      </div>
+                    )}
 
-                      {segCount > 0 && (
-                        <span className="track-preview-segcount">
-                          {segCount}&nbsp;сегм.
-                        </span>
-                      )}
-
-                      {dur > 0 && (
-                        <span className="track-preview-duration">{formatTime(dur)}</span>
-                      )}
+                    {/* Play overlay on hover */}
+                    <div className="track-tile-play" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="7,4 20,12 7,20" />
+                      </svg>
                     </div>
 
-                    {segments && segments.length > 0 && dur > 0 && (
-                      <div className="track-preview-strip">
-                        <MiniStructureStrip segments={segments} duration={dur} />
-                      </div>
+                    {dur > 0 && (
+                      <span className="track-tile-duration">{formatTime(dur)}</span>
+                    )}
+
+                    {track.status !== "ready" && (
+                      <span
+                        className={statusBadgeClass(track.status) + " track-tile-status"}
+                      >
+                        {statusLabel(track.status)}
+                      </span>
                     )}
                   </div>
 
-                  <div className="track-preview-arrow">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
-                    </svg>
+                  <div className="track-tile-info">
+                    <h3 className="track-tile-name" title={track.originalName}>
+                      {displayTitle}
+                    </h3>
+                    <p className="track-tile-sub">
+                      {track.artist ? (
+                        <>
+                          <span className="track-tile-artist">{track.artist}</span>
+                          {genre && <span className="track-tile-sep">·</span>}
+                        </>
+                      ) : null}
+                      {genre && <span className="track-tile-genre">{ru(genre)}</span>}
+                    </p>
                   </div>
                 </div>
               );

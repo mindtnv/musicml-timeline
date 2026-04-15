@@ -53,15 +53,21 @@ def extract_features(
     audio_path: str | Path,
     cfg: dict[str, Any],
     stats_path: str | Path | None = None,
-) -> tuple[np.ndarray, float]:
+    return_raw: bool = False,
+):
     """Extract windowed features from an audio file.
 
     Args:
         stats_path: Path to stats.npz with mean/std for normalization.
             If None, attempts to find stats in default data directories.
+        return_raw: If True, also return the unnormalized feature matrix and
+            its frame-hop in seconds (needed by the v2 decoder for Foote
+            novelty + repetition detection).
 
     Returns:
-        (windows, duration_sec) where windows has shape (N, C, F, W).
+        (windows, duration_sec) by default.
+        (windows, duration_sec, raw_features, feature_hop_seconds) if
+        ``return_raw`` is True.
     """
     from musicml.features import compute_features, load_audio, window_features
 
@@ -83,6 +89,9 @@ def extract_features(
         fmin=feat_cfg["fmin"],
         fmax=feat_cfg.get("fmax"),
     )
+
+    # Keep a copy of the unnormalized features for audio-novelty / repetition
+    raw_feats = feats.copy() if return_raw else None
 
     # Normalize features using training set statistics
     if stats_path is None:
@@ -106,6 +115,9 @@ def extract_features(
         window_seconds=win_cfg["window_seconds"],
         hop_seconds=win_cfg["hop_seconds"],
     )
+    if return_raw:
+        feature_hop_seconds = float(feat_cfg["hop_length"]) / float(sr)
+        return windows, duration_sec, raw_feats, feature_hop_seconds
     return windows, duration_sec
 
 
@@ -426,6 +438,7 @@ def build_timeline(
     """Build structured timeline from raw predictions."""
     from musicml.postprocess import (
         decode_segment_head,
+        decode_segment_head_v2,
         merge_segments,
         smooth_predictions,
     )
@@ -474,16 +487,59 @@ def build_timeline(
         if head_name == "segment":
             all_probs = head_data.get("all_probs")
             if all_probs is not None:
-                segments = decode_segment_head(
-                    np.asarray(all_probs),
-                    class_names=class_names_map[head_name],
-                    hop_seconds=hop_seconds,
-                    use_viterbi=post_cfg.get("use_viterbi", True),
-                    transition_penalty=post_cfg.get("transition_penalty", 2.5),
-                    use_position_priors=post_cfg.get("use_position_priors", True),
-                    median_kernel=post_cfg.get("smooth_kernel_segment", 7),
-                    min_duration=post_cfg.get("min_segment_duration_segment", 8.0),
-                )
+                if post_cfg.get("segment_decoder", "v2") == "v2":
+                    # Pass raw log-mel features (if the inference pipeline
+                    # stashed them) so the decoder can use Foote-novelty and
+                    # repetition-consistency.
+                    raw_feats = raw_predictions.get("_raw_log_mel")
+                    feat_hop = raw_predictions.get("_feature_hop_seconds")
+                    segments = decode_segment_head_v2(
+                        np.asarray(all_probs),
+                        class_names=class_names_map[head_name],
+                        hop_seconds=hop_seconds,
+                        temperature=post_cfg.get(
+                            "v2_temperature", 1.0),
+                        base_transition_penalty=post_cfg.get(
+                            "v2_base_transition_penalty", 1.2),
+                        use_position_priors=post_cfg.get(
+                            "use_position_priors", True),
+                        position_penalty=post_cfg.get(
+                            "v2_position_penalty", 10.0),
+                        position_boost=post_cfg.get(
+                            "v2_position_boost", 0.7),
+                        boundary_fraction=post_cfg.get(
+                            "v2_boundary_fraction", 0.18),
+                        novelty_snap_radius_sec=post_cfg.get(
+                            "v2_novelty_snap_radius_sec", 2.0),
+                        window_seconds=cfg["windowing"]["window_seconds"],
+                        per_class_min_duration_sec=post_cfg.get(
+                            "v2_per_class_min_duration_sec"),
+                        audio_features=raw_feats,
+                        feature_hop_seconds=feat_hop,
+                        audio_novelty_weight=post_cfg.get(
+                            "v2_audio_novelty_weight", 0.6),
+                        enable_repetition=post_cfg.get(
+                            "v2_enable_repetition", True),
+                        repetition_min_section_sec=post_cfg.get(
+                            "v2_repetition_min_section_sec", 8.0),
+                        repetition_similarity_threshold=post_cfg.get(
+                            "v2_repetition_similarity_threshold", 0.82),
+                    )
+                else:
+                    segments = decode_segment_head(
+                        np.asarray(all_probs),
+                        class_names=class_names_map[head_name],
+                        hop_seconds=hop_seconds,
+                        use_viterbi=post_cfg.get("use_viterbi", True),
+                        transition_penalty=post_cfg.get(
+                            "transition_penalty", 2.5),
+                        use_position_priors=post_cfg.get(
+                            "use_position_priors", True),
+                        median_kernel=post_cfg.get(
+                            "smooth_kernel_segment", 7),
+                        min_duration=post_cfg.get(
+                            "min_segment_duration_segment", 8.0),
+                    )
             else:
                 # Fallback: plain argmax path
                 smoothed = smooth_predictions(
@@ -572,11 +628,16 @@ def run_inference(
         model = load_model(
             ckpt_path, cfg["model"], device=device, architecture=arch,
         )
-        windows, duration = extract_features(audio_path, cfg)
+        windows, duration, raw_feats, feat_hop = extract_features(
+            audio_path, cfg, return_raw=True,
+        )
         raw_preds = predict_windows(
             model, windows, device, batch_size=batch_size,
             do_extract_embeddings=do_extract_embeddings,
         )
+        # Stash for the v2 decoder inside build_timeline
+        raw_preds["_raw_log_mel"] = raw_feats
+        raw_preds["_feature_hop_seconds"] = feat_hop
     else:
         model = load_model(
             ckpt_path, cfg["model"], device=device, architecture=arch,

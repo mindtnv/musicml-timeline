@@ -1,0 +1,194 @@
+% !TEX program = xelatex
+% !BIB program = biber
+%
+% Магистерская НИР — основной файл
+% ТвГУ, 2026.  Антонов М.Д.
+%
+% Сборка: latexmk -xelatex main.tex
+% Или:   xelatex main && biber main && xelatex main && xelatex main
+
+\documentclass[14pt,a4paper,oneside]{extarticle}
+
+% --- Geometry (ГОСТ Р 7.0.11-2011) -----------------------------------------
+\usepackage[
+  left=30mm, right=15mm, top=20mm, bottom=20mm,
+  headheight=14pt, footskip=10mm
+]{geometry}
+
+% --- Fonts ------------------------------------------------------------------
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Consolas}[Scale=0.92]
+
+% --- Languages --------------------------------------------------------------
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+% --- Spacing ----------------------------------------------------------------
+\usepackage{setspace}
+\onehalfspacing                       % 1.5 line spacing (ГОСТ)
+\usepackage{indentfirst}              % indent first paragraph of each section
+\setlength{\parindent}{1.25cm}        % 1.25cm красная строка
+\setlength{\parskip}{0pt}
+
+% --- Math, symbols ----------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+
+% --- Section headings -------------------------------------------------------
+\usepackage{titlesec}
+
+% Section becomes "Глава N." prefix (only in main matter, not appendix).
+\titleformat{\section}
+  {\bfseries\fontsize{14}{16}\selectfont\centering}
+  {Глава \thesection.}{0.5em}{}
+\titleformat{\subsection}
+  {\bfseries\fontsize{13}{15}\selectfont}
+  {\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}
+  {\itshape\fontsize{12}{14}\selectfont}
+  {\thesubsubsection}{0.7em}{}
+
+\titlespacing*{\section}{0pt}{18pt}{10pt}
+\titlespacing*{\subsection}{0pt}{10pt}{6pt}
+\titlespacing*{\subsubsection}{0pt}{8pt}{4pt}
+
+% Appendix uses "Приложение X." instead of "Глава N."
+\newcommand{\appendixformat}{%
+  \titleformat{\section}
+    {\bfseries\fontsize{14}{16}\selectfont\centering}
+    {Приложение \thesection.}{0.5em}{}
+}
+
+% --- Tables -----------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{makecell}
+\renewcommand{\arraystretch}{1.15}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+% --- Captions ---------------------------------------------------------------
+\usepackage[font=small,labelfont=bf]{caption}
+
+% --- Graphics ---------------------------------------------------------------
+\usepackage{graphicx}
+\usepackage{float}
+\graphicspath{{figures/}{../results/plots/}}
+
+% --- Code listings ----------------------------------------------------------
+\usepackage{xcolor}
+\usepackage{listings}
+
+% Define languages not bundled with `listings`: JavaScript/TypeScript and bash
+\lstdefinelanguage{JavaScript}{
+  keywords={break,case,catch,continue,debugger,default,delete,do,else,false,
+    finally,for,function,if,in,instanceof,new,null,return,switch,this,throw,
+    true,try,typeof,var,void,while,with,let,const,async,await,of,import,export,
+    from,class,extends,super},
+  ndkeywords={true,false,null,undefined,NaN,Infinity},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`,
+  sensitive=true
+}
+\lstdefinelanguage{TypeScript}[]{JavaScript}{
+  morekeywords={interface,type,enum,implements,readonly,public,private,protected,
+    abstract,as,namespace,declare,module,never,unknown,any,number,string,boolean,
+    object,Symbol,bigint},
+  sensitive=true
+}
+\lstdefinelanguage{bash}{
+  morekeywords={if,then,else,elif,fi,for,while,do,done,case,esac,return,in,
+    function,select,until,export,local,readonly,source,alias,unalias,echo,
+    cd,pwd,ls,cat,grep,sed,awk,find,xargs,test},
+  morecomment=[l]\#,
+  morestring=[b]',
+  morestring=[b]",
+  sensitive=true
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{blue!60!black},
+  commentstyle=\color{gray!70},
+  stringstyle=\color{green!50!black},
+  breaklines=true,
+  frame=single,
+  framesep=4pt,
+  rulecolor=\color{gray!40},
+  numbers=none,
+  showstringspaces=false,
+  extendedchars=true,
+  inputencoding=utf8,
+}
+
+% --- Hyperlinks -------------------------------------------------------------
+\usepackage[
+  bookmarks=true,
+  bookmarksopen=true,
+  bookmarksnumbered=true,
+  unicode=true,
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue!60!black,
+  pdfborder={0 0 0}
+]{hyperref}
+
+% --- Bibliography -----------------------------------------------------------
+\usepackage[
+  backend=biber,
+  style=gost-numeric,
+  language=auto,
+  sorting=none,
+  maxnames=5,
+  giveninits=true
+]{biblatex}
+\addbibresource{references.bib}
+
+% --- Custom commands --------------------------------------------------------
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\eg}{например}
+\newcommand{\ie}{т.\,е.}
+
+% =============================================================================
+\begin{document}
+
+% --- Титульный лист ---------------------------------------------------------
+\input{title}
+
+% --- Оглавление -------------------------------------------------------------
+\tableofcontents
+\newpage
+
+% --- Введение ---------------------------------------------------------------
+\input{chapters/00_introduction}
+
+% --- Главы ------------------------------------------------------------------
+\input{chapters/01_literature_review}
+\input{chapters/02_problem_statement}
+\input{chapters/03_data}
+\input{chapters/04_architecture}
+\input{chapters/05_experiments}
+\input{chapters/06_prototype}
+\input{chapters/07_analysis}
+
+% --- Заключение -------------------------------------------------------------
+\input{chapters/99_conclusion}
+
+% --- Список литературы ------------------------------------------------------
+\printbibliography[heading=bibintoc, title={Список использованных источников}]
+
+% --- Приложения -------------------------------------------------------------
+\appendix
+\appendixformat
+\input{chapters/A_appendices}
+
+\end{document}

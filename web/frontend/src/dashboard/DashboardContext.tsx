@@ -9,6 +9,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import { getOutputLatency } from "../vibe/audioAnalyser";
 
 export interface DashboardState {
   duration: number;
@@ -46,8 +47,11 @@ export function DashboardProvider({ children, audioRef, duration }: ProviderProp
       if (!running) return;
       const audio = audioRef.current;
       if (audio) {
+        // Compensate for output latency so the playhead tracks what the
+        // listener actually hears, not what's been scheduled internally.
+        const lat = getOutputLatency(audio);
         setPlayheadTime((prev) => {
-          const t = audio.currentTime;
+          const t = Math.max(0, audio.currentTime - lat);
           return Math.abs(t - prev) > 0.01 ? t : prev;
         });
       }

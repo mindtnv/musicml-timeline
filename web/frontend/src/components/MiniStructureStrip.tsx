@@ -1,5 +1,4 @@
 import type { TimelineSegment } from "../api/types";
-import { getSegmentColor } from "../utils/colors";
 
 interface MiniStructureStripProps {
   segments: TimelineSegment[];
@@ -39,6 +38,10 @@ function MiniStructureStrip({
         const x = Math.max(0, Math.min(duration, seg.start));
         const w = Math.max(0, Math.min(duration, seg.end) - x);
         if (w <= 0) return null;
+        // Monochrome white with confidence-modulated alpha — same encoding
+        // the player scrubber uses, keeps the page colour-quiet.
+        const conf = Math.max(0, Math.min(1, seg.confidence ?? 0.5));
+        const alpha = 0.18 + 0.42 * conf;
         return (
           <rect
             key={i}
@@ -46,7 +49,7 @@ function MiniStructureStrip({
             y={0}
             width={w}
             height={height}
-            fill={getSegmentColor(seg.label)}
+            fill={`rgba(255,255,255,${alpha.toFixed(3)})`}
           >
             <title>
               {seg.label} · {Math.round(seg.start)}s → {Math.round(seg.end)}s

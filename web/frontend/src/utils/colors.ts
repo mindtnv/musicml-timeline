@@ -54,14 +54,15 @@ export const GENRE_ORDER = [
 
 const FALLBACK_COLOR = "#94a3b8";
 
-// Semantic design tokens (used by dashboard primitives)
+// Semantic design tokens (used by dashboard primitives).
+// Tuned for the dark-glass theme — light strokes/text on translucent surfaces.
 export const DASHBOARD_TOKENS = {
-  playhead: "#dc2626",      // red-600, solid
-  pinned: "#2563eb",        // blue-600, solid
-  hover: "#2563eb",         // blue-600, dashed
-  gridLine: "rgba(15, 23, 42, 0.06)",
-  gridText: "rgba(71, 85, 105, 0.7)",
-  axisText: "#475569",
+  playhead: "#fb7185",      // coral — pops on dark glass
+  pinned: "#7dd3fc",        // sky — solid
+  hover: "#7dd3fc",         // sky — dashed
+  gridLine: "rgba(255, 255, 255, 0.10)",
+  gridText: "rgba(255, 255, 255, 0.55)",
+  axisText: "rgba(255, 255, 255, 0.78)",
 };
 
 export function getSegmentColor(label: string): string {

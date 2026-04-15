@@ -543,6 +543,66 @@ a:hover { color: var(--accent-light); }
 .upload-section { margin-bottom: 24px; }
 .upload-zone-wrapper { margin-bottom: 0; }
 
+.upload-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+.upload-tab {
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.upload-tab:hover:not(:disabled):not(.upload-tab--active) {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+.upload-tab--active {
+  background: var(--bg-card);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+.upload-tab:disabled { cursor: not-allowed; opacity: 0.5; }
+
+.url-zone { padding: 20px 18px; cursor: default; }
+.url-zone:hover { background: var(--bg-card); border-color: var(--border-strong); }
+.url-form { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.url-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.url-input-row { display: flex; gap: 8px; }
+.url-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  color: var(--text);
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.url-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.url-input::placeholder { color: var(--text-muted); }
+
 .upload-zone {
   border: 1.5px dashed var(--border-strong);
   border-radius: var(--radius);
@@ -1964,7 +2024,7 @@ body:has(.dashboard-page) .app-container {
 }
 .tracks-search-input {
   width: 100%;
-  padding: 7px 32px 7px 32px;
+  padding: 7px 44px 7px 32px;
   font-size: 0.85rem;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -2020,6 +2080,142 @@ body:has(.dashboard-page) .app-container {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* Keyboard hint inside search — press `/` to focus.
+   Sits on the right side of the input when it's empty, fades when the user
+   starts typing (handled in JSX by unmounting the element). */
+.tracks-search-kbd {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 1px 6px;
+  line-height: 1.3;
+  pointer-events: none;
+  letter-spacing: 0;
+}
+.tracks-search-input:focus ~ .tracks-search-kbd {
+  opacity: 0;
+}
+
+/* ===== Genre Filter Rail =====
+   Clickable chips above the track grid — each chip is tinted with its
+   genre's palette colour, and shows a live count. Active state uses the
+   tint as a solid background; idle state keeps the tint as a 10% wash so
+   the rail scans as "a palette of available genres", not a toolbar. */
+.genre-filter-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 7px;
+  margin: 4px 0 14px;
+  align-items: center;
+}
+
+.genre-filter-chip {
+  --chip-tint: var(--accent);
+  --chip-tint-bg: var(--accent-bg);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font);
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 6px 10px 6px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), transform var(--transition);
+  letter-spacing: -0.005em;
+}
+.genre-filter-chip:hover {
+  background: var(--chip-tint-bg);
+  border-color: color-mix(in srgb, var(--chip-tint) 30%, var(--border));
+  color: var(--text);
+  transform: translateY(-1px);
+}
+.genre-filter-chip:focus-visible {
+  outline: none;
+  border-color: var(--chip-tint);
+  box-shadow: 0 0 0 3px var(--chip-tint-bg);
+}
+
+.genre-filter-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--chip-tint);
+  flex-shrink: 0;
+}
+
+.genre-filter-label {
+  color: inherit;
+}
+
+.genre-filter-count {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  padding: 1px 6px;
+  border-radius: 999px;
+  min-width: 18px;
+  text-align: center;
+  letter-spacing: -0.01em;
+  transition: background var(--transition), color var(--transition);
+}
+
+.genre-filter-chip.is-active {
+  background: var(--chip-tint);
+  border-color: var(--chip-tint);
+  color: var(--text-inverse);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--chip-tint) 30%, transparent);
+}
+.genre-filter-chip.is-active .genre-filter-dot {
+  background: var(--text-inverse);
+  opacity: 0.9;
+}
+.genre-filter-chip.is-active .genre-filter-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--text-inverse);
+}
+
+/* "Все" chip — neutral, no tint; uses the accent on active state so it's
+   visually distinct from the coloured genre chips. */
+.genre-filter-chip--all {
+  --chip-tint: var(--text-secondary);
+  --chip-tint-bg: var(--bg-hover);
+}
+.genre-filter-chip--all .genre-filter-dot {
+  background: currentColor;
+  opacity: 0.55;
+}
+.genre-filter-chip--all.is-active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--text-inverse);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+.genre-filter-chip--all.is-active .genre-filter-dot {
+  background: var(--text-inverse);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .genre-filter-chip:hover { transform: none; }
 }
 
 /* ===== Empty State ===== */

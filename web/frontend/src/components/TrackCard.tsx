@@ -8,13 +8,12 @@ import ShortcutsHelp from "./ShortcutsHelp";
 import { computeMood } from "./MoodBadge";
 import { DashboardSkeleton } from "./Skeleton";
 import { DashboardProvider } from "../dashboard/DashboardContext";
-import TimeAxis from "../dashboard/TimeAxis";
 import StructurePanel from "../dashboard/panels/StructurePanel";
 import EmotionPanel from "../dashboard/panels/EmotionPanel";
-import AVTrajectory from "../dashboard/panels/AVTrajectory";
+import EmotionalProfilePanel from "../dashboard/panels/EmotionalProfilePanel";
 import GenrePanel from "../dashboard/panels/GenrePanel";
-import SummaryPanel from "../dashboard/panels/SummaryPanel";
 import SpectrogramPanel from "../dashboard/panels/SpectrogramPanel";
+import VibeMode from "../vibe/VibeMode";
 import { getGenreColor } from "../utils/colors";
 import { ru } from "../utils/labels";
 import { displayName } from "../utils/displayName";
@@ -29,6 +28,7 @@ function TrackCard() {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [vibeOpen, setVibeOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -196,77 +196,123 @@ function TrackCard() {
   const mood = computeMood(tl?.arousal, tl?.valence);
   const segCount = tl?.segment?.length ?? 0;
 
+  // Mood + genre colours feed the dashboard's ambient backdrop and hero glow
+  // — the surface "knows" what track is playing, the way Apple Music's
+  // now-playing screen takes on the album-art palette.
+  const moodVar = mood?.color ?? "#7dd3fc";
+  const genreVar = topGenre ? getGenreColor(topGenre.label) : moodVar;
+  const dashStyle = {
+    "--track-mood": moodVar,
+    "--track-genre": genreVar,
+  } as React.CSSProperties;
+
   return (
-    <div className="dashboard-page fade-in">
-      {/* Sticky header */}
-      <header className="dashboard-header">
-        <div className="dashboard-header-left">
-          <button className="btn btn-ghost" onClick={() => navigate("/")}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <div className="dashboard-page fade-in" style={dashStyle}>
+      {/* Hero — Apple Music NowPlaying-style focal zone.  Title floats on
+          the mood-tinted backdrop, the affective signature lives on the
+          right as a glowing A/V circle. */}
+      <header className="dashboard-header dashboard-hero">
+        <div className="dashboard-hero-bar">
+          <button className="dashboard-back" onClick={() => navigate("/")}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
             </svg>
             К списку
           </button>
-          <div className="dashboard-title-block">
-            <h1 className="dashboard-title" title={track.originalName}>
-              {displayName(track.originalName)}
+          <div className="dashboard-hero-actions">
+            <ShortcutsHelp />
+            {track.status === "ready" && tl && dur > 0 && (
+              <button
+                className="btn btn-sm btn-vibe"
+                onClick={() => setVibeOpen(true)}
+                title="Fullscreen-визуализация трека"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 3v18M3 12h18M5.64 5.64l12.72 12.72M5.64 18.36L18.36 5.64" />
+                </svg>
+                Вайб
+              </button>
+            )}
+            {confirmDelete ? null : (
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={requestDelete}
+                disabled={deleting}
+                title="Удалить трек"
+              >
+                Удалить
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="dashboard-hero-body">
+          {track.coverUrl && (
+            <div className="dashboard-hero-cover">
+              <img
+                src={track.coverUrl}
+                alt=""
+                className="dashboard-hero-cover-img"
+              />
+              <div className="dashboard-hero-cover-glow" aria-hidden="true" />
+            </div>
+          )}
+          <div className="dashboard-hero-text">
+            <div className="dashboard-hero-eyebrow">Анализ трека</div>
+            <h1 className="dashboard-hero-title" title={track.originalName}>
+              {track.title || displayName(track.originalName)}
             </h1>
-            <div className="dashboard-meta">
+            {track.artist && (
+              <div className="dashboard-hero-artist">{track.artist}</div>
+            )}
+            <div className="dashboard-hero-chips">
               {topGenre && (
                 <span
-                  className="dashboard-meta-pill dashboard-meta-pill--solid"
-                  style={{
-                    backgroundColor: getGenreColor(topGenre.label),
-                    color: "#fff",
-                    borderColor: "transparent",
-                  }}
+                  className="dashboard-hero-chip dashboard-hero-chip--genre"
+                  style={
+                    {
+                      "--chip-tint": getGenreColor(topGenre.label),
+                    } as React.CSSProperties
+                  }
                 >
+                  <span className="dashboard-hero-chip-dot" />
                   {ru(topGenre.label)}
                 </span>
               )}
               {mood && (
                 <span
-                  className="dashboard-meta-pill dashboard-meta-pill--mood"
-                  style={{
-                    backgroundColor: `${mood.color}1f`,
-                    color: mood.color,
-                    borderColor: `${mood.color}40`,
-                  }}
-                  title={`Настроение: ${mood.label.toLowerCase()} · valence ${Math.round(
-                    mood.valence * 100
-                  )}% · arousal ${Math.round(mood.arousal * 100)}%`}
+                  className="dashboard-hero-chip dashboard-hero-chip--mood"
+                  style={{ "--chip-tint": mood.color } as React.CSSProperties}
+                  title={`valence ${Math.round(mood.valence * 100)}% · arousal ${Math.round(mood.arousal * 100)}%`}
                 >
-                  <span
-                    className="dashboard-meta-pill-dot"
-                    style={{ backgroundColor: mood.color }}
-                    aria-hidden="true"
-                  />
+                  <span className="dashboard-hero-chip-dot" />
                   {mood.label}
                 </span>
               )}
               {tl?.audio_features?.tempo_bpm != null && (
-                <span className="dashboard-meta-pill">
+                <span className="dashboard-hero-chip">
                   {Math.round(tl.audio_features.tempo_bpm)} BPM
                 </span>
               )}
               {tl?.audio_features?.key && (
-                <span className="dashboard-meta-pill">
-                  {tl.audio_features.key.key}{" "}
-                  {tl.audio_features.key.mode === "Major" ? "мажор" : "минор"}
+                <span className="dashboard-hero-chip">
+                  {tl.audio_features.key.key} {tl.audio_features.key.mode === "Major" ? "мажор" : "минор"}
                 </span>
               )}
               {dur > 0 && (
-                <span className="dashboard-meta-pill dashboard-meta-pill--muted">
-                  {formatTime(dur)}
-                  {segCount > 0 && ` · ${segCount} сегм.`}
+                <span className="dashboard-hero-chip dashboard-hero-chip--muted">
+                  {formatTime(dur)} · {segCount} сегм.
                 </span>
               )}
             </div>
           </div>
+
         </div>
-        <div className="dashboard-header-right">
-          <ShortcutsHelp />
-          {confirmDelete ? (
+
+        {/* Inline delete-confirm appears in-flow under the hero bar */}
+        {confirmDelete && (
+          <div className="dashboard-hero-confirm">
             <div className="delete-confirm" role="group" aria-label="Подтвердите удаление">
               <span className="delete-confirm-text">Удалить трек?</span>
               <button
@@ -286,17 +332,8 @@ function TrackCard() {
                 Отмена
               </button>
             </div>
-          ) : (
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={requestDelete}
-              disabled={deleting}
-              title="Удалить трек"
-            >
-              Удалить
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
       {/* Loading/error banners */}
@@ -314,38 +351,24 @@ function TrackCard() {
       {/* Dashboard */}
       {track.status === "ready" && tl && dur > 0 && (
         <DashboardProvider audioRef={audioRef} duration={dur}>
-          <div className="dashboard-sticky">
-            <div className="dashboard-player-row">
-              <AudioPlayer src={audioSrc} audioRef={audioRef} />
-            </div>
-            <TimeAxis />
-          </div>
+          <AudioPlayer src={audioSrc} audioRef={audioRef} timeline={tl} />
 
           <div className="dashboard-grid">
             {tl.segment && <StructurePanel segments={tl.segment} />}
-            <EmotionPanel
-              arousalSegments={tl.arousal}
-              valenceSegments={tl.valence}
-              framePredictions={fp}
-              duration={dur}
-            />
+            <EmotionPanel framePredictions={fp} duration={dur} />
             {fp?.arousal_reg && fp?.valence_reg && (
-              <AVTrajectory
+              <EmotionalProfilePanel
                 arousalReg={fp.arousal_reg}
                 valenceReg={fp.valence_reg}
                 arousalProbs={fp.arousal_probs}
                 valenceProbs={fp.valence_probs}
                 hopSeconds={fp.frame_hop_seconds}
                 duration={dur}
+                segments={tl.segment}
+                genreSegments={tl.genre}
+                audioFeatures={tl.audio_features}
               />
             )}
-            <SummaryPanel
-              segments={tl.segment}
-              genreSegments={tl.genre}
-              framePredictions={fp}
-              audioFeatures={tl.audio_features}
-              duration={dur}
-            />
             <GenrePanel
               genreSegments={tl.genre}
               framePredictions={fp}
@@ -354,6 +377,15 @@ function TrackCard() {
             {id && <SpectrogramPanel trackId={id} duration={dur} />}
           </div>
         </DashboardProvider>
+      )}
+
+      {vibeOpen && track.status === "ready" && tl && (
+        <VibeMode
+          audioRef={audioRef}
+          timeline={tl}
+          trackName={displayName(track.originalName)}
+          onClose={() => setVibeOpen(false)}
+        />
       )}
     </div>
   );

@@ -14,8 +14,13 @@ interface TimelineStripProps {
   showLabels?: boolean;
 }
 
-const LABEL_FONT = '12px "Inter", "Segoe UI", system-ui, sans-serif';
+// Tuned for the dark glass theme: monospace caps that read on top of
+// translucent fills without competing with the panel typography.
+const LABEL_FONT = '600 10px "JetBrains Mono", "SF Mono", "Fira Code", monospace';
 const FALLBACK_COLOR = "#94a3b8";
+const SEGMENT_ALPHA = 0.55;            // less shouty than 0.85
+const DIVIDER_COLOR = "rgba(255,255,255,0.10)";
+const LABEL_COLOR = "rgba(255,255,255,0.92)";
 
 /**
  * Pure static canvas strip — renders segments at positions derived from timeScale.
@@ -51,24 +56,27 @@ function TimelineStrip({
       const segW = Math.max(x2 - x1, 1);
 
       ctx.fillStyle = colorMap[seg.label] ?? FALLBACK_COLOR;
-      ctx.globalAlpha = 0.85;
+      ctx.globalAlpha = SEGMENT_ALPHA;
       ctx.fillRect(x1, 0, segW, height);
       ctx.globalAlpha = 1;
 
       if (showLabels && segW > 38) {
-        ctx.fillStyle = "#fff";
+        ctx.fillStyle = LABEL_COLOR;
         ctx.font = LABEL_FONT;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+        // Letter-spacing isn't supported in canvas — fake it by sparing the
+        // confidence number unless the segment is wide enough to breathe.
+        const labelText = ru(seg.label).toUpperCase();
         const text =
-          segW > 80
-            ? `${ru(seg.label)} · ${(seg.confidence * 100).toFixed(0)}%`
-            : ru(seg.label);
-        ctx.fillText(text, x1 + segW / 2, height / 2, segW - 8);
+          segW > 110
+            ? `${labelText}  ·  ${(seg.confidence * 100).toFixed(0)}%`
+            : labelText;
+        ctx.fillText(text, x1 + segW / 2, height / 2, segW - 10);
       }
 
-      // Subtle divider
-      ctx.strokeStyle = "rgba(15,23,42,0.18)";
+      // Hairline divider — light on dark
+      ctx.strokeStyle = DIVIDER_COLOR;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(x2, 0);

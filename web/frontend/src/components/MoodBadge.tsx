@@ -84,14 +84,19 @@ function MoodBadge({ arousalSegments, valenceSegments }: MoodBadgeProps) {
 
   const title = `Настроение: ${mood.label.toLowerCase()} · valence ${Math.round(mood.valence * 100)}% · arousal ${Math.round(mood.arousal * 100)}%`;
 
+  // Monochrome chip with a single coloured dot — keeps the semantic colour
+  // signal but doesn't add a saturated pill to the page.
   return (
     <span
       className="mood-badge"
-      style={{ backgroundColor: mood.color, color: mood.fg }}
       title={title}
       aria-label={title}
     >
-      <span className="mood-badge-dot" aria-hidden="true" />
+      <span
+        className="mood-badge-dot"
+        style={{ backgroundColor: mood.color }}
+        aria-hidden="true"
+      />
       {mood.label}
     </span>
   );

@@ -6,6 +6,12 @@ export interface Track {
   error?: string;
   timeline?: Timeline;
   createdAt: string;
+  // Extracted from ID3 tags (local files) or yt-dlp metadata (YouTube/SC).
+  // All optional — UI gracefully degrades when missing.
+  artist?: string;
+  title?: string;
+  /** Public URL to the track's cover art, if extracted/downloaded. */
+  coverUrl?: string;
 }
 
 export interface TimelineSegment {

@@ -6,7 +6,14 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${url}`, options);
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new Error(`API ${res.status}: ${body || res.statusText}`);
+    let message = body || res.statusText;
+    try {
+      const parsed = JSON.parse(body) as { error?: string };
+      if (parsed?.error) message = parsed.error;
+    } catch {
+      // body wasn't JSON; keep the raw text
+    }
+    throw new Error(message);
   }
   return res.json() as Promise<T>;
 }
@@ -75,6 +82,18 @@ export function uploadTrackWithProgress(
     }
 
     xhr.send(form);
+  });
+}
+
+export async function importTrackFromUrl(
+  url: string,
+  signal?: AbortSignal,
+): Promise<Track> {
+  return request<Track>("/tracks/from-url", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+    signal,
   });
 }
 

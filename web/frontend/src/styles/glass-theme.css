@@ -1,0 +1,3847 @@
+/* ===== MusicML Timeline — Dark Glass Theme Overlay =====
+ *
+ * Imported AFTER globals.css.  Most components consume CSS custom
+ * properties (--bg-card, --text, --dash-*, etc.), so flipping the
+ * variables alone re-themes the bulk of the surface.  On top of that
+ * we add backdrop-blur and translucent fills to the card-style
+ * surfaces so they look like the Vibe Mode HUD panels. */
+
+:root {
+  /* Backgrounds — flip from light to deep night-purple */
+  --bg:           #0a0c14;
+  --bg-card:      rgba(255, 255, 255, 0.05);
+  --bg-subtle:    rgba(255, 255, 255, 0.04);
+  --bg-hover:     rgba(255, 255, 255, 0.10);
+  --bg-dark:      rgba(0, 0, 0, 0.55);
+
+  /* Text */
+  --text:           rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.66);
+  --text-muted:     rgba(255, 255, 255, 0.42);
+  --text-inverse:   #0a0c14;
+
+  /* Accent — brightened for dark contrast */
+  --accent:        #7dd3fc;
+  --accent-light:  #bae6fd;
+  --accent-bg:     rgba(125, 211, 252, 0.10);
+  --accent-border: rgba(125, 211, 252, 0.32);
+
+  /* Status colours — boosted alpha for legibility on glass */
+  --success:    #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.14);
+  --warning:    #fbbf24;
+  --warning-bg: rgba(251, 191, 36, 0.14);
+  --danger:     #f87171;
+  --danger-bg:  rgba(248, 113, 113, 0.14);
+
+  /* Borders — translucent white */
+  --border:        rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.18);
+
+  /* Shadows — deeper for layered glass */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow:    0 4px 18px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
+
+  /* Dashboard scope */
+  --dash-bg:            transparent;
+  --dash-surface:       rgba(255, 255, 255, 0.05);
+  --dash-border:        rgba(255, 255, 255, 0.10);
+  --dash-border-strong: rgba(255, 255, 255, 0.20);
+  --dash-text:          rgba(255, 255, 255, 0.92);
+  --dash-text-2:        rgba(255, 255, 255, 0.66);
+  --dash-text-3:        rgba(255, 255, 255, 0.40);
+  --dash-accent:        #7dd3fc;
+  --dash-accent-soft:   rgba(125, 211, 252, 0.14);
+  --dash-play:          #fb7185;          /* coral playhead — pops on dark */
+  --dash-shadow-xs:     0 1px 2px rgba(0, 0, 0, 0.35);
+  --dash-shadow-sm:     0 1px 6px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== Body — deep gradient with subtle ambient glow ===== */
+body {
+  background:
+    radial-gradient(ellipse at 20% 0%,  rgba(124, 58, 237, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(37, 99, 235, 0.16) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 0%, rgba(244, 114, 182, 0.10) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0c14 0%, #060810 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Subtle scroll bar on dark */
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.24); }
+
+/* ===== Glass-card universal mixin =====
+ * Anything that was a "card" in the light theme becomes a glass surface. */
+.dash-panel,
+.track-preview-card,
+.track-card,
+.emotion-curves,
+.upload-zone,
+.player-v2,
+.dashboard-header,
+.tracks-section-header,
+.tracks-toolbar,
+.timeline-tooltip,
+.dashboard-meta-pill,
+.section-count,
+.app-version,
+.shortcuts-help-popover,
+.delete-confirm,
+.player-v2-progress,
+.tracks-search-input,
+.tracks-sort,
+.dashboard-skeleton,
+.skeleton-block {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  color: var(--text);
+}
+
+/* Sticky header / sub-header — heavier glass so it reads against scrolling content */
+.dashboard-header,
+.tracks-section-header,
+.dashboard-sticky,
+.app-header {
+  background: rgba(10, 12, 20, 0.55) !important;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-header { border-bottom-color: rgba(255, 255, 255, 0.08); }
+
+/* ===== Track preview cards — extra warmth on hover ===== */
+.track-preview-card:hover {
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.track-preview-icon {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+}
+
+.track-preview-name { color: var(--text); }
+.track-preview-meta { color: var(--text-secondary); }
+
+/* ===== Buttons — glass aesthetic ===== */
+.btn-secondary,
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text);
+}
+.btn-secondary:hover:not(:disabled),
+.btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.85), rgba(96, 165, 250, 0.85));
+  color: #061018;
+  border: 1px solid rgba(125, 211, 252, 0.5);
+  text-shadow: none;
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(186, 230, 253, 0.95), rgba(147, 197, 253, 0.95));
+}
+
+.btn-danger {
+  background: rgba(248, 113, 113, 0.10);
+  border-color: rgba(248, 113, 113, 0.32);
+  color: #fca5a5;
+}
+.btn-danger:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.22);
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
+/* Vibe-mode trigger pops harder against dark */
+.btn-vibe {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(37, 99, 235, 0.22)) !important;
+  border-color: rgba(167, 139, 250, 0.45) !important;
+  color: #ddd6fe !important;
+}
+.btn-vibe:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.36), rgba(37, 99, 235, 0.36)) !important;
+  border-color: rgba(167, 139, 250, 0.65) !important;
+}
+
+/* ===== Inputs ===== */
+.tracks-search-input,
+.tracks-sort {
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+.tracks-search-input::placeholder { color: var(--text-muted); }
+
+.tracks-search-kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--text-secondary);
+}
+
+/* Upload zone — dashed glass */
+.upload-zone {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.20) !important;
+}
+.upload-zone:hover {
+  background: rgba(125, 211, 252, 0.08) !important;
+  border-color: rgba(125, 211, 252, 0.32) !important;
+}
+
+/* ===== Meta pills ===== */
+.dashboard-meta-pill {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-secondary) !important;
+}
+.dashboard-meta-pill--muted { color: var(--text-muted) !important; }
+
+/* Genre/mood pills keep their tint but with adjusted border opacity */
+.dashboard-meta-pill--solid {
+  background: var(--track-mood, var(--accent)) !important;
+  border-color: transparent !important;
+  color: #061018 !important;
+  font-weight: 600;
+}
+
+/* ===== Audio player — dark glass control bar ===== */
+.player-v2-progress-track { background: rgba(255, 255, 255, 0.10); }
+.player-v2-progress-played {
+  background: linear-gradient(90deg, rgba(125, 211, 252, 0.6), rgba(125, 211, 252, 0.95));
+}
+.player-v2-progress-head {
+  background: #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.player-v2-play {
+  background: rgba(125, 211, 252, 0.18);
+  border-color: rgba(125, 211, 252, 0.4);
+  color: #e0f2fe;
+}
+.player-v2-play:hover:not(:disabled) {
+  background: rgba(125, 211, 252, 0.32);
+}
+
+.player-v2-mute { color: var(--text-secondary); }
+
+/* ===== Dashboard panels — softer borders, lifted shadow ===== */
+.dash-panel {
+  box-shadow: var(--shadow-sm);
+  border-radius: 14px;
+}
+
+.dash-panel-title { color: var(--text-muted); }
+.dash-panel-subtitle { color: var(--text-secondary); }
+
+/* ===== Time axis sticky footer ===== */
+.time-axis {
+  background: rgba(10, 12, 20, 0.55) !important;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ===== Spectrogram axes (SVG fills resolved via vars) ===== */
+.spectrogram-axis-title,
+.spectrogram-axis-tick,
+.spectrogram-axis-label,
+.av-axis-label,
+.av-tick {
+  fill: var(--dash-text-2);
+}
+
+/* ===== Selection / focus accents ===== */
+::selection { background: color-mix(in srgb, var(--track-mood, #7dd3fc) 35%, transparent); color: #fff; }
+.btn:focus-visible,
+.play-btn:focus-visible,
+.tracks-search-input:focus,
+.tracks-sort:focus {
+  outline: 2px solid color-mix(in srgb, var(--track-mood, #7dd3fc) 70%, white);
+  outline-offset: 2px;
+}
+
+/* ===== App title — keep editorial serif but in light tone ===== */
+.app-title { color: var(--text); }
+.dashboard-title { color: var(--text); }
+
+/* ===== Genre filter chips ===== */
+.genre-filter-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+}
+.genre-filter-chip:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--text);
+}
+.genre-filter-chip--active {
+  background: rgba(125, 211, 252, 0.18);
+  border-color: rgba(125, 211, 252, 0.4);
+  color: #e0f2fe;
+}
+
+/* ===== Loading shimmer on dark ===== */
+.skeleton-block,
+.dashboard-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  ) !important;
+}
+
+/* ===== Section headings ===== */
+.section-heading { color: var(--text-muted); }
+
+/* The Vibe overlay carries its own self-contained styling in vibe.css —
+   nothing here should touch it.  We don't add any .vibe-* selectors above
+   on purpose; this comment is a guard against accidental rewrites. */
+
+
+/* ===================================================================
+ * VIBE-GRADE POLISH — track dashboard tuned to match the HUD aesthetic.
+ *
+ * Every card gets a top-edge inset highlight for "lift", panel titles
+ * adopt the HUD's monospace-uppercase treatment, the audio player
+ * matches the vibe-mode player exactly, and chips read like the
+ * vibe HUD chips (mono uppercase pills with optional confidence%).
+ * =================================================================== */
+
+/* ---- Card lift: inset highlight on top edge + soft outer glow ---- */
+.dash-panel,
+.track-preview-card,
+.emotion-curves,
+.upload-zone,
+.dashboard-header,
+.player-v2,
+.shortcuts-help-popover,
+.timeline-tooltip {
+  border-radius: 16px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.32) !important;
+}
+
+/* Slightly tighter on the dashboard sticky header — it floats above content */
+.dashboard-header {
+  border-radius: 16px !important;
+  margin: 8px 0 0;
+  padding: 14px 18px !important;
+}
+
+/* ---- Dashboard panel headers — vibe HUD-style mono caps ---- */
+.dash-panel {
+  padding: 18px 22px !important;
+  gap: 14px !important;
+}
+
+.dash-panel-title {
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.16em !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+  font-weight: 500 !important;
+}
+
+.dash-panel-subtitle {
+  font-size: 0.78rem !important;
+  color: rgba(255, 255, 255, 0.66) !important;
+  letter-spacing: 0.01em;
+}
+
+/* ---- Meta chips (header pills) → vibe HUD chip aesthetic ---- */
+.dashboard-meta-pill {
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.10em !important;
+  padding: 4px 11px !important;
+  border-radius: 999px !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.dashboard-meta-pill--solid {
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.10em !important;
+  padding: 4px 11px !important;
+}
+
+.dashboard-meta-pill--mood .dashboard-meta-pill-dot {
+  width: 6px;
+  height: 6px;
+}
+
+/* ---- Audio player (.player-v2) — match the vibe-mode player exactly ---- */
+.player-v2 {
+  padding: 12px 18px !important;
+  gap: 16px !important;
+  border-radius: 14px !important;
+  background: rgba(8, 10, 18, 0.42) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.player-v2-play {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(125, 211, 252, 0.16) !important;
+  border: 1px solid rgba(125, 211, 252, 0.36) !important;
+  color: #e0f2fe !important;
+}
+.player-v2-play:hover:not(:disabled) {
+  background: rgba(125, 211, 252, 0.28) !important;
+}
+
+.player-v2-time {
+  font-family: var(--font-mono) !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.player-v2-time-current { color: rgba(255, 255, 255, 0.92) !important; font-weight: 500 !important; }
+.player-v2-time-sep    { color: rgba(255, 255, 255, 0.28) !important; }
+.player-v2-time-total  { color: rgba(255, 255, 255, 0.42) !important; }
+
+.player-v2-progress { height: 18px !important; }
+.player-v2-progress-track {
+  top: 50% !important;
+  height: 4px !important;
+  margin-top: -2px !important;
+  inset: auto 0 auto 0 !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+  border-radius: 2px !important;
+}
+.player-v2-progress-played {
+  top: 50% !important;
+  height: 4px !important;
+  margin-top: -2px !important;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.85)
+  ) !important;
+  border-radius: 2px !important;
+}
+.player-v2-progress-head {
+  width: 12px !important;
+  height: 12px !important;
+  background: #fff !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8),
+              0 0 0 1px rgba(0, 0, 0, 0.25) !important;
+}
+.player-v2-progress-pin {
+  background: #7dd3fc !important;
+  box-shadow: 0 0 8px rgba(125, 211, 252, 0.7) !important;
+}
+
+/* Volume slider thumb on dark */
+.player-v2-volume-slider {
+  background: rgba(255, 255, 255, 0.14) !important;
+}
+.player-v2-volume-slider::-webkit-slider-thumb {
+  background: #fff !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ---- Time axis — light tick lines, mono labels ---- */
+.time-axis-svg text { fill: rgba(255, 255, 255, 0.55) !important; }
+.time-axis-tick     { stroke: rgba(255, 255, 255, 0.18) !important; }
+
+/* ---- Shortcuts popover — kbd boxes ---- */
+.shortcuts-help-popover {
+  background: rgba(8, 10, 18, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.shortcuts-help-kbd {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-family: var(--font-mono) !important;
+}
+
+.shortcuts-help-btn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-secondary) !important;
+}
+.shortcuts-help-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text) !important;
+}
+
+/* ---- Tooltips — glass on dark ---- */
+.timeline-tooltip {
+  background: rgba(8, 10, 18, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.74rem !important;
+  border-radius: 8px !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.timeline-tooltip strong { color: #fff !important; }
+.timeline-tooltip span   { color: rgba(255, 255, 255, 0.6) !important; }
+
+/* ---- Delete confirmation inline group ---- */
+.delete-confirm {
+  background: rgba(248, 113, 113, 0.10) !important;
+  border-color: rgba(248, 113, 113, 0.32) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.delete-confirm-text { color: #fecaca !important; }
+
+/* ---- Subtle hover-lift on track preview cards ---- */
+.track-preview-card {
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+.track-preview-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 14px 38px rgba(0, 0, 0, 0.42) !important;
+}
+
+/* ---- Genre filter chips — vibe HUD treatment ---- */
+.genre-filter-chip {
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.10em !important;
+  border-radius: 999px !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* ---- App version badge in the header ---- */
+.app-version {
+  font-family: var(--font-mono) !important;
+  background: rgba(125, 211, 252, 0.14) !important;
+  border: 1px solid rgba(125, 211, 252, 0.30) !important;
+  color: #e0f2fe !important;
+  font-size: 0.62rem !important;
+}
+
+/* ---- Section heading (e.g. "ОБРАБОТАННЫЕ ТРЕКИ 21") ---- */
+.section-heading {
+  font-family: var(--font-mono) !important;
+  letter-spacing: 0.18em !important;
+  font-size: 0.64rem !important;
+}
+.section-count {
+  font-family: var(--font-mono) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+
+/* ===================================================================
+ * LIQUID-GLASS PASS — Apple Music / Vision Pro influenced.
+ *
+ * 1. The dashboard backdrop is tinted by the current track's mood +
+ *    genre (set as --track-mood / --track-genre on .dashboard-page),
+ *    so the surface feels alive with the music.
+ * 2. Cards render as actual glass: vertical gradient fill, dual border
+ *    (outer hairline + inset top highlight), soft layered shadow.
+ * 3. The track header becomes a hero — bigger serif title, mood glow
+ *    halo behind it, refined chip row.
+ * 4. A faint SVG noise overlay on .dashboard-page gives every glass
+ *    panel a hint of material grain (ultra-low contrast, pure texture).
+ * =================================================================== */
+
+/* ---- 1. Mood-tinted ambient backdrop ---- */
+.dashboard-page {
+  position: relative;
+  isolation: isolate;
+  padding-bottom: 80px;
+}
+
+/* Two large radial glows behind the page that pick up the track's mood
+   and dominant genre, plus a base dark wash.  Modern color-mix() lets us
+   take the raw hex variables and turn them into low-alpha tints. */
+.dashboard-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 50% -10%,
+      color-mix(in srgb, var(--track-mood, #7dd3fc) 22%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 60% at 110% 110%,
+      color-mix(in srgb, var(--track-genre, #a78bfa) 18%, transparent) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at -10% 90%,
+      color-mix(in srgb, var(--track-mood, #7dd3fc) 12%, transparent) 0%,
+      transparent 60%
+    );
+  animation: dash-ambient-drift 22s ease-in-out infinite alternate;
+}
+
+@keyframes dash-ambient-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-3%, 1.5%) scale(1.06); }
+}
+
+/* Faint grain overlay — the trick that makes glass look like a material
+   instead of a flat translucent rectangle. */
+.dashboard-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1   0 0 0 0 1   0 0 0 0 1   0 0 0 0.05 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+}
+
+
+/* ---- 2. Cards as actual glass — gradient fill, dual border, depth ---- */
+
+/* Stronger override of the flat translucent fill from the base section. */
+.dash-panel,
+.track-card,
+.emotion-curves,
+.upload-zone,
+.dashboard-header,
+.player-v2,
+.shortcuts-help-popover {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.025) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+    0 12px 40px -8px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.30) !important;
+}
+
+.track-preview-card {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 6px 20px -4px rgba(0, 0, 0, 0.40) !important;
+}
+
+.track-preview-card:hover {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.04) 100%
+    ) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 18px 44px -6px rgba(0, 0, 0, 0.55) !important;
+}
+
+
+/* ---- 3. Hero header — editorial title + mood halo ---- */
+
+.dashboard-header {
+  position: relative;
+  padding: 22px 26px !important;
+  margin-top: 12px !important;
+  align-items: flex-start;
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+/* Removed mood halo behind hero title — was contributing to the neon feel. */
+.dashboard-header::before { display: none; }
+
+.dashboard-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-title-block { gap: 10px; display: flex; flex-direction: column; }
+
+.dashboard-title {
+  font-family: var(--font-display) !important;
+  font-variation-settings: "opsz" 144, "SOFT" 50 !important;
+  font-size: 1.95rem !important;
+  font-weight: 500 !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.025em !important;
+  color: rgba(255, 255, 255, 0.96) !important;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+}
+
+.dashboard-meta { gap: 8px !important; margin-top: 2px; }
+
+.dashboard-header-right { gap: 8px !important; align-items: flex-start !important; padding-top: 4px; }
+
+
+/* ---- 4. Panels — tighter glass type system ---- */
+
+.dash-panel {
+  padding: 22px 24px !important;
+  gap: 16px !important;
+  border-radius: 18px !important;
+}
+
+.dash-panel-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  align-items: baseline !important;
+}
+
+.dash-panel-title {
+  font-family: var(--font-mono) !important;
+  font-size: 0.62rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.20em !important;
+  color: rgba(255, 255, 255, 0.50) !important;
+  font-weight: 500 !important;
+}
+
+.dash-panel-subtitle {
+  font-size: 0.78rem !important;
+  color: rgba(255, 255, 255, 0.62) !important;
+  font-weight: 400 !important;
+}
+
+
+/* ---- Player & sticky row — sit between hero and content ---- */
+
+.dashboard-sticky {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 8px 0 !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.player-v2 {
+  border-radius: 16px !important;
+}
+
+
+/* ---- Dashboard grid — more breathing room ---- */
+
+.dashboard-grid {
+  gap: 18px !important;
+  margin-top: 8px !important;
+}
+
+
+/* ---- Buttons — refined glass treatment ---- */
+
+.btn,
+.btn-secondary,
+.btn-ghost,
+.btn-danger {
+  border-radius: 10px !important;
+  padding: 7px 14px !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.btn-vibe {
+  position: relative;
+  overflow: hidden;
+}
+.btn-vibe::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 0%, rgba(167, 139, 250, 0.35), transparent 60%);
+  pointer-events: none;
+}
+
+
+/* ---- Time axis — refined edge integration ---- */
+
+.dashboard-sticky .time-axis {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  padding-top: 6px;
+}
+
+
+/* ---- Compact responsive — keep glass intact below 900px ---- */
+
+@media (max-width: 900px) {
+  .dashboard-header { padding: 18px 20px !important; }
+  .dashboard-title  { font-size: 1.55rem !important; }
+  .dash-panel       { padding: 18px 20px !important; }
+}
+
+
+/* ===================================================================
+ * QUIETING PASS — make the dashboard read like the vibe HUD scaled up.
+ *
+ * The previous pass added depth, but the surface is still loud: every
+ * segment chip carries its own saturated background, the emotion strip
+ * is a wall of red/yellow blocks, and the hero sits inside a card.
+ * Premium glass UIs keep colour minimal, type quiet, and let ONE thing
+ * be loud at a time.  This pass:
+ *
+ *  - Lifts the hero out of its card so it floats on the backdrop
+ *  - Neutralises segment chips into monochrome rows with a tiny dot
+ *  - Desaturates the timeline + emotion strips (still readable, no longer shouty)
+ *  - Tightens panel chrome (thinner borders, no inset highlight)
+ *  - Pushes type smaller and quieter
+ * =================================================================== */
+
+/* ---- Hero floats — no card, just title + meta on the backdrop ---- */
+.dashboard-header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  padding: 28px 4px 16px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible;
+}
+
+.dashboard-header::before {
+  /* Mood halo now bleeds into the page background, not contained in a card */
+  left: -8%;
+  top: -30%;
+  width: 70%;
+  height: 240%;
+  filter: blur(40px);
+}
+
+.dashboard-title {
+  font-size: 2.2rem !important;
+  font-variation-settings: "opsz" 144, "SOFT" 30 !important;
+  font-weight: 400 !important;
+  color: rgba(255, 255, 255, 0.97) !important;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Back-to-list button reads like a quiet link, not a chunky button */
+.dashboard-header-left .btn-ghost {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.62) !important;
+  padding: 6px 12px !important;
+  font-size: 0.78rem !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.dashboard-header-left .btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+
+/* ---- Panel chrome — quieter, fewer edges ---- */
+.dash-panel {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.015) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 16px 48px -12px rgba(0, 0, 0, 0.55) !important;
+  padding: 24px 26px !important;
+}
+
+.dash-panel-header {
+  border-bottom: none !important;
+  padding-bottom: 4px;
+}
+
+.dash-panel-title {
+  font-size: 0.60rem !important;
+  letter-spacing: 0.22em !important;
+  color: rgba(255, 255, 255, 0.36) !important;
+}
+
+.dash-panel-subtitle {
+  font-size: 0.74rem !important;
+  color: rgba(255, 255, 255, 0.50) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.01em;
+}
+
+
+/* ---- Segment list — neutralise colour, tiny dot keeps semantic ---- */
+.segment-list {
+  gap: 4px !important;
+}
+
+.segment-list-item {
+  background: rgba(255, 255, 255, 0.025) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  transition: background 0.15s ease, border-color 0.15s ease !important;
+}
+
+/* Kill the coloured ::before fill — the dot alone carries the semantic */
+.segment-list-item::before {
+  display: none !important;
+}
+
+.segment-list-item:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.segment-list-item--active {
+  background: color-mix(in srgb, var(--track-mood, #7dd3fc) 12%, transparent) !important;
+  border-color: color-mix(in srgb, var(--track-mood, #7dd3fc) 32%, transparent) !important;
+}
+
+.segment-list-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.40) !important;
+  opacity: 1;
+}
+
+.segment-list-item--active .segment-list-dot {
+  background: color-mix(in srgb, var(--track-mood, #7dd3fc) 80%, white) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--track-mood, #7dd3fc) 60%, transparent);
+}
+
+.segment-list-item--hover .segment-list-dot {
+  background: rgba(255, 255, 255, 0.85) !important;
+}
+
+.segment-list-label {
+  font-family: var(--font) !important;
+  font-size: 0.78rem !important;
+  font-weight: 400 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.segment-list-time {
+  font-family: var(--font-mono) !important;
+  font-size: 0.70rem !important;
+  color: rgba(255, 255, 255, 0.42) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.segment-list-conf {
+  font-family: var(--font-mono) !important;
+  font-size: 0.70rem !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.segment-list-item--active .segment-list-label {
+  color: rgba(255, 255, 255, 0.96) !important;
+  font-weight: 500 !important;
+}
+.segment-list-item--active .segment-list-conf {
+  color: color-mix(in srgb, var(--track-mood, #7dd3fc) 25%, white) !important;
+}
+
+
+/* ---- Timeline / emotion strips — desaturate, lower contrast ---- */
+.chart-frame svg rect,
+.emotion-strip rect {
+  filter: saturate(0.72) brightness(0.88);
+}
+
+/* Strip row labels — tiny mono caps */
+.emotion-strip-label {
+  font-family: var(--font-mono) !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42) !important;
+}
+
+/* Curves chart — soften background, keep lines crisp */
+.emotion-curves {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.01) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.emotion-legend {
+  font-family: var(--font-mono) !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.50) !important;
+}
+
+
+/* ---- Time axis between sticky and panels — almost invisible ---- */
+.time-axis-svg text {
+  fill: rgba(255, 255, 255, 0.34) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 9px !important;
+  letter-spacing: 0.04em;
+}
+.time-axis-tick { stroke: rgba(255, 255, 255, 0.10) !important; }
+
+
+/* ---- Header chips — a touch smaller, less competing ---- */
+.dashboard-meta {
+  gap: 6px !important;
+}
+
+.dashboard-meta-pill {
+  font-size: 0.62rem !important;
+  letter-spacing: 0.12em !important;
+  padding: 3px 9px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.dashboard-meta-pill--solid {
+  font-size: 0.62rem !important;
+  letter-spacing: 0.12em !important;
+  padding: 3px 9px !important;
+  /* Drop saturation slightly so the genre chip doesn't yell */
+  filter: saturate(0.85);
+}
+
+.dashboard-meta-pill--mood {
+  filter: saturate(0.85);
+}
+
+
+/* ---- Header right side — refine action button stack ---- */
+.dashboard-header-right .btn-sm {
+  font-size: 0.74rem !important;
+  padding: 6px 12px !important;
+}
+
+
+/* ---- Grid breathing room ---- */
+.dashboard-grid {
+  gap: 22px !important;
+  margin-top: 18px !important;
+}
+
+
+/* ---- Player card — tightening, removes inset highlight that competed ---- */
+.player-v2 {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 32px -8px rgba(0, 0, 0, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+
+/* ===================================================================
+ * HERO REBUILD — Apple Music NowPlaying-style focal zone.
+ *
+ * Title floats on the mood-tinted backdrop (no card around it), the
+ * affective signature lives on the right as a glowing A/V circle, and
+ * a thin top bar carries navigation + actions.
+ * =================================================================== */
+
+/* Ambient backdrop — subtle coloured wash, much softer than the previous
+   saturated gradients.  Glass needs something behind it but not a rave. */
+.dashboard-page::before {
+  background:
+    radial-gradient(
+      ellipse 90% 70% at 50% -10%,
+      color-mix(in srgb, var(--track-mood, #7dd3fc) 14%, transparent) 0%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 80% 70% at 110% 110%,
+      color-mix(in srgb, var(--track-genre, #a78bfa) 10%, transparent) 0%,
+      transparent 70%
+    ) !important;
+}
+
+.dashboard-hero {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+  padding: 16px 4px 28px !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible;
+  align-items: stretch !important;
+}
+.dashboard-hero::before { display: none; } /* drop the blob, page-level glow handles it */
+
+.dashboard-hero-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--font-mono);
+  font-size: 0.70rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.dashboard-back:hover { background: rgba(255, 255, 255, 0.10); color: #fff; border-color: rgba(255, 255, 255, 0.20); }
+
+.dashboard-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Single-column hero body — title + chips own the full width.  The A/V
+   trajectory used to sit on the right but it duplicates the dedicated
+   "Эмоциональный профиль" panel below, so it's gone. */
+.dashboard-hero-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  min-height: 200px;
+  padding: 8px 4px 16px;
+  justify-content: center;
+}
+
+.dashboard-hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.dashboard-hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--track-mood, #7dd3fc) 65%, white);
+  opacity: 0.85;
+}
+
+.dashboard-hero-title {
+  font-family: var(--font-display) !important;
+  font-variation-settings: "opsz" 144, "SOFT" 30 !important;
+  font-size: clamp(2.4rem, 4.8vw, 4.0rem) !important;
+  font-weight: 400 !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.035em !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+  margin: 0;
+}
+
+.dashboard-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.dashboard-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-hero-chip--genre,
+.dashboard-hero-chip--mood {
+  background: color-mix(in srgb, var(--chip-tint, #7dd3fc) 18%, rgba(255, 255, 255, 0.04));
+  border-color: color-mix(in srgb, var(--chip-tint, #7dd3fc) 35%, transparent);
+  color: color-mix(in srgb, var(--chip-tint, #7dd3fc) 60%, white);
+}
+
+.dashboard-hero-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--chip-tint, #7dd3fc);
+  box-shadow: 0 0 6px var(--chip-tint, #7dd3fc);
+}
+
+.dashboard-hero-chip--muted { color: rgba(255, 255, 255, 0.50); }
+
+/* The right-side affective signature canvas */
+.dashboard-hero-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+    0 24px 64px -16px rgba(0, 0, 0, 0.65);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(140%);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Soft mood glow *behind* the canvas */
+.dashboard-hero-visual-glow {
+  position: absolute;
+  inset: -30%;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--track-mood, #7dd3fc) 40%, transparent) 0%,
+    transparent 65%
+  );
+  filter: blur(40px);
+  animation: dash-glow-pulse 6s ease-in-out infinite alternate;
+}
+
+@keyframes dash-glow-pulse {
+  0%   { transform: scale(0.95); opacity: 0.85; }
+  100% { transform: scale(1.10); opacity: 1.0; }
+}
+
+.dashboard-hero-visual canvas {
+  display: block;
+  border-radius: 14px;
+}
+
+.dashboard-hero-visual-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.dashboard-hero-visual-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.dashboard-hero-visual-hint {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.10em;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.dashboard-hero-confirm {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+/* ===================================================================
+ * REAL GLASS PANELS — bump fill, border, blur so they actually look
+ * like glass refracting the colour gradient behind, not like dark cards.
+ * =================================================================== */
+
+.dash-panel {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.015) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 20px 48px -18px rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.22) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+  backdrop-filter: blur(24px) saturate(130%);
+  border-radius: 20px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* A subtle highlight sweep across the top edge — the "light catching the glass" detail */
+.dash-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 5%;
+  right: 5%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.40), transparent);
+  pointer-events: none;
+}
+
+.player-v2 {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 16px 40px -14px rgba(0, 0, 0, 0.50) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+  backdrop-filter: blur(24px) saturate(130%);
+}
+
+
+/* ===================================================================
+ * UNIFIED PLAYER — replaces the old AudioPlayer + TimeAxis combo with
+ * a single hero-grade glass card.  The scrubber holds segment markers
+ * (alpha = confidence) and tick marks at round time intervals; hovering
+ * shows a tooltip with the time + current segment label.
+ * =================================================================== */
+
+.player-v2 {
+  display: grid !important;
+  grid-template-columns: auto auto 1fr auto auto !important;
+  grid-template-areas: "play time bar volume pin" !important;
+  align-items: center;
+  gap: 18px !important;
+  padding: 14px 22px 18px !important;
+  border-radius: 18px !important;
+}
+
+/* Play button — clean glass circle with just a whisper of mood tint */
+.player-v2-play {
+  grid-area: play;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.96) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 2px 10px rgba(0, 0, 0, 0.30) !important;
+}
+.player-v2-play:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16) !important;
+}
+
+.player-v2-time {
+  grid-area: time;
+  font-family: var(--font-mono) !important;
+  font-size: 0.86rem !important;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.player-v2-bar {
+  grid-area: bar;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.player-v2-scrubber {
+  position: relative;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.player-v2-scrubber { height: 36px; }
+
+.player-v2-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 22px;
+  margin-top: -11px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.30);
+}
+
+/* Segment markers — monochrome glass blocks tinted by the segment colour;
+   alpha encodes the model's confidence in that label.  Each block also
+   carries the segment label inside, so the scrubber doubles as the
+   former "Структура композиции" strip. */
+/* Monochrome white glass blocks; alpha set inline = confidence, only the
+   active segment gets a mood-coloured tint via --active modifier. */
+.player-v2-segment {
+  position: absolute;
+  top: 50%;
+  height: 22px;
+  margin-top: -11px;
+  background: rgba(255, 255, 255, 1);   /* alpha varied by inline opacity */
+  border-right: 1px solid rgba(0, 0, 0, 0.30);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.player-v2-segment-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 0 6px;
+  pointer-events: none;
+}
+
+.player-v2-segment-conf {
+  font-size: 0.54rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Played progress — soft white overlay, no glow */
+.player-v2-played {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 22px;
+  margin-top: -11px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.28)
+  );
+  border-right: 2px solid rgba(255, 255, 255, 0.75);
+  border-radius: 4px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* Tick marks inside the scrubber — short vertical hairlines bleeding off the bar */
+.player-v2-tick {
+  position: absolute;
+  top: 50%;
+  width: 1px;
+  height: 36px;
+  margin: -18px 0 0 0;
+  background: rgba(255, 255, 255, 0.10);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.player-v2-pin {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 22px;
+  margin: -11px 0 0 -1px;
+  background: var(--track-mood, #7dd3fc);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--track-mood, #7dd3fc) 70%, transparent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.player-v2-head {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.40),
+    0 0 0 1px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+/* Hover indicator: vertical line + tooltip */
+.player-v2-hover {
+  position: absolute;
+  top: 50%;
+  width: 1px;
+  height: 28px;
+  margin: -14px 0 0 0;
+  background: rgba(255, 255, 255, 0.40);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.player-v2-hover-tip {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 10px;
+  background: rgba(8, 10, 18, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  white-space: nowrap;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.player-v2-hover-tip-time {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.player-v2-hover-tip-seg {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: rgba(255, 255, 255, 0.60);
+}
+
+/* Tick label row under the scrubber */
+.player-v2-ticks-row {
+  position: relative;
+  height: 12px;
+}
+
+.player-v2-tick-label {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.36);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.player-v2-volume {
+  grid-area: volume;
+}
+
+.player-v2-pin-clear {
+  grid-area: pin;
+  background: color-mix(in srgb, var(--track-mood, #7dd3fc) 14%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--track-mood, #7dd3fc) 32%, transparent) !important;
+  color: color-mix(in srgb, var(--track-mood, #7dd3fc) 20%, white) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase;
+  padding: 5px 10px !important;
+  border-radius: 999px !important;
+}
+
+.player-v2-pin-clear:hover {
+  background: color-mix(in srgb, var(--track-mood, #7dd3fc) 26%, transparent) !important;
+}
+
+
+/* ===================================================================
+ * PROD-GRADE MICRO-DETAILS — the bits that turn "good" into "expensive".
+ *
+ *  - Soundcloud-style RMS waveform behind the scrubber
+ *  - "Now playing" pulse beside the time readout
+ *  - Active segment glow (the block currently under the playhead)
+ *  - Hover-sync between scrubber segments and the segment list panel
+ *  - Refined cubic-bezier easings everywhere
+ * =================================================================== */
+
+/* Loudness waveform layer — sits behind segment markers, tinted white at
+   low alpha so segment colours still dominate but the bar gains depth. */
+.player-v2-waveform {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  width: 100%;
+  height: 28px;
+  margin-top: -14px;
+  display: block;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+
+.player-v2-segment { z-index: 1; }
+.player-v2-played  { z-index: 2; }
+.player-v2-tick    { z-index: 2; }
+.player-v2-head    { z-index: 5; }
+
+/* "Now playing" pulse — small dot that softly throbs when audio is playing */
+.player-v2-now-pulse {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.85);
+  margin-right: 6px;
+  align-self: center;
+  animation: player-pulse 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes player-pulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%      { transform: scale(0.7); opacity: 0.45; }
+}
+
+/* Active segment — soft outer ring + glow when the playhead sits inside it */
+.player-v2-segment {
+  transition:
+    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.player-v2-segment--active {
+  opacity: 0.95 !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.30);
+}
+
+.player-v2-segment:hover {
+  opacity: 0.75 !important;
+  filter: saturate(1.0) brightness(1.05);
+}
+
+/* Hover-sync: when the mouse is on the scrubber, the corresponding segment
+   row in the StructurePanel highlights via the shared hoverTime state. */
+.segment-list-item--hover {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+
+/* ===================================================================
+ * EASINGS — replace the flat 0.12s ease defaults with refined motion.
+ *
+ * cubic-bezier(0.4, 0, 0.2, 1) is the Material/iOS "standard" curve —
+ * fast in, slow out, feels expensive everywhere it's applied.
+ * =================================================================== */
+
+.btn,
+.dashboard-meta-pill,
+.shortcuts-help-btn,
+.player-v2-play,
+.player-v2-mute,
+.player-v2-pin-clear,
+.dashboard-back,
+.btn-vibe,
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-danger,
+.dashboard-hero-chip,
+.genre-filter-chip {
+  transition: all 0.20s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.dash-panel,
+.player-v2,
+.track-preview-card,
+.dashboard-hero-visual,
+.upload-zone {
+  transition: transform 0.30s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.30s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.30s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.segment-list-item {
+  transition: background 0.20s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.20s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.20s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.segment-list-item:hover { transform: translateX(2px); }
+
+
+/* ===================================================================
+ * GLASS POLISH — the small details that read as "real glass":
+ * 4-edge highlights, soft inner shadow, fine grain on the panel itself.
+ * =================================================================== */
+
+.dash-panel {
+  /* Add subtle highlights on side edges via outline pseudo-element */
+  position: relative;
+}
+
+.dash-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+  mix-blend-mode: overlay;
+}
+
+
+/* Player play-button — gain a soft pulse on hover and a sweep highlight */
+.player-v2-play {
+  position: relative;
+  overflow: hidden;
+}
+.player-v2-play::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 60%);
+  pointer-events: none;
+}
+
+
+/* ===================================================================
+ * AV TRAJECTORY — premium emotion plot
+ *
+ *   - Quadrant labels render as mono-uppercase ghosts at the corners
+ *   - Stats column on the right uses huge numerals (Spotify Wrapped feel)
+ *   - SVG fills resolve via CSS so the panel respects the theme
+ * =================================================================== */
+
+.av-trajectory-wrap {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.av-trajectory-svg {
+  display: block;
+  border-radius: 14px;
+  filter: drop-shadow(0 8px 28px rgba(0, 0, 0, 0.40));
+}
+
+.av-q-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  fill: rgba(255, 255, 255, 0.32);
+}
+
+.av-axis-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  fill: rgba(255, 255, 255, 0.40);
+}
+
+.av-trajectory-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 8px 0;
+}
+
+.av-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.av-stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.av-stat-value {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-size: 1.85rem;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: rgba(255, 255, 255, 0.95);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.av-stat--time .av-stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.0rem;
+  letter-spacing: 0.04em;
+}
+
+.av-stat-sep   { color: rgba(255, 255, 255, 0.30); }
+.av-stat-total { color: rgba(255, 255, 255, 0.42); }
+
+
+/* ===================================================================
+ * SPECTROGRAM — premium aurora colormap, bloom already in canvas
+ * =================================================================== */
+
+.spectrogram-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.spectrogram-canvas {
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.45));
+}
+
+.spectrogram-freq-axis text { font-family: var(--font-mono) !important; }
+.spectrogram-axis-title {
+  font-family: var(--font-mono) !important;
+  font-size: 9px !important;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  fill: rgba(255, 255, 255, 0.42) !important;
+}
+.spectrogram-axis-label {
+  font-family: var(--font-mono) !important;
+  font-size: 9px !important;
+  letter-spacing: 0.06em;
+  fill: rgba(255, 255, 255, 0.55) !important;
+  font-variant-numeric: tabular-nums;
+}
+.spectrogram-axis-tick {
+  stroke: rgba(255, 255, 255, 0.22) !important;
+}
+
+
+/* ===================================================================
+ * EMOTION PANEL — drop the duplicate strips, lead with hero numbers.
+ *
+ * Layout: hero stat column (left) + line chart (right).  The duplicate
+ * coloured strips are gone; the curves now own the visual story and
+ * read like Apple Music Replay's "Your year in mood" card.
+ * =================================================================== */
+
+.emotion-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .emotion-layout { grid-template-columns: 1fr; }
+}
+
+.emotion-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  padding-right: 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.emotion-hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.emotion-hero-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.emotion-hero-value {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-size: 2.4rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: rgba(255, 255, 255, 0.96);
+  font-variant-numeric: tabular-nums;
+}
+
+.emotion-hero-value--arousal {
+  color: color-mix(in srgb, var(--track-mood, #f87171) 45%, white);
+}
+
+.emotion-hero-value--valence {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.emotion-hero-axis {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.32);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Curves chart wrapper — sits to the right of the hero */
+.emotion-curve-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.emotion-legend-dot--arousal { background: color-mix(in srgb, var(--track-mood, #f87171) 70%, white) !important; }
+.emotion-legend-dot--valence { background: rgba(255, 255, 255, 0.75) !important; }
+
+
+/* ===================================================================
+ * SUMMARY PANEL — restructured: pie hero card + 4 prominent metric tiles
+ * + compact secondary stats list.
+ * =================================================================== */
+
+.summary-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+}
+
+.summary-pie {
+  display: grid !important;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.summary-pie-legend {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-pie-legend li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.70rem;
+  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.04em;
+}
+
+.summary-pie-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+}
+
+.summary-pie-label { color: rgba(255, 255, 255, 0.85); }
+.summary-pie-pct {
+  color: rgba(255, 255, 255, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-pie-top {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-size: 2rem;
+  font-weight: 400;
+  fill: rgba(255, 255, 255, 0.96);
+}
+.summary-pie-sub {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  fill: rgba(255, 255, 255, 0.42);
+}
+
+/* Stat grid — 2 columns of metric tiles */
+.summary-stats {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 22px !important;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-stat-label {
+  font-family: var(--font-mono) !important;
+  font-size: 0.60rem !important;
+  letter-spacing: 0.20em !important;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.40) !important;
+}
+
+.summary-stat-value {
+  font-family: var(--font-display) !important;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-size: 1.45rem !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.summary-stat-suffix {
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  letter-spacing: 0.10em !important;
+  color: rgba(255, 255, 255, 0.40) !important;
+  font-weight: 400 !important;
+  margin-left: 4px;
+  text-transform: uppercase;
+}
+
+
+/* ===================================================================
+ * EMOTIONAL PROFILE — merged AV trajectory + summary metrics, span 4.
+ * Trail on the left (compact 280px circle), hero metric tiles + segment
+ * pie + secondary stats on the right.
+ * =================================================================== */
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+  .profile-grid { grid-template-columns: 1fr; }
+}
+
+.profile-trail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-right: 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.profile-trail-stats {
+  display: flex;
+  gap: 18px;
+  align-items: baseline;
+}
+
+.profile-stat-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  min-width: 56px;
+}
+
+.profile-stat-mini-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.profile-stat-mini-val {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-size: 1.55rem;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: rgba(255, 255, 255, 0.96);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.profile-stat-mini-val--small {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+}
+
+/* RIGHT — hero tiles row + bottom row */
+.profile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.profile-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .profile-tiles { grid-template-columns: repeat(2, 1fr); }
+}
+
+.profile-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.015) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.profile-tile--accent {
+  /* No glow — just a slightly brighter glass surface than sibling tiles */
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.09) 0%,
+      rgba(255, 255, 255, 0.025) 100%);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.profile-tile-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.profile-tile-value {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-size: 1.55rem;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: rgba(255, 255, 255, 0.97);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+.profile-tile-suffix {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.42);
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+/* Bottom row — segment pie + secondary bar stats */
+.profile-bottom {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 22px;
+  align-items: start;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.profile-pie {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.profile-pie-legend li {
+  font-size: 0.66rem !important;
+}
+
+.profile-secondary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.profile-secondary-stat {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-secondary-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.50);
+  white-space: nowrap;
+}
+
+.profile-secondary-bar {
+  position: relative;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.profile-secondary-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+}
+
+.profile-secondary-fill--arousal {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--track-mood, #f87171) 50%, transparent),
+    color-mix(in srgb, var(--track-mood, #f87171) 90%, white));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--track-mood, #f87171) 50%, transparent);
+}
+
+.profile-secondary-fill--valence {
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.85));
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.30);
+}
+
+.profile-secondary-pct {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.92);
+  font-variant-numeric: tabular-nums;
+  min-width: 24px;
+  text-align: right;
+}
+
+
+/* ===================================================================
+ * GENRE TOP-3 PODIUM — clean rank + label + bar + percentage layout.
+ * No more rainbow background fills competing with the rest of the page.
+ * =================================================================== */
+
+.genre-top3-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.genre-top3-item {
+  display: grid;
+  grid-template-columns: 18px 90px 1fr 36px;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.genre-top3-rank {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.10em;
+  color: rgba(255, 255, 255, 0.40);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.genre-top3-name {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.01em;
+}
+
+.genre-top3-track {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.genre-top3-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--g-color, #7dd3fc) 50%, transparent),
+    color-mix(in srgb, var(--g-color, #7dd3fc) 90%, white));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--g-color, #7dd3fc) 45%, transparent);
+}
+
+.genre-top3-pct {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.92);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.genre-top3-warn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  background: rgba(251, 191, 36, 0.10);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  color: #fde68a;
+  font-size: 0.74rem;
+}
+
+.genre-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 10px;
+}
+
+.genre-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.genre-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.genre-stacked-canvas { filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.35)); }
+
+
+/* Winner row — gold star + brighter row treatment */
+.genre-top3-item--winner {
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--g-color, #fbbf24) 14%, rgba(255, 255, 255, 0.04)) 0%,
+      color-mix(in srgb, var(--g-color, #fbbf24) 4%, transparent) 100%) !important;
+  border: 1px solid color-mix(in srgb, var(--g-color, #fbbf24) 32%, transparent) !important;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--g-color, #fbbf24) 28%, white),
+    0 0 22px color-mix(in srgb, var(--g-color, #fbbf24) 18%, transparent);
+}
+
+.genre-top3-item--winner .genre-top3-rank {
+  color: color-mix(in srgb, var(--g-color, #fbbf24) 50%, white) !important;
+  font-size: 0.96rem !important;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--g-color, #fbbf24) 60%, transparent);
+}
+
+.genre-top3-item--winner .genre-top3-name {
+  color: rgba(255, 255, 255, 0.98) !important;
+  font-weight: 500;
+}
+
+/* Refined warning banner — glass card, mono caps title */
+.genre-top3-warn {
+  display: grid !important;
+  grid-template-columns: 18px 1fr;
+  gap: 10px !important;
+  align-items: start;
+  padding: 12px 14px !important;
+  background: rgba(251, 191, 36, 0.08) !important;
+  border: 1px solid rgba(251, 191, 36, 0.22) !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: 0.74rem !important;
+  line-height: 1.5;
+}
+
+.genre-top3-warn svg { color: #fbbf24; margin-top: 2px; }
+.genre-top3-warn strong {
+  color: #fde68a;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  font-size: 0.66rem;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 2px;
+}
+
+
+/* ===================================================================
+ * SPECTROGRAM CROSSHAIR — pro-audio tool ergonomics
+ * (iZotope RX / Spectre style: hover anywhere, get T / F / I readout)
+ * =================================================================== */
+
+.spectrogram-canvas-wrap {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.spec-crosshair {
+  position: absolute;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.spec-crosshair--v {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.30);
+}
+
+.spec-crosshair--h {
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.25);
+}
+
+.spec-tooltip {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(8, 10, 18, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  min-width: 110px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.spec-tooltip-row {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.spec-tooltip-key {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.spec-tooltip-val {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ===================================================================
+ * APP HEADER — product-grade brand bar
+ *
+ *   logo-mark (mini equaliser SVG) + title (serif) + subtitle (mono caps)
+ *   + version pill   |   tech-stack pill with PyTorch accent
+ * =================================================================== */
+
+.app-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 14px 22px !important;
+  margin: 14px 0 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 100%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 8px 32px -12px rgba(0, 0, 0, 0.45) !important;
+}
+
+.app-logo-link {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+.app-logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--track-mood, #7dd3fc) 32%, transparent),
+      color-mix(in srgb, var(--track-genre, #a78bfa) 28%, transparent));
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 6px 18px color-mix(in srgb, var(--track-mood, #7dd3fc) 25%, transparent);
+  flex-shrink: 0;
+}
+
+.app-logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.app-logo-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-size: 1.10rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: rgba(255, 255, 255, 0.96);
+  line-height: 1.05;
+}
+
+.app-logo-sub {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-version {
+  font-family: var(--font-mono) !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase;
+  padding: 3px 8px !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--track-mood, #7dd3fc) 14%, rgba(255, 255, 255, 0.04)) !important;
+  border: 1px solid color-mix(in srgb, var(--track-mood, #7dd3fc) 28%, transparent) !important;
+  color: color-mix(in srgb, var(--track-mood, #7dd3fc) 25%, white) !important;
+  margin-left: 6px;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-stack {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.app-stack-sep { color: rgba(255, 255, 255, 0.22); }
+
+.app-stack-item--accent {
+  color: color-mix(in srgb, var(--track-mood, #7dd3fc) 35%, white);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--track-mood, #7dd3fc) 50%, transparent);
+}
+
+@media (max-width: 720px) {
+  .app-logo-sub { display: none; }
+  .app-stack { font-size: 0.60rem; padding: 4px 10px; }
+}
+
+
+/* ===================================================================
+ * APP FOOTER — credit card with three columns + signature byline
+ * =================================================================== */
+
+.app-footer {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+  padding: 24px 26px !important;
+  margin: 36px 0 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.015) 100%) !important;
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 32px -12px rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: 0.82rem !important;
+}
+
+.app-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 720px) {
+  .app-footer-grid { grid-template-columns: 1fr; gap: 16px; }
+}
+
+.app-footer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-footer-section:first-child { padding-left: 0; border-left: none; }
+
+@media (max-width: 720px) {
+  .app-footer-section { padding-left: 0; border-left: none; }
+}
+
+.app-footer-label {
+  font-family: var(--font-mono);
+  font-size: 0.60rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.40);
+}
+
+.app-footer-value {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.96);
+  line-height: 1.25;
+}
+
+.app-footer-meta {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.42);
+  margin-top: 2px;
+}
+
+.app-footer-byline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.app-footer-mark {
+  display: inline-flex;
+  color: color-mix(in srgb, var(--track-mood, #7dd3fc) 50%, white);
+  opacity: 0.65;
+}
+
+/* Old separator no longer used, but keep harmless */
+.app-footer-sep { display: none; }
+
+
+/* ===================================================================
+ * HOMEPAGE — landing hero, system info, upload, track grid
+ * Push everything to product-grade glass aesthetic.
+ * =================================================================== */
+
+/* ---- Landing Hero — editorial framing ---- */
+.landing-hero {
+  position: relative;
+  padding: 56px 4px 36px !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  overflow: visible;
+}
+
+.landing-hero::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 140%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 20% 30%,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 60%
+  );
+  filter: blur(60px);
+}
+
+.landing-hero-eyebrow {
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px !important;
+}
+
+.landing-hero-eyebrow-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.60);
+  animation: hero-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes hero-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(0.7); opacity: 0.5; }
+}
+
+.landing-hero-title {
+  font-family: var(--font-display) !important;
+  font-variation-settings: "opsz" 144, "SOFT" 30 !important;
+  font-size: clamp(2.6rem, 6.5vw, 4.8rem) !important;
+  font-weight: 400 !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.035em !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+  margin: 0 !important;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.45);
+}
+
+.landing-hero-title em {
+  font-style: italic;
+  color: color-mix(in srgb, var(--track-mood, #7dd3fc) 35%, white) !important;
+  font-variation-settings: "opsz" 144, "SOFT" 60 !important;
+}
+
+.landing-hero-lede {
+  font-size: 1.05rem !important;
+  line-height: 1.55 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  max-width: 620px;
+  margin-top: 22px !important;
+}
+
+.landing-hero-tasks {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 8px !important;
+  margin-top: 26px !important;
+}
+
+.landing-hero-task {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px !important;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.landing-hero-task-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50%;
+}
+
+
+/* ---- System info cards — 3 columns of glass ---- */
+.system-info {
+  margin: 36px 0 !important;
+}
+
+.system-info-grid {
+  display: grid !important;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 18px !important;
+}
+
+@media (max-width: 900px) {
+  .system-info-grid { grid-template-columns: 1fr; }
+}
+
+.system-info-block {
+  padding: 22px 24px !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.015) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 24px -8px rgba(0, 0, 0, 0.4);
+}
+
+.system-info-title {
+  font-family: var(--font-mono) !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42) !important;
+  font-weight: 500 !important;
+  margin-bottom: 14px !important;
+}
+
+.system-info-text {
+  font-size: 0.86rem !important;
+  line-height: 1.55 !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.system-info-table { width: 100%; }
+.system-info-table td {
+  font-family: var(--font-mono) !important;
+  font-size: 0.74rem !important;
+  padding: 4px 0 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border: none !important;
+}
+.system-info-table td:first-child {
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45) !important;
+  font-size: 0.64rem !important;
+  padding-right: 10px !important;
+  width: 40%;
+}
+
+/* ---- Metric bars — refined visual hierarchy ---- */
+.metric-bars {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.metric-bar { display: flex; flex-direction: column; gap: 4px; }
+.metric-bar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.metric-bar-label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+.metric-bar-value {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.95);
+  font-variant-numeric: tabular-nums;
+}
+.metric-bar-track {
+  position: relative;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.metric-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--metric-tint, #7dd3fc) 50%, transparent),
+    color-mix(in srgb, var(--metric-tint, #7dd3fc) 90%, white));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--metric-tint, #7dd3fc) 40%, transparent);
+}
+.metric-bar--high { --metric-tint: #4ade80; }
+.metric-bar--mid  { --metric-tint: #7dd3fc; }
+.metric-bar--low  { --metric-tint: #fbbf24; }
+
+.metric-bar-baseline {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.20);
+}
+
+
+/* ---- Upload zone — glass + glow on hover ---- */
+.upload-section { margin: 32px 0 !important; }
+
+.upload-zone {
+  padding: 44px 30px !important;
+  border-radius: 18px !important;
+  border: 1.5px dashed rgba(255, 255, 255, 0.14) !important;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.01) 100%) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer;
+}
+
+.upload-zone:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+
+/* ---- Tracks section header — refined toolbar ---- */
+.tracks-section { margin-top: 28px !important; }
+
+.tracks-section-header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  padding: 12px 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.tracks-section-header .section-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 !important;
+}
+
+.section-count {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  padding: 2px 8px !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--track-mood, #7dd3fc) 14%, rgba(255, 255, 255, 0.04)) !important;
+  border: 1px solid color-mix(in srgb, var(--track-mood, #7dd3fc) 28%, transparent) !important;
+  color: color-mix(in srgb, var(--track-mood, #7dd3fc) 25%, white) !important;
+}
+
+.tracks-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.tracks-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tracks-search svg {
+  position: absolute;
+  left: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+.tracks-search-input {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 999px !important;
+  padding: 8px 16px 8px 36px !important;
+  font-size: 0.82rem !important;
+  font-family: var(--font) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  width: 280px;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.tracks-search-input:focus {
+  outline: none !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: color-mix(in srgb, var(--track-mood, #7dd3fc) 50%, transparent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--track-mood, #7dd3fc) 14%, transparent);
+  width: 320px;
+}
+
+.tracks-search-input::placeholder { color: rgba(255, 255, 255, 0.40) !important; }
+
+.tracks-search-kbd {
+  position: absolute;
+  right: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.tracks-search-clear {
+  position: absolute;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.tracks-search-clear:hover { background: rgba(255, 255, 255, 0.16); }
+
+.tracks-sort {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 999px !important;
+  padding: 8px 32px 8px 14px !important;
+  font-size: 0.78rem !important;
+  font-family: var(--font) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' opacity='0.5'><polyline points='6 9 12 15 18 9'/></svg>") !important;
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+.tracks-sort:focus { outline: none; border-color: color-mix(in srgb, var(--track-mood, #7dd3fc) 50%, transparent) !important; }
+
+
+/* ---- Genre filter rail ---- */
+.genre-filter-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 18px;
+}
+
+
+/* ---- Track grid — Apple Music / Spotify / Plexamp-style gallery ----
+   Big square cover tiles, title + subtitle below each.  Responsive
+   columns: 2 narrow → 3 medium → 4 wide → 5 ultrawide. */
+.track-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 24px 18px !important;
+  margin-top: 12px;
+}
+@media (min-width: 720px)  { .track-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; } }
+@media (min-width: 1000px) { .track-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
+@media (min-width: 1400px) { .track-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; } }
+
+
+/* ---- Tile: cover on top, text below ---- */
+.track-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-tile:focus-visible .track-tile-cover {
+  outline: 2px solid color-mix(in srgb, var(--track-mood, #7dd3fc) 70%, white);
+  outline-offset: 3px;
+}
+
+.track-tile:hover { transform: translateY(-3px); }
+
+/* Square cover container */
+.track-tile-cover {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 10px 28px -10px rgba(0, 0, 0, 0.55);
+  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.track-tile:hover .track-tile-cover {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 22px 46px -12px rgba(0, 0, 0, 0.65);
+}
+
+.track-tile-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Fallback cover — monochrome gradient + icon, mood-genre tinted subtly. */
+.track-tile-cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.55);
+  background:
+    radial-gradient(
+      ellipse at 30% 20%,
+      color-mix(in srgb, var(--track-mood, #7dd3fc) 22%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 70% 80%,
+      color-mix(in srgb, var(--track-tint, #a78bfa) 18%, transparent) 0%,
+      transparent 55%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+}
+
+/* Play-button overlay — visible on hover */
+.track-tile-play {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #fff;
+  color: #0a0c14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(8px) scale(0.9);
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.track-tile:hover .track-tile-play {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Duration chip in the bottom-left corner of the cover (mono caps glass). */
+.track-tile-duration {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(8, 10, 18, 0.62);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Analyzing/error badge top-right corner */
+.track-tile-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
+/* Text block below cover */
+.track-tile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 2px;
+  min-width: 0;
+}
+
+.track-tile-name {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.track-tile-sub {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-tile-artist {
+  font-family: var(--font);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.60);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.track-tile-sep {
+  color: rgba(255, 255, 255, 0.22);
+  flex-shrink: 0;
+}
+
+.track-tile-genre {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+}
+
+/* Track preview card — glass row with mood accent on left, lift on hover */
+.track-preview-card {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px !important;
+  align-items: center;
+  padding: 16px 18px !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.015) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 6px 20px -8px rgba(0, 0, 0, 0.40) !important;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+}
+
+/* Mood-coloured rail removed — was reading as neon.  Keep the selector as
+   a no-op so the JSX modifier stays valid without the disco pipe of light. */
+.track-preview-card--has-mood::before { display: none; }
+
+.track-preview-card:hover {
+  transform: translateY(-1px);
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.02) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 16px 36px -12px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Square genre-tinted icon */
+.track-preview-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 11px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.62) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  flex-shrink: 0;
+}
+
+.track-preview-icon--tinted {
+  /* Genre-tinted icon is now a whisper of colour through the glass, no neon */
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  color: color-mix(in srgb, var(--track-tint, white) 40%, white) !important;
+}
+
+.track-preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.track-preview-name {
+  font-family: var(--font-display) !important;
+  font-variation-settings: "opsz" 72, "SOFT" 30 !important;
+  font-size: 1.05rem !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, 0.95) !important;
+  margin: 0 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-preview-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.track-preview-meta > * {
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px !important;
+  border-radius: 999px !important;
+  border: 1px solid transparent !important;
+}
+.status-badge::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  /* No glow — was reading as neon LED. Just a clean solid dot. */
+}
+.status-ready    { background: rgba(74, 222, 128, 0.10) !important; border-color: rgba(74, 222, 128, 0.28) !important; color: #86efac !important; }
+.status-analyzing{ background: rgba(125, 211, 252, 0.10) !important; border-color: rgba(125, 211, 252, 0.28) !important; color: #bae6fd !important; }
+.status-error    { background: rgba(248, 113, 113, 0.10) !important; border-color: rgba(248, 113, 113, 0.28) !important; color: #fca5a5 !important; }
+.status-pending  { background: rgba(255, 255, 255, 0.04) !important; border-color: rgba(255, 255, 255, 0.10) !important; color: rgba(255, 255, 255, 0.50) !important; }
+
+/* Genre + mood mini-badges — monochrome glass chips with one coloured dot.
+   Drops the saturated pill fills that made the list page feel busy. */
+.genre-mini-badge {
+  padding: 2px 9px 2px 8px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  color: rgba(255, 255, 255, 0.80) !important;
+  font-weight: 400 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  filter: none !important;
+}
+/* The inline backgroundColor (genre tint) becomes the dot via box-shadow */
+.genre-mini-badge {
+  position: relative;
+  padding-left: 18px !important;
+}
+.genre-mini-badge::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--genre-dot, currentColor);
+}
+
+.mood-badge {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  color: rgba(255, 255, 255, 0.80) !important;
+  font-weight: 400 !important;
+}
+.mood-badge-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+}
+
+.track-preview-strip {
+  margin-top: 4px;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+.track-preview-card:hover .track-preview-strip { opacity: 0.85; }
+
+.track-preview-arrow {
+  color: rgba(255, 255, 255, 0.35);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+  flex-shrink: 0;
+}
+.track-preview-card:hover .track-preview-arrow {
+  transform: translateX(4px);
+  color: color-mix(in srgb, var(--track-mood, white) 40%, white);
+}
+
+
+/* ---- Empty state — premium illustration ---- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 60px 30px !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.01) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.empty-state-icon {
+  color: rgba(255, 255, 255, 0.35);
+  margin-bottom: 18px;
+}
+
+.empty-state-title {
+  font-family: var(--font-display) !important;
+  font-variation-settings: "opsz" 144, "SOFT" 30 !important;
+  font-size: 1.6rem !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+  margin-bottom: 8px !important;
+}
+
+.empty-state-text {
+  color: rgba(255, 255, 255, 0.62) !important;
+  font-size: 0.92rem !important;
+  line-height: 1.55;
+  max-width: 480px;
+}
+
+.empty-state--compact {
+  padding: 28px 24px !important;
+  flex-direction: row;
+  justify-content: space-between;
+  text-align: left;
+}
+
+
+/* ===================================================================
+ * COVER ART — square album-art image in TrackList cards + big hero
+ * cover in the dashboard hero.  Falls back to monochrome icon when
+ * no cover was extracted.
+ * =================================================================== */
+
+/* TrackList card cover (replaces the icon when present) */
+.track-preview-cover {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 11px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 4px 14px -4px rgba(0, 0, 0, 0.45);
+}
+
+.track-preview-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.track-preview-artist {
+  font-family: var(--font) !important;
+  font-size: 0.82rem !important;
+  color: rgba(255, 255, 255, 0.62) !important;
+  margin: -2px 0 0 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.005em;
+}
+
+/* Single subtitle line — genre · duration, middle-dot separated. */
+.track-preview-sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  min-width: 0;
+}
+
+.track-preview-sub-item {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.track-preview-sub-item--mute { color: rgba(255, 255, 255, 0.38); }
+
+.track-preview-sub-item + .track-preview-sub-item::before {
+  content: "·";
+  margin-right: 8px;
+  color: rgba(255, 255, 255, 0.22);
+}
+
+
+/* Dashboard hero cover (Apple Music NowPlaying scale) */
+.dashboard-hero-body {
+  display: grid !important;
+  grid-template-columns: auto 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (max-width: 720px) {
+  .dashboard-hero-body { grid-template-columns: 1fr; }
+}
+
+.dashboard-hero-cover {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 24px 64px -16px rgba(0, 0, 0, 0.6),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+}
+
+.dashboard-hero-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 1;
+  position: relative;
+}
+
+.dashboard-hero-cover-glow {
+  position: absolute;
+  inset: -30%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--track-mood, #7dd3fc) 18%, transparent) 0%,
+    transparent 70%
+  );
+  filter: blur(50px);
+}
+
+.dashboard-hero-artist {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.70);
+  margin-top: -6px;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 720px) {
+  .dashboard-hero-cover { width: 160px; height: 160px; }
+  .dashboard-hero-artist { font-size: 0.74rem; }
+}
+
+
+/* ===================================================================
+ * BREATHING ROOM — more space between blocks, lighter panel surfaces.
+ * Premium UIs are 30 % design + 70 % whitespace.
+ * =================================================================== */
+
+/* Bigger gap + top margin for the panel grid */
+.dashboard-grid {
+  gap: 28px !important;
+  margin-top: 24px !important;
+}
+
+/* Page enter — Wrapped-style staggered cascade for the panel grid */
+@keyframes panel-enter {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dashboard-grid > .dash-panel {
+  animation: panel-enter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.dashboard-grid > .dash-panel:nth-child(1) { animation-delay: 0ms; }
+.dashboard-grid > .dash-panel:nth-child(2) { animation-delay: 70ms; }
+.dashboard-grid > .dash-panel:nth-child(3) { animation-delay: 140ms; }
+.dashboard-grid > .dash-panel:nth-child(4) { animation-delay: 210ms; }
+.dashboard-grid > .dash-panel:nth-child(5) { animation-delay: 280ms; }
+.dashboard-grid > .dash-panel:nth-child(6) { animation-delay: 350ms; }
+
+/* Hero + player slide in first */
+@keyframes hero-enter {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dashboard-hero { animation: hero-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.dashboard-page > .player-v2 {
+  animation: hero-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 100ms both;
+}
+
+/* Generous panel padding */
+.dash-panel {
+  padding: 28px 30px !important;
+  gap: 18px !important;
+}
+
+/* Panel header: more space below it */
+.dash-panel-header { padding-bottom: 6px !important; }
+.dash-panel-body { gap: 16px !important; }
+
+/* Lighter panel surface — less fill so the backdrop colour breathes through */
+.dash-panel {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.015) 100%
+    ) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Hero — more vertical breathing room around the title */
+.dashboard-hero {
+  gap: 28px !important;
+  padding: 24px 4px 36px !important;
+}
+
+.dashboard-hero-title { line-height: 1.05 !important; }
+
+/* Player card — bit more padding so the segments+ticks have headroom */
+.player-v2 {
+  padding: 18px 24px 20px !important;
+}
+
+/* Profile panel: more breathing between trail / tiles / pie */
+.profile-grid { gap: 36px !important; }
+.profile-meta { gap: 28px !important; }
+.profile-tiles { gap: 14px !important; }
+.profile-tile { padding: 16px 18px !important; }
+.profile-bottom { gap: 28px !important; padding-top: 18px !important; }
+.profile-trail { gap: 18px !important; padding-right: 14px !important; }
+
+/* Emotion curves — more padding, taller chart for premium feel */
+.emotion-curve-row { gap: 12px !important; padding: 4px 0 !important; }
+
+/* Segment list — more vertical air */
+.segment-list { gap: 6px !important; }
+.segment-list-item { padding: 10px 14px !important; }
+
+/* Genre top-3 — more air between rows */
+.genre-top3-list { gap: 10px !important; }
+.genre-top3-item { padding: 8px 14px !important; }
+.genre-stacked-wrap { padding-top: 10px !important; }
+
+/* Genre legend — more breathing */
+.genre-legend { gap: 14px 22px !important; padding-top: 16px !important; }
+
+/* Spectrogram row — separator above */
+.spectrogram-row { padding-top: 6px !important; gap: 16px !important; }
+
+
+/* ===================================================================
+ * GLASS REFINEMENTS — subtler edges, more translucency where it counts
+ * =================================================================== */
+
+/* Soften the panel ::before highlight sweep — barely-there catch light */
+.dash-panel::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent) !important;
+  left: 15% !important;
+  right: 15% !important;
+}
+
+/* Ambient backdrop — a hair less intense so panels read as glass cards on
+   a *coloured* surface, not as cards on a saturated wash */
+.dashboard-page::before {
+  background:
+    radial-gradient(
+      ellipse 90% 70% at 50% -10%,
+      color-mix(in srgb, var(--track-mood, #7dd3fc) 32%, transparent) 0%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 80% 70% at 110% 110%,
+      color-mix(in srgb, var(--track-genre, #a78bfa) 24%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 60% at -10% 90%,
+      color-mix(in srgb, var(--track-mood, #7dd3fc) 18%, transparent) 0%,
+      transparent 65%
+    ) !important;
+}

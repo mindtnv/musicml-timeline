@@ -1,11 +1,10 @@
 import { useMemo, useRef, useEffect } from "react";
 import { stack, area } from "d3-shape";
 import type { TimelineSegment, FramePredictions } from "../../api/types";
-import { GENRE_COLORS, GENRE_ORDER, getGenreColor } from "../../utils/colors";
+import { GENRE_ORDER, getGenreColor } from "../../utils/colors";
 import { ru } from "../../utils/labels";
 import Panel from "../Panel";
 import ChartFrame from "../ChartFrame";
-import TimelineStrip from "../../components/Timeline";
 import type { TimeScale } from "../useTimeScale";
 
 interface GenrePanelProps {
@@ -14,8 +13,7 @@ interface GenrePanelProps {
   duration: number;
 }
 
-const STRIP_HEIGHT = 28;
-const STACKED_HEIGHT = 180;
+const STACKED_HEIGHT = 200;
 
 interface StackedAreaProps {
   probs: number[][];
@@ -69,14 +67,22 @@ function StackedArea({ probs, hopSeconds, duration, timeScale, width, height }: 
       .y1((d) => plotTop + plotHeight * (1 - d[1]))
       .context(ctx);
 
+    // Use lighten/screen blend so overlapping bands glow rather than mud
+    ctx.globalCompositeOperation = "lighter";
     series.forEach((s, idx) => {
       const label = GENRE_ORDER[idx] ?? `g${idx}`;
-      ctx.fillStyle = getGenreColor(label);
-      ctx.globalAlpha = 0.85;
+      const c = getGenreColor(label);
+      // Convert hex → rgba with 0.45 alpha
+      const m = c.replace("#", "");
+      const r = parseInt(m.slice(0, 2), 16);
+      const g = parseInt(m.slice(2, 4), 16);
+      const b = parseInt(m.slice(4, 6), 16);
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.42)`;
       ctx.beginPath();
       areaGen(s as unknown as [number, number][]);
       ctx.fill();
     });
+    ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
   }, [probs, hopSeconds, duration, timeScale, width, height]);
 
@@ -89,12 +95,11 @@ function StackedArea({ probs, hopSeconds, duration, timeScale, width, height }: 
   );
 }
 
-function GenrePanel({ genreSegments, framePredictions, duration }: GenrePanelProps) {
+function GenrePanel({ framePredictions, duration }: GenrePanelProps) {
   const probs = framePredictions?.genre_probs;
   const hasStack = probs && probs.length > 0;
-  const hasStrip = genreSegments && genreSegments.length > 0;
 
-  if (!hasStack && !hasStrip) return null;
+  if (!hasStack) return null;
 
   // Normalize probs to sum=1 per frame (safety)
   const normalized = useMemo(() => {
@@ -132,47 +137,45 @@ function GenrePanel({ genreSegments, framePredictions, duration }: GenrePanelPro
       {topGenres.length > 0 && (
         <div className="genre-top3-wrap">
           <div className="genre-top3-list">
-            {topGenres.map((g, i) => (
-              <div key={g.label} className={`genre-top3-item genre-top3-item--rank-${i + 1}`}>
-                <span className="genre-top3-rank">{i + 1}</span>
-                <span
-                  className="genre-top3-bar"
-                  style={{
-                    background: `linear-gradient(to right, ${getGenreColor(g.label)} ${g.probability * 100}%, var(--dash-border) ${g.probability * 100}%)`,
-                  }}
+            {topGenres.map((g, i) => {
+              const isWinner = i === 0;
+              return (
+                <div
+                  key={g.label}
+                  className={
+                    "genre-top3-item genre-top3-item--rank-" + (i + 1) +
+                    (isWinner ? " genre-top3-item--winner" : "")
+                  }
+                  style={{ "--g-color": getGenreColor(g.label) } as React.CSSProperties}
                 >
+                  <span className="genre-top3-rank">
+                    {isWinner ? "★" : i + 1}
+                  </span>
                   <span className="genre-top3-name">{ru(g.label)}</span>
+                  <span className="genre-top3-track">
+                    <span
+                      className="genre-top3-fill"
+                      style={{ width: `${g.probability * 100}%` }}
+                    />
+                  </span>
                   <span className="genre-top3-pct">{(g.probability * 100).toFixed(0)}%</span>
-                </span>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
           {lowConfidence && (
             <div className="genre-top3-warn" role="note">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <line x1="12" y1="8" x2="12" y2="13" />
+                <circle cx="12" cy="16.5" r="0.8" fill="currentColor" />
               </svg>
-              Низкая уверенность классификации. Трек вероятно вне 10 классов GTZAN (возможно electronic, ambient, lo-fi и т.п.) — показан ближайший жанр.
+              <span>
+                <strong>Низкая уверенность классификации.</strong>{" "}
+                Трек вероятно вне 10 классов GTZAN — показан ближайший жанр.
+              </span>
             </div>
           )}
-        </div>
-      )}
-
-      {hasStrip && (
-        <div className="genre-strip-wrap">
-          <ChartFrame height={STRIP_HEIGHT}>
-            {({ timeScale, width, height }) => (
-              <TimelineStrip
-                segments={genreSegments}
-                duration={duration}
-                timeScale={timeScale}
-                width={width}
-                height={height}
-                colorMap={GENRE_COLORS}
-                showLabels
-              />
-            )}
-          </ChartFrame>
         </div>
       )}
 

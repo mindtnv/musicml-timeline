@@ -6,8 +6,9 @@
     "start": "bun run src/index.ts"
   },
   "dependencies": {
-    "elysia": "^1.1",
     "@elysiajs/cors": "^1.1",
-    "@elysiajs/static": "^1.1"
+    "@elysiajs/static": "^1.1",
+    "elysia": "^1.1",
+    "music-metadata": "^11.12.3"
   }
 }

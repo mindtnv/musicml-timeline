@@ -1,21 +1,16 @@
 import { useMemo } from "react";
 import type { TimelineSegment } from "../../api/types";
-import { SEGMENT_COLORS, getSegmentColor } from "../../utils/colors";
 import { formatTime } from "../../utils/formatTime";
 import { ru } from "../../utils/labels";
 import Panel from "../Panel";
-import ChartFrame from "../ChartFrame";
-import TimelineStrip from "../../components/Timeline";
 import { useDashboard } from "../DashboardContext";
 
 interface StructurePanelProps {
   segments: TimelineSegment[];
 }
 
-const HEIGHT = 56;
-
 function StructurePanel({ segments }: StructurePanelProps) {
-  const { seek, setPinnedTime, playheadTime, duration } = useDashboard();
+  const { seek, setPinnedTime, setHoverTime, playheadTime, hoverTime, duration } = useDashboard();
 
   // Longest segment duration — used to scale the in-item width bar so even
   // the longest segment visually fills most of its row.
@@ -38,56 +33,56 @@ function StructurePanel({ segments }: StructurePanelProps) {
     return -1;
   }, [segments, playheadTime]);
 
+  // Cross-highlight: when the mouse hovers the player scrubber, the
+  // matching segment row lights up here.  hoverTime comes from the same
+  // DashboardContext, so the two surfaces feel like one component.
+  const hoverIndex = useMemo(() => {
+    if (hoverTime == null || !segments) return -1;
+    for (let i = 0; i < segments.length; i++) {
+      const s = segments[i];
+      if (hoverTime >= s.start && hoverTime < s.end) return i;
+    }
+    return -1;
+  }, [segments, hoverTime]);
+
   if (!segments || segments.length === 0) return null;
 
   return (
     <Panel
       title="Структура композиции"
-      subtitle={`${segments.length} сегментов · общая длительность ${formatTime(duration)}`}
+      subtitle={`${segments.length} сегментов · общая длительность ${formatTime(duration)} · визуальная разметка — в скрабере плеера выше`}
       span={4}
     >
-      <ChartFrame height={HEIGHT}>
-        {({ timeScale, width, height }) => (
-          <TimelineStrip
-            segments={segments}
-            duration={timeScale.invert(width)}
-            timeScale={timeScale}
-            width={width}
-            height={height}
-            colorMap={SEGMENT_COLORS}
-            showLabels
-          />
-        )}
-      </ChartFrame>
-
-      {/* Segment list */}
+      {/* Segment list — visual timeline lives inside the player scrubber now,
+          so this panel focuses on per-segment detail (start→end · confidence). */}
       <div className="segment-list">
         {segments.map((seg, i) => {
           const segDur = seg.end - seg.start;
           const widthPct = maxSegDuration > 0 ? (segDur / maxSegDuration) * 100 : 0;
-          const color = getSegmentColor(seg.label);
           const isActive = i === activeIndex;
+          const isHover = i === hoverIndex && !isActive;
           return (
             <button
               key={i}
-              className={`segment-list-item${isActive ? " segment-list-item--active" : ""}`}
+              className={
+                "segment-list-item" +
+                (isActive ? " segment-list-item--active" : "") +
+                (isHover ? " segment-list-item--hover" : "")
+              }
               onClick={() => {
                 seek(seg.start);
                 setPinnedTime(seg.start);
               }}
+              onMouseEnter={() => setHoverTime((seg.start + seg.end) / 2)}
+              onMouseLeave={() => setHoverTime(null)}
               title={`${ru(seg.label)} · ${formatTime(seg.start)} → ${formatTime(seg.end)} · ${segDur.toFixed(0)} с`}
               style={
                 {
-                  // Subtle color fill proportional to segment duration
-                  "--seg-color": color,
                   "--seg-fill": `${widthPct}%`,
                 } as React.CSSProperties
               }
             >
-              <span
-                className="segment-list-dot"
-                style={{ backgroundColor: color }}
-              />
+              <span className="segment-list-dot" />
               <span className="segment-list-label">{ru(seg.label)}</span>
               <span className="segment-list-time">
                 {formatTime(seg.start)} → {formatTime(seg.end)}

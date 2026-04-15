@@ -1,112 +1,63 @@
-import type { TimelineSegment, FramePredictions } from "../../api/types";
-import { AROUSAL_COLORS, VALENCE_COLORS } from "../../utils/colors";
+import type { FramePredictions } from "../../api/types";
 import Panel from "../Panel";
 import ChartFrame from "../ChartFrame";
-import TimelineStrip from "../../components/Timeline";
 import EmotionCurves from "../../components/EmotionCurves";
 
 interface EmotionPanelProps {
-  arousalSegments?: TimelineSegment[];
-  valenceSegments?: TimelineSegment[];
   framePredictions?: FramePredictions;
   duration: number;
 }
 
-const STRIP_HEIGHT = 30;
-const CURVE_HEIGHT = 200;
+const CURVE_HEIGHT = 220;
 const CURVE_PAD_LEFT = 36;
 
-function EmotionPanel({
-  arousalSegments,
-  valenceSegments,
-  framePredictions,
-  duration,
-}: EmotionPanelProps) {
-  const hasAny =
-    (arousalSegments && arousalSegments.length > 0) ||
-    (valenceSegments && valenceSegments.length > 0) ||
-    framePredictions?.arousal_reg?.length ||
-    framePredictions?.valence_reg?.length;
+// Time-series view of the regression heads.  Trail in EmotionalProfilePanel
+// shows arousal × valence in 2D (the song's emotional shape); this panel
+// shows them as curves over time (where the dynamics live).  The two are
+// complementary, not duplicates — keep both, drop the duplicate hero
+// numbers (those live in EmotionalProfilePanel).
+function EmotionPanel({ framePredictions, duration }: EmotionPanelProps) {
+  const aReg = framePredictions?.arousal_reg ?? [];
+  const vReg = framePredictions?.valence_reg ?? [];
+  const hop = framePredictions?.frame_hop_seconds ?? 1.0;
 
-  if (!hasAny) return null;
+  if (aReg.length === 0 && vReg.length === 0) return null;
 
   return (
     <Panel
-      title="Эмоциональный анализ"
-      subtitle="Энергия (arousal) и настроение (valence) во времени"
+      title="Динамика эмоций"
+      subtitle="Регрессионные выходы модели · arousal & valence во времени"
       span={4}
     >
-      {arousalSegments && arousalSegments.length > 0 && (
-        <div className="emotion-strip-row">
-          <span className="emotion-strip-label">Энергия</span>
-          <ChartFrame height={STRIP_HEIGHT} className="emotion-strip">
-            {({ timeScale, width, height }) => (
-              <TimelineStrip
-                segments={arousalSegments}
-                duration={duration}
-                timeScale={timeScale}
-                width={width}
-                height={height}
-                colorMap={AROUSAL_COLORS}
-                showLabels={false}
-              />
-            )}
-          </ChartFrame>
+      <div className="emotion-curve-row">
+        <ChartFrame
+          height={CURVE_HEIGHT}
+          paddingLeft={CURVE_PAD_LEFT}
+          showCursorLabel
+        >
+          {({ timeScale, width, height }) => (
+            <EmotionCurves
+              arousalReg={aReg}
+              valenceReg={vReg}
+              hopSeconds={hop}
+              duration={duration}
+              timeScale={timeScale}
+              width={width}
+              height={height}
+            />
+          )}
+        </ChartFrame>
+        <div className="emotion-legend">
+          <span className="emotion-legend-item">
+            <span className="emotion-legend-dot emotion-legend-dot--arousal" />
+            Энергия
+          </span>
+          <span className="emotion-legend-item">
+            <span className="emotion-legend-dot emotion-legend-dot--valence" />
+            Настроение
+          </span>
         </div>
-      )}
-
-      {valenceSegments && valenceSegments.length > 0 && (
-        <div className="emotion-strip-row">
-          <span className="emotion-strip-label">Настроение</span>
-          <ChartFrame height={STRIP_HEIGHT} className="emotion-strip">
-            {({ timeScale, width, height }) => (
-              <TimelineStrip
-                segments={valenceSegments}
-                duration={duration}
-                timeScale={timeScale}
-                width={width}
-                height={height}
-                colorMap={VALENCE_COLORS}
-                showLabels={false}
-              />
-            )}
-          </ChartFrame>
-        </div>
-      )}
-
-      {framePredictions &&
-        ((framePredictions.arousal_reg && framePredictions.arousal_reg.length > 0) ||
-          (framePredictions.valence_reg && framePredictions.valence_reg.length > 0)) && (
-          <div className="emotion-curve-row">
-            <ChartFrame
-              height={CURVE_HEIGHT}
-              paddingLeft={CURVE_PAD_LEFT}
-              showCursorLabel
-            >
-              {({ timeScale, width, height }) => (
-                <EmotionCurves
-                  arousalReg={framePredictions.arousal_reg ?? []}
-                  valenceReg={framePredictions.valence_reg ?? []}
-                  hopSeconds={framePredictions.frame_hop_seconds}
-                  duration={duration}
-                  timeScale={timeScale}
-                  width={width}
-                  height={height}
-                />
-              )}
-            </ChartFrame>
-            <div className="emotion-legend">
-              <span className="emotion-legend-item">
-                <span className="emotion-legend-dot emotion-legend-dot--arousal" />
-                Энергия (arousal)
-              </span>
-              <span className="emotion-legend-item">
-                <span className="emotion-legend-dot emotion-legend-dot--valence" />
-                Настроение (valence)
-              </span>
-            </div>
-          </div>
-        )}
+      </div>
     </Panel>
   );
 }

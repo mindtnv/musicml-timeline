@@ -1,7 +1,33 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { uploadTrackWithProgress, analyzeTrack } from "../api/client";
+import {
+  uploadTrackWithProgress,
+  analyzeTrack,
+  importTrackFromUrl,
+} from "../api/client";
 import { formatTime } from "../utils/formatTime";
+
+type Mode = "file" | "url";
+
+const URL_HOST_HINTS = [
+  "youtube.com",
+  "youtu.be",
+  "music.youtube.com",
+  "soundcloud.com",
+];
+
+function looksLikeSupportedUrl(value: string): boolean {
+  try {
+    const u = new URL(value.trim());
+    if (u.protocol !== "https:" && u.protocol !== "http:") return false;
+    const host = u.hostname.toLowerCase().replace(/^www\./, "");
+    return URL_HOST_HINTS.some(
+      (h) => host === h || host.endsWith("." + h)
+    );
+  } catch {
+    return false;
+  }
+}
 
 const ACCEPTED_TYPES = new Set([
   "audio/mpeg",
@@ -47,6 +73,7 @@ function UploadZone() {
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  const [mode, setMode] = useState<Mode>("file");
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileDuration, setFileDuration] = useState<number | null>(null);
@@ -54,7 +81,12 @@ function UploadZone() {
   const [progress, setProgress] = useState(0); // 0..1
   const [error, setError] = useState<string | null>(null);
 
+  const [url, setUrl] = useState("");
+  const [urlPhase, setUrlPhase] = useState<"idle" | "fetching" | "starting">("idle");
+
   const uploading = phase !== "idle";
+  const urlBusy = urlPhase !== "idle";
+  const busy = uploading || urlBusy;
 
   const clearState = useCallback(() => {
     setSelectedFile(null);
@@ -154,6 +186,47 @@ function UploadZone() {
     abortRef.current?.abort();
   }, []);
 
+  const handleUrlImport = useCallback(async () => {
+    const trimmed = url.trim();
+    if (!trimmed || urlBusy) return;
+    if (!looksLikeSupportedUrl(trimmed)) {
+      setError("Поддерживаются ссылки только с YouTube или SoundCloud");
+      return;
+    }
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setError(null);
+    setUrlPhase("fetching");
+    try {
+      const track = await importTrackFromUrl(trimmed, controller.signal);
+      setUrlPhase("starting");
+      await analyzeTrack(track.id);
+      navigate(`/tracks/${track.id}`);
+    } catch (err) {
+      if ((err as DOMException)?.name === "AbortError") {
+        setUrlPhase("idle");
+        return;
+      }
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Не удалось импортировать трек по ссылке."
+      );
+      setUrlPhase("idle");
+    } finally {
+      abortRef.current = null;
+    }
+  }, [url, urlBusy, navigate]);
+
+  const switchMode = useCallback(
+    (next: Mode) => {
+      if (busy || mode === next) return;
+      setError(null);
+      setMode(next);
+    },
+    [busy, mode]
+  );
+
   // Cleanup on unmount
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -167,8 +240,103 @@ function UploadZone() {
       ? "Запуск анализа..."
       : "";
 
+  const urlValid = looksLikeSupportedUrl(url);
+  const urlPhaseLabel =
+    urlPhase === "fetching"
+      ? "Скачивание с источника..."
+      : urlPhase === "starting"
+      ? "Запуск анализа..."
+      : "";
+
   return (
     <div className="upload-zone-wrapper">
+      <div className="upload-tabs" role="tablist" aria-label="Способ загрузки">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === "file"}
+          className={`upload-tab ${mode === "file" ? "upload-tab--active" : ""}`}
+          onClick={() => switchMode("file")}
+          disabled={busy && mode !== "file"}
+        >
+          Файл
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === "url"}
+          className={`upload-tab ${mode === "url" ? "upload-tab--active" : ""}`}
+          onClick={() => switchMode("url")}
+          disabled={busy && mode !== "url"}
+        >
+          Ссылка
+        </button>
+      </div>
+
+      {mode === "url" ? (
+        <div className={`upload-zone url-zone ${urlBusy ? "upload-zone--busy" : ""}`}>
+          {urlBusy ? (
+            <div className="upload-zone-progress">
+              <div className="upload-progress-head">
+                <p className="upload-filename" title={url}>
+                  {url}
+                </p>
+                <p className="upload-progress-phase">{urlPhaseLabel}</p>
+              </div>
+              <div
+                className="upload-progress-bar upload-progress-bar--indeterminate"
+                role="progressbar"
+                aria-label={urlPhaseLabel}
+              >
+                <div className="upload-progress-fill" style={{ width: "100%" }} />
+              </div>
+              <div className="upload-progress-meta">
+                <span className="upload-progress-hint">
+                  yt-dlp скачивает аудио · это может занять до минуты
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="url-form">
+              <label htmlFor="track-url" className="url-label">
+                Ссылка на YouTube или SoundCloud
+              </label>
+              <div className="url-input-row">
+                <input
+                  id="track-url"
+                  type="url"
+                  className="url-input"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={url}
+                  onChange={(e) => {
+                    setUrl(e.target.value);
+                    if (error) setError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && urlValid) {
+                      e.preventDefault();
+                      void handleUrlImport();
+                    }
+                  }}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleUrlImport}
+                  disabled={!urlValid}
+                >
+                  Импорт
+                </button>
+              </div>
+              <p className="upload-hint">
+                Поддерживаются youtube.com, youtu.be, soundcloud.com · до 30 минут
+              </p>
+            </div>
+          )}
+        </div>
+      ) : (
       <div
         className={`upload-zone ${dragOver ? "upload-zone--dragover" : ""} ${
           selectedFile ? "upload-zone--has-file" : ""
@@ -263,6 +431,7 @@ function UploadZone() {
           </div>
         )}
       </div>
+      )}
 
       {error && <p className="upload-error">{error}</p>}
     </div>

@@ -6,6 +6,12 @@ export interface Track {
   error?: string;
   timeline?: Timeline;
   createdAt: string;
+  /** Extracted from ID3 (local) / yt-dlp uploader (YouTube). */
+  artist?: string;
+  /** Extracted from ID3; falls back to originalName if missing. */
+  title?: string;
+  /** Public URL to extracted cover JPG (embedded artwork or YT thumbnail). */
+  coverUrl?: string;
 }
 
 export interface TimelineSegment {

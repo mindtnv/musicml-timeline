@@ -14,32 +14,14 @@ interface AVTrajectoryProps {
   duration: number;
 }
 
-const SIZE = 320;
-const PADDING = 32;
+const SIZE = 340;
+const PADDING = 36;
 const PLOT = SIZE - PADDING * 2;
-const BG = "#f8fafc";
-const AXIS = "rgba(15,23,42,0.28)";
-const TICK = "rgba(71,85,105,0.5)";
-const HISTORY = "#cbd5e1";
-const TRAIL_ACCENT = "#dc2626";
-const DOT = "#dc2626";
-const QUADRANT_TEXT = "rgba(71,85,105,0.75)";
 
-/** Map value [0,1] → plot coord [padding, padding+PLOT]. */
-function plotX(v: number) {
-  return PADDING + Math.max(0, Math.min(1, v)) * PLOT;
-}
-/** y-axis inverted (0 bottom, 1 top). */
-function plotY(v: number) {
-  return PADDING + (1 - Math.max(0, Math.min(1, v))) * PLOT;
-}
+function plotX(v: number) { return PADDING + Math.max(0, Math.min(1, v)) * PLOT; }
+function plotY(v: number) { return PADDING + (1 - Math.max(0, Math.min(1, v))) * PLOT; }
 
-/** (P(high) − P(low)) mapped to [0, 1], with regression fallback. */
-function buildCoord(
-  probs: number[][] | undefined,
-  reg: number[],
-  i: number
-): number {
+function buildCoord(probs: number[][] | undefined, reg: number[], i: number): number {
   if (probs && probs[i] && probs[i].length >= 3) {
     const p = probs[i];
     const pos = p[2] ?? 0;
@@ -49,34 +31,48 @@ function buildCoord(
   return Math.max(0, Math.min(1, reg[i] ?? 0.5));
 }
 
-/** Symmetric moving average, radius r. */
 function smooth(arr: number[], r: number): number[] {
   const n = arr.length;
   if (n === 0 || r <= 0) return arr.slice();
   const out = new Array<number>(n);
   let sum = 0;
   let count = 0;
-  // prime window
-  for (let i = 0; i <= Math.min(r, n - 1); i++) {
-    sum += arr[i];
-    count++;
-  }
+  for (let i = 0; i <= Math.min(r, n - 1); i++) { sum += arr[i]; count++; }
   for (let i = 0; i < n; i++) {
     const addIdx = i + r;
     const dropIdx = i - r - 1;
     if (i !== 0) {
-      if (addIdx < n) {
-        sum += arr[addIdx];
-        count++;
-      }
-      if (dropIdx >= 0) {
-        sum -= arr[dropIdx];
-        count--;
-      }
+      if (addIdx < n)   { sum += arr[addIdx]; count++; }
+      if (dropIdx >= 0) { sum -= arr[dropIdx]; count--; }
     }
     out[i] = sum / count;
   }
   return out;
+}
+
+// Time-encoded palette: cool indigo (oldest) → warm gold (newest).  Premium
+// trail aesthetic (Spotify Wrapped / Apple Replay) — colour communicates
+// chronology so you can read the song's emotional arc at a glance.
+function trailColor(t: number): string {
+  const stops: [number, [number, number, number]][] = [
+    [0.0, [99, 102, 241]],   // indigo
+    [0.4, [217, 70, 239]],   // magenta
+    [0.7, [251, 113, 133]],  // coral
+    [1.0, [251, 191, 36]],   // amber
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [t0, c0] = stops[i];
+    const [t1, c1] = stops[i + 1];
+    if (t <= t1) {
+      const k = (t - t0) / Math.max(1e-6, t1 - t0);
+      const r = Math.round(c0[0] + (c1[0] - c0[0]) * k);
+      const g = Math.round(c0[1] + (c1[1] - c0[1]) * k);
+      const b = Math.round(c0[2] + (c1[2] - c0[2]) * k);
+      return `rgb(${r},${g},${b})`;
+    }
+  }
+  const last = stops[stops.length - 1][1];
+  return `rgb(${last[0]},${last[1]},${last[2]})`;
 }
 
 function AVTrajectory({
@@ -94,7 +90,6 @@ function AVTrajectory({
     valenceReg.length || valenceProbs?.length || 0
   );
 
-  // Compute 2D coords for every frame, then smooth to tame noise
   const coords = useMemo(() => {
     const rawXs: number[] = new Array(n);
     const rawYs: number[] = new Array(n);
@@ -102,33 +97,36 @@ function AVTrajectory({
       rawXs[i] = buildCoord(valenceProbs, valenceReg, i);
       rawYs[i] = buildCoord(arousalProbs, arousalReg, i);
     }
-    // Smoothing radius ≈ 2 seconds of context (symmetric), capped
     const radius = Math.max(2, Math.min(8, Math.round(1.5 / Math.max(hopSeconds, 0.1))));
     return { xs: smooth(rawXs, radius), ys: smooth(rawYs, radius) };
   }, [n, arousalReg, valenceReg, arousalProbs, valenceProbs, hopSeconds]);
 
-  // History path (entire trajectory, faint reference)
-  const historyPath = useMemo(() => {
-    if (n === 0) return "";
-    const pts: string[] = [];
-    for (let i = 0; i < n; i++) {
-      const x = plotX(coords.xs[i]);
-      const y = plotY(coords.ys[i]);
-      pts.push(`${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`);
+  // History — full trajectory tinted by chronology (cool→warm)
+  const historySegs = useMemo(() => {
+    if (n < 2) return [];
+    const segs: Array<{ d: string; color: string }> = [];
+    for (let i = 0; i < n - 1; i++) {
+      const x1 = plotX(coords.xs[i]);
+      const y1 = plotY(coords.ys[i]);
+      const x2 = plotX(coords.xs[i + 1]);
+      const y2 = plotY(coords.ys[i + 1]);
+      segs.push({
+        d: `M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}`,
+        color: trailColor(i / (n - 1)),
+      });
     }
-    return pts.join(" ");
+    return segs;
   }, [coords, n]);
 
   if (n === 0) return null;
 
   const curIdx = Math.max(0, Math.min(n - 1, Math.floor(playheadTime / hopSeconds)));
 
-  // Build comet trail as a sequence of segments with increasing opacity
-  // so the current position has a bright tail behind it.
-  const TRAIL_SECONDS = 20;
+  // Comet trail of recent N seconds — brighter, thicker than history
+  const TRAIL_SECONDS = 18;
   const trailFrames = Math.max(4, Math.ceil(TRAIL_SECONDS / Math.max(hopSeconds, 0.01)));
   const trailStart = Math.max(0, curIdx - trailFrames);
-  const trailSegs: Array<{ d: string; o: number; w: number }> = [];
+  const trailSegs: Array<{ d: string; o: number; w: number; color: string }> = [];
   for (let i = trailStart; i < curIdx; i++) {
     const t = (i - trailStart) / Math.max(1, curIdx - trailStart);
     const x1 = plotX(coords.xs[i]);
@@ -137,20 +135,21 @@ function AVTrajectory({
     const y2 = plotY(coords.ys[i + 1]);
     trailSegs.push({
       d: `M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}`,
-      o: 0.15 + 0.85 * t,
-      w: 1.2 + 1.6 * t,
+      o: 0.30 + 0.70 * t,
+      w: 1.4 + 2.4 * t,
+      color: trailColor(curIdx / Math.max(1, n - 1)),
     });
   }
 
   const curX = plotX(coords.xs[curIdx] ?? 0.5);
   const curY = plotY(coords.ys[curIdx] ?? 0.5);
+  const dotColor = trailColor(curIdx / Math.max(1, n - 1));
 
-  // Displayed values (classification-derived coords → percent, 50 = neutral)
   const valencePct = ((coords.xs[curIdx] ?? 0.5) * 100).toFixed(0);
   const arousalPct = ((coords.ys[curIdx] ?? 0.5) * 100).toFixed(0);
 
   return (
-    <Panel title="Эмоциональная траектория" subtitle="Russell circumplex · сглажено, красный хвост — последние 20 с" span={2}>
+    <Panel title="Эмоциональная траектория" subtitle="Russell circumplex · цвет хвоста — хронология (старое → новое)" span={2}>
       <div className="av-trajectory-wrap">
         <svg
           width={SIZE}
@@ -159,97 +158,79 @@ function AVTrajectory({
           className="av-trajectory-svg"
         >
           <defs>
+            {/* 4-quadrant emotional geography backdrop: anxious / happy /
+                calm / sad — gives the plot visual semantics without text. */}
+            <radialGradient id="av-q-anxious" cx="0%" cy="0%" r="80%">
+              <stop offset="0%"   stopColor="#f87171" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#f87171" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="av-q-happy" cx="100%" cy="0%" r="80%">
+              <stop offset="0%"   stopColor="#fbbf24" stopOpacity="0.20" />
+              <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="av-q-calm" cx="100%" cy="100%" r="80%">
+              <stop offset="0%"   stopColor="#4ade80" stopOpacity="0.16" />
+              <stop offset="100%" stopColor="#4ade80" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="av-q-sad" cx="0%" cy="100%" r="80%">
+              <stop offset="0%"   stopColor="#60a5fa" stopOpacity="0.16" />
+              <stop offset="100%" stopColor="#60a5fa" stopOpacity="0" />
+            </radialGradient>
+
             <radialGradient id="av-dot-glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor={DOT} stopOpacity="0.55" />
-              <stop offset="60%" stopColor={DOT} stopOpacity="0.18" />
-              <stop offset="100%" stopColor={DOT} stopOpacity="0" />
+              <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.85" />
+              <stop offset="40%"  stopColor={dotColor}  stopOpacity="0.55" />
+              <stop offset="100%" stopColor={dotColor}  stopOpacity="0" />
             </radialGradient>
           </defs>
 
-          <rect x={PADDING} y={PADDING} width={PLOT} height={PLOT} fill={BG} rx={4} />
+          {/* Plot canvas — translucent over the panel's glass; quadrant tints
+              compose on top to produce the emotional geography. */}
+          <rect x={PADDING} y={PADDING} width={PLOT} height={PLOT}
+                fill="rgba(255,255,255,0.025)" rx={10} />
+          <rect x={PADDING} y={PADDING} width={PLOT} height={PLOT} fill="url(#av-q-anxious)" rx={10} />
+          <rect x={PADDING} y={PADDING} width={PLOT} height={PLOT} fill="url(#av-q-happy)" rx={10} />
+          <rect x={PADDING} y={PADDING} width={PLOT} height={PLOT} fill="url(#av-q-calm)" rx={10} />
+          <rect x={PADDING} y={PADDING} width={PLOT} height={PLOT} fill="url(#av-q-sad)" rx={10} />
 
-          {/* Quadrant guides */}
-          <line
-            x1={PADDING + PLOT / 2}
-            y1={PADDING}
-            x2={PADDING + PLOT / 2}
-            y2={PADDING + PLOT}
-            stroke={AXIS}
-            strokeDasharray="2 3"
-          />
-          <line
-            x1={PADDING}
-            y1={PADDING + PLOT / 2}
-            x2={PADDING + PLOT}
-            y2={PADDING + PLOT / 2}
-            stroke={AXIS}
-            strokeDasharray="2 3"
-          />
+          {/* Quadrant guides — subtle dashed crosshair */}
+          <line x1={PADDING + PLOT / 2} y1={PADDING} x2={PADDING + PLOT / 2} y2={PADDING + PLOT}
+                stroke="rgba(255,255,255,0.10)" strokeDasharray="2 4" />
+          <line x1={PADDING} y1={PADDING + PLOT / 2} x2={PADDING + PLOT} y2={PADDING + PLOT / 2}
+                stroke="rgba(255,255,255,0.10)" strokeDasharray="2 4" />
 
-          {/* Axis tick labels */}
-          <text x={PADDING - 4} y={PADDING + PLOT / 2 + 3} textAnchor="end" className="av-tick" fill={TICK}>0</text>
-          <text x={PADDING - 4} y={PADDING + 4} textAnchor="end" className="av-tick" fill={TICK}>+1</text>
-          <text x={PADDING - 4} y={PADDING + PLOT + 2} textAnchor="end" className="av-tick" fill={TICK}>−1</text>
-          <text x={PADDING + PLOT / 2} y={PADDING + PLOT + 14} textAnchor="middle" className="av-tick" fill={TICK}>0</text>
-          <text x={PADDING} y={PADDING + PLOT + 14} textAnchor="middle" className="av-tick" fill={TICK}>−1</text>
-          <text x={PADDING + PLOT} y={PADDING + PLOT + 14} textAnchor="middle" className="av-tick" fill={TICK}>+1</text>
+          {/* Quadrant labels — mono uppercase, sit at the four corners */}
+          <text x={PADDING + 8}        y={PADDING + 16}        textAnchor="start" className="av-q-label">ЗЛОЕ</text>
+          <text x={PADDING + PLOT - 8} y={PADDING + 16}        textAnchor="end"   className="av-q-label">РАДОСТНОЕ</text>
+          <text x={PADDING + 8}        y={PADDING + PLOT - 8}  textAnchor="start" className="av-q-label">ГРУСТНОЕ</text>
+          <text x={PADDING + PLOT - 8} y={PADDING + PLOT - 8}  textAnchor="end"   className="av-q-label">УМИРОТВОРЁННОЕ</text>
 
-          <text x={PADDING + PLOT * 0.25} y={PADDING + 14} textAnchor="middle" className="av-q-label" fill={QUADRANT_TEXT}>
-            Злое
-          </text>
-          <text x={PADDING + PLOT * 0.75} y={PADDING + 14} textAnchor="middle" className="av-q-label" fill={QUADRANT_TEXT}>
-            Радостное
-          </text>
-          <text x={PADDING + PLOT * 0.25} y={PADDING + PLOT - 6} textAnchor="middle" className="av-q-label" fill={QUADRANT_TEXT}>
-            Грустное
-          </text>
-          <text x={PADDING + PLOT * 0.75} y={PADDING + PLOT - 6} textAnchor="middle" className="av-q-label" fill={QUADRANT_TEXT}>
-            Умиротворённое
-          </text>
+          {/* Axis labels */}
+          <text x={SIZE / 2} y={SIZE - 8} textAnchor="middle" className="av-axis-label">VALENCE →</text>
+          <text x={-SIZE / 2} y={14} transform="rotate(-90)" textAnchor="middle" className="av-axis-label">AROUSAL →</text>
 
-          <text x={SIZE / 2} y={SIZE - 6} textAnchor="middle" className="av-axis-label" fill={QUADRANT_TEXT}>
-            Настроение (valence) →
-          </text>
-          <text
-            x={-SIZE / 2}
-            y={12}
-            transform={`rotate(-90)`}
-            textAnchor="middle"
-            className="av-axis-label"
-            fill={QUADRANT_TEXT}
-          >
-            Энергия (arousal) →
-          </text>
-
-          {/* History — full trajectory, faint reference */}
-          <path
-            d={historyPath}
-            fill="none"
-            stroke={HISTORY}
-            strokeWidth={1}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            opacity={0.55}
-          />
-
-          {/* Comet trail: last ~20s, gradient of opacity + width */}
-          {trailSegs.map((s, i) => (
-            <path
-              key={i}
-              d={s.d}
-              fill="none"
-              stroke={TRAIL_ACCENT}
-              strokeWidth={s.w}
-              strokeLinecap="round"
-              opacity={s.o}
-            />
+          {/* Full trajectory — chronology-tinted, faint */}
+          {historySegs.map((s, i) => (
+            <path key={i} d={s.d} fill="none"
+                  stroke={s.color} strokeWidth={1.1}
+                  strokeLinecap="round" opacity={0.32} />
           ))}
 
-          {/* Current point — glow + ring + core */}
-          <circle cx={curX} cy={curY} r={14} fill="url(#av-dot-glow)" />
-          <circle cx={curX} cy={curY} r={7} fill="none" stroke={DOT} strokeWidth={1.25} opacity={0.55} />
-          <circle cx={curX} cy={curY} r={4.5} fill={DOT} stroke="#fff" strokeWidth={1.75} />
+          {/* Comet trail — last ~18s, brighter */}
+          {trailSegs.map((s, i) => (
+            <path key={i} d={s.d} fill="none"
+                  stroke={s.color}
+                  strokeWidth={s.w} strokeLinecap="round"
+                  opacity={s.o}
+                  style={{ filter: "drop-shadow(0 0 4px " + s.color + ")" }} />
+          ))}
+
+          {/* Current point — multi-stop halo + ring + core */}
+          <circle cx={curX} cy={curY} r={20} fill="url(#av-dot-glow)" />
+          <circle cx={curX} cy={curY} r={9}  fill="none" stroke={dotColor} strokeWidth={1.2} opacity={0.55} />
+          <circle cx={curX} cy={curY} r={5}  fill="#fff" stroke={dotColor} strokeWidth={1.5} />
         </svg>
+
         <div className="av-trajectory-stats">
           <div className="av-stat">
             <span className="av-stat-label">Valence</span>
