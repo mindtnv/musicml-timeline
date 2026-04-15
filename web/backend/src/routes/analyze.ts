@@ -1,8 +1,31 @@
 import { Elysia } from "elysia";
 import { getTrack, saveTrack, getAudioPath } from "../services/storage";
-import { analyzeTrack } from "../services/ml-client";
+import { analyzeTrack, getSpectrogram } from "../services/ml-client";
+
+// In-memory cache: trackId → spectrogram payload
+const SPEC_CACHE = new Map<string, unknown>();
 
 export const analyzeRoutes = new Elysia()
+  .get("/api/tracks/:id/spectrogram", async ({ params, set }) => {
+    const track = await getTrack(params.id);
+    if (!track) {
+      set.status = 404;
+      return { error: "Track not found" };
+    }
+    const cached = SPEC_CACHE.get(params.id);
+    if (cached) return cached;
+
+    try {
+      const audioPath = getAudioPath(track.filename);
+      const data = await getSpectrogram(audioPath);
+      SPEC_CACHE.set(params.id, data);
+      return data;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      set.status = 502;
+      return { error: `Spectrogram failed: ${message}` };
+    }
+  })
   // Trigger analysis for a track
   .post("/api/tracks/:id/analyze", async ({ params, set }) => {
     const track = await getTrack(params.id);

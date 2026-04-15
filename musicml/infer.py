@@ -424,7 +424,12 @@ def build_timeline(
     audio_features: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build structured timeline from raw predictions."""
-    from musicml.postprocess import merge_segments, smooth_predictions
+    from musicml.postprocess import (
+        decode_segment_head,
+        merge_segments,
+        smooth_predictions,
+    )
+    import numpy as np
 
     win_cfg = cfg["windowing"]
     post_cfg = cfg["postprocess"]
@@ -463,16 +468,43 @@ def build_timeline(
         preds = head_data["predictions"]
         probs = head_data["probabilities"]
 
-        smoothed = smooth_predictions(
-            preds, kernel_size=post_cfg["smooth_kernel"],
-        )
-        segments = merge_segments(
-            smoothed,
-            probs,
-            hop_seconds=hop_seconds,
-            min_duration=post_cfg["min_segment_duration"],
-            class_names=class_names_map[head_name],
-        )
+        # Segment head benefits from Viterbi decoding + position priors
+        # (avoids Intro in middle, reduces rapid oscillation).
+        # Other heads just need basic median filter.
+        if head_name == "segment":
+            all_probs = head_data.get("all_probs")
+            if all_probs is not None:
+                segments = decode_segment_head(
+                    np.asarray(all_probs),
+                    class_names=class_names_map[head_name],
+                    hop_seconds=hop_seconds,
+                    use_viterbi=post_cfg.get("use_viterbi", True),
+                    transition_penalty=post_cfg.get("transition_penalty", 2.5),
+                    use_position_priors=post_cfg.get("use_position_priors", True),
+                    median_kernel=post_cfg.get("smooth_kernel_segment", 7),
+                    min_duration=post_cfg.get("min_segment_duration_segment", 8.0),
+                )
+            else:
+                # Fallback: plain argmax path
+                smoothed = smooth_predictions(
+                    preds, kernel_size=post_cfg["smooth_kernel"],
+                )
+                segments = merge_segments(
+                    smoothed, probs, hop_seconds=hop_seconds,
+                    min_duration=post_cfg["min_segment_duration"],
+                    class_names=class_names_map[head_name],
+                )
+        else:
+            smoothed = smooth_predictions(
+                preds, kernel_size=post_cfg["smooth_kernel"],
+            )
+            segments = merge_segments(
+                smoothed,
+                probs,
+                hop_seconds=hop_seconds,
+                min_duration=post_cfg["min_segment_duration"],
+                class_names=class_names_map[head_name],
+            )
         # Extend last segment to full audio duration
         if segments and segments[-1].end < audio_duration:
             segments[-1] = type(segments[-1])(
@@ -536,7 +568,7 @@ def run_inference(
     arch = cfg.get("architecture", "cnn")
     batch_size = cfg["training"].get("batch_size", 32)
 
-    if arch == "cnn":
+    if arch in ("cnn", "ast"):
         model = load_model(
             ckpt_path, cfg["model"], device=device, architecture=arch,
         )

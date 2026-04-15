@@ -53,8 +53,15 @@ loss_weights:
   genre: 1.0
 
 postprocess:
+  # Basic settings (all heads)
   smooth_kernel: 5
   min_segment_duration: 4.0
+  # Segment head — Viterbi + position priors + aggressive smoothing
+  use_viterbi: true
+  transition_penalty: 1.0            # smaller => more transitions allowed
+  use_position_priors: true          # Intro only at start, Outro only at end
+  smooth_kernel_segment: 5           # post-Viterbi median filter
+  min_segment_duration_segment: 6.0
 
 segment_classes:
   - Intro
