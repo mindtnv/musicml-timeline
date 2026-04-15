@@ -1277,6 +1277,12 @@ body:has(.dashboard-page) .app-container {
   font-size: 10px;
   font-weight: 500;
 }
+.av-tick {
+  font-size: 9px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
 .av-trajectory-stats {
   display: flex;
   flex-direction: column;
