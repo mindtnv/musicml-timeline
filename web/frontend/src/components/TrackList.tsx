@@ -6,6 +6,8 @@ import { getGenreColor } from "../utils/colors";
 import { formatTime } from "../utils/formatTime";
 import { ru } from "../utils/labels";
 import UploadZone from "./UploadZone";
+import MiniStructureStrip from "./MiniStructureStrip";
+import MoodBadge from "./MoodBadge";
 import { TrackListSkeleton } from "./Skeleton";
 import { displayName } from "../utils/displayName";
 
@@ -246,6 +248,8 @@ function TrackListPage() {
             {filteredTracks.map((track) => {
               const genre = getTopGenre(track);
               const dur = getDuration(track);
+              const segments = track.timeline?.segment;
+              const segCount = segments?.length ?? 0;
 
               return (
                 <div
@@ -278,10 +282,27 @@ function TrackListPage() {
                         </span>
                       )}
 
+                      <MoodBadge
+                        arousalSegments={track.timeline?.arousal}
+                        valenceSegments={track.timeline?.valence}
+                      />
+
+                      {segCount > 0 && (
+                        <span className="track-preview-segcount">
+                          {segCount}&nbsp;сегм.
+                        </span>
+                      )}
+
                       {dur > 0 && (
                         <span className="track-preview-duration">{formatTime(dur)}</span>
                       )}
                     </div>
+
+                    {segments && segments.length > 0 && dur > 0 && (
+                      <div className="track-preview-strip">
+                        <MiniStructureStrip segments={segments} duration={dur} />
+                      </div>
+                    )}
                   </div>
 
                   <div className="track-preview-arrow">

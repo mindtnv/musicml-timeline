@@ -640,6 +640,28 @@ a:hover { color: var(--accent-light); }
   text-transform: capitalize;
 }
 
+.mood-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 1px 7px 1px 5px;
+  border-radius: 8px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.mood-badge-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.85;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.55);
+}
+
 /* ===== Track Card ===== */
 .track-card { width: 100%; }
 
