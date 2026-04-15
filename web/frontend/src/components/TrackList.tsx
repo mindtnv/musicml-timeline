@@ -143,16 +143,51 @@ function TrackListPage() {
               </tbody>
             </table>
           </div>
-          <div className="system-info-block">
+          <div className="system-info-block system-info-block--metrics">
             <h2 className="system-info-title">Лучшие метрики</h2>
-            <table className="system-info-table">
-              <tbody>
-                <tr><td>Сегментация</td><td className="metric-value">40.6% acc</td></tr>
-                <tr><td>Энергия</td><td className="metric-value">64.9% acc</td></tr>
-                <tr><td>Настроение</td><td className="metric-value">55.9% acc</td></tr>
-                <tr><td>Жанр</td><td className="metric-value">83.9% acc</td></tr>
-              </tbody>
-            </table>
+            <ul className="metric-bars" aria-label="Точность по задачам">
+              {[
+                { label: "Сегментация", value: 40.6, classes: 6 },
+                { label: "Энергия", value: 64.9, classes: 3 },
+                { label: "Настроение", value: 55.9, classes: 3 },
+                { label: "Жанр", value: 83.9, classes: 10 },
+              ].map((m) => {
+                const baseline = 100 / m.classes;
+                const quality =
+                  m.value >= 75 ? "high" : m.value >= 55 ? "mid" : "low";
+                return (
+                  <li
+                    key={m.label}
+                    className={`metric-bar metric-bar--${quality}`}
+                    title={`${m.label}: ${m.value}% точности (${m.classes} классов, случайный baseline ${baseline.toFixed(0)}%)`}
+                  >
+                    <div className="metric-bar-row">
+                      <span className="metric-bar-label">{m.label}</span>
+                      <span className="metric-bar-value">{m.value.toFixed(1)}%</span>
+                    </div>
+                    <div
+                      className="metric-bar-track"
+                      role="progressbar"
+                      aria-valuenow={m.value}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`${m.label}: ${m.value}%`}
+                    >
+                      <div
+                        className="metric-bar-baseline"
+                        style={{ left: `${baseline}%` }}
+                        aria-hidden="true"
+                        title={`Случайный baseline: ${baseline.toFixed(0)}%`}
+                      />
+                      <div
+                        className="metric-bar-fill"
+                        style={{ width: `${m.value}%` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </div>
       </section>

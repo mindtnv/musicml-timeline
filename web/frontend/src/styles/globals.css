@@ -196,6 +196,12 @@ a:hover { color: var(--accent-light); }
   border-radius: var(--radius);
   padding: 16px 18px;
   box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+.system-info-block:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
 }
 
 /* Lead block (description) gets a subtle editorial accent */
@@ -268,6 +274,78 @@ a:hover { color: var(--accent-light); }
   letter-spacing: -0.01em;
 }
 
+/* ===== Metric Bars (landing — Лучшие метрики) =====
+   Horizontal progress bars with a tick showing the random-guess
+   baseline (e.g. 10% for 10-class genre, 33% for 3-class mood), so
+   the reader sees how far the model is above chance, not just the
+   raw percentage. Colour tier (low/mid/high) encodes quality. */
+.metric-bars {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin: 0;
+  padding: 0;
+}
+.metric-bar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+  gap: 8px;
+}
+.metric-bar-label {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  letter-spacing: -0.005em;
+}
+.metric-bar-value {
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.metric-bar-track {
+  position: relative;
+  height: 6px;
+  background: var(--bg-subtle);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.metric-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--metric-color, var(--accent));
+  border-radius: 999px;
+  transform-origin: left center;
+  animation: metric-fill 900ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.metric-bar-baseline {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: var(--border-strong);
+  opacity: 0.9;
+  z-index: 1;
+  pointer-events: none;
+}
+@keyframes metric-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+/* Quality tiers — low (barely above baseline), mid (usable), high (SOTA-ish) */
+.metric-bar--low  { --metric-color: #f59e0b; }
+.metric-bar--mid  { --metric-color: var(--accent); }
+.metric-bar--high { --metric-color: var(--success); }
+@media (prefers-reduced-motion: reduce) {
+  .metric-bar-fill { animation: none; }
+}
+
 /* ===== Buttons ===== */
 .btn {
   display: inline-flex;
@@ -281,6 +359,9 @@ a:hover { color: var(--accent-light); }
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition);
+  /* Prevent short labels like "К списку" from breaking to two lines
+     when placed in a narrow flex header cell. */
+  white-space: nowrap;
 }
 
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
