@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import Panel from "../Panel";
 import { useDashboard } from "../DashboardContext";
+import { formatTime } from "../../utils/formatTime";
 
 interface AVTrajectoryProps {
   arousalReg: number[];
@@ -259,8 +260,12 @@ function AVTrajectory({
             <span className="av-stat-value">{arousalPct}%</span>
           </div>
           <div className="av-stat av-stat--time">
-            <span className="av-stat-label">Длительность</span>
-            <span className="av-stat-value">{duration.toFixed(0)} с</span>
+            <span className="av-stat-label">Сейчас</span>
+            <span className="av-stat-value">
+              {formatTime(playheadTime)}
+              <span className="av-stat-sep"> / </span>
+              <span className="av-stat-total">{formatTime(duration)}</span>
+            </span>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import type {
 } from "../../api/types";
 import { getSegmentColor } from "../../utils/colors";
 import { ru } from "../../utils/labels";
+import { formatTime } from "../../utils/formatTime";
 import Panel from "../Panel";
 
 interface SummaryPanelProps {
@@ -177,11 +178,12 @@ function SummaryPanel({
             </span>
           </div>
           <div className="summary-stat">
-            <span className="summary-stat-label">Переходов</span>
-            <span className="summary-stat-value">
-              {transitions}
-              <span className="summary-stat-suffix">сегментов</span>
-            </span>
+            <span className="summary-stat-label">Смен сегментов</span>
+            <span className="summary-stat-value">{transitions}</span>
+          </div>
+          <div className="summary-stat">
+            <span className="summary-stat-label">Длительность</span>
+            <span className="summary-stat-value">{formatTime(duration)}</span>
           </div>
         </div>
       </div>

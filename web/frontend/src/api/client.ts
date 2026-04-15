@@ -49,6 +49,12 @@ export interface SpectrogramData {
   n_frames: number;
   hop_seconds: number;
   duration_sec: number;
+  /** Sample rate used to compute the mel filterbank (Hz). Optional for older payloads. */
+  sr?: number;
+  fmin?: number;
+  fmax?: number;
+  /** Mel filterbank center frequencies (Hz), one per mel bin. Optional for older payloads. */
+  mel_freqs?: number[];
   mel: number[][]; // (n_mels, T), values in [0, 1]
 }
 

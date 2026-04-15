@@ -1183,6 +1183,7 @@ body:has(.dashboard-page) .app-container {
   padding-right: 4px;
 }
 .segment-list-item {
+  position: relative;
   display: grid;
   grid-template-columns: auto 1fr auto auto;
   align-items: center;
@@ -1195,11 +1196,39 @@ body:has(.dashboard-page) .app-container {
   text-align: left;
   font-size: 0.78rem;
   color: var(--dash-text);
-  transition: background 0.1s, border-color 0.1s;
+  overflow: hidden;
+  transition: background 0.1s, border-color 0.1s, transform 0.08s;
+  isolation: isolate;
+}
+/* Width bar — tints the segment's background proportional to its duration */
+.segment-list-item::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: var(--seg-fill, 0%);
+  height: 100%;
+  background: var(--seg-color, var(--dash-accent));
+  opacity: 0.09;
+  z-index: -1;
+  transition: width 0.18s ease;
+  pointer-events: none;
 }
 .segment-list-item:hover {
   background: var(--dash-accent-soft);
   border-color: var(--dash-accent);
+}
+.segment-list-item:hover::before { opacity: 0.14; }
+.segment-list-item--active {
+  border-color: var(--seg-color, var(--dash-accent));
+  box-shadow: 0 0 0 1px var(--seg-color, var(--dash-accent)) inset;
+}
+.segment-list-item--active::before { opacity: 0.22; }
+.segment-list-item--active .segment-list-label {
+  font-weight: 600;
+  color: var(--dash-text);
+}
+.segment-list-item--active .segment-list-dot {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--seg-color, #2563eb) 30%, transparent);
 }
 .segment-list-dot {
   width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
@@ -1305,6 +1334,9 @@ body:has(.dashboard-page) .app-container {
   color: var(--dash-text);
   font-variant-numeric: tabular-nums;
 }
+.av-stat--time .av-stat-value { font-size: 0.95rem; }
+.av-stat-sep { color: var(--dash-text-3); font-weight: 500; }
+.av-stat-total { color: var(--dash-text-2); font-weight: 500; }
 
 /* ===== Track List Toolbar ===== */
 .tracks-section-header {
@@ -1611,6 +1643,38 @@ body:has(.dashboard-page) .app-container {
   border-radius: 4px;
 }
 .spectrogram-error { color: var(--dash-play); }
+.spectrogram-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+.spectrogram-freq-axis {
+  flex: 0 0 auto;
+  display: block;
+  user-select: none;
+}
+.spectrogram-plot {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.spectrogram-axis-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--dash-text-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.spectrogram-axis-tick {
+  stroke: var(--dash-border);
+  stroke-width: 1;
+}
+.spectrogram-axis-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  fill: var(--dash-text-2);
+  font-variant-numeric: tabular-nums;
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 1100px) {

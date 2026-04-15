@@ -10,7 +10,8 @@ interface SpectrogramPanelProps {
   duration: number;
 }
 
-const HEIGHT = 180;
+const HEIGHT = 200;
+const FREQ_AXIS_WIDTH = 44;
 
 interface SpectrogramCanvasProps {
   data: SpectrogramData;
@@ -101,6 +102,85 @@ function SpectrogramCanvas({ data, width, height, timeScale, duration }: Spectro
   );
 }
 
+/**
+ * Format a frequency in Hz as a short human-friendly label:
+ *   250  → "250"     0.25→ "250"
+ *   1024 → "1.0k"
+ *   10500 → "10k"
+ */
+function formatHz(hz: number): string {
+  if (hz < 1000) return `${Math.round(hz)}`;
+  const k = hz / 1000;
+  if (k < 10) return `${k.toFixed(1)}k`;
+  return `${Math.round(k)}k`;
+}
+
+/** Pick ~5 mel-bin indices roughly evenly spaced along the mel axis. */
+function pickAxisTicks(nMels: number, count: number = 5): number[] {
+  if (nMels <= 0) return [];
+  const ticks: number[] = [];
+  for (let i = 0; i < count; i++) {
+    // Evenly spaced in [0, n_mels-1]
+    const idx = Math.round((i * (nMels - 1)) / (count - 1));
+    ticks.push(idx);
+  }
+  return ticks;
+}
+
+interface FrequencyAxisProps {
+  melFreqs: number[];
+  nMels: number;
+  height: number;
+}
+
+function FrequencyAxis({ melFreqs, nMels, height }: FrequencyAxisProps) {
+  const tickBins = pickAxisTicks(nMels, 5);
+  return (
+    <svg
+      className="spectrogram-freq-axis"
+      width={FREQ_AXIS_WIDTH}
+      height={height}
+      viewBox={`0 0 ${FREQ_AXIS_WIDTH} ${height}`}
+      aria-hidden="true"
+    >
+      <text
+        x={FREQ_AXIS_WIDTH - 4}
+        y={12}
+        textAnchor="end"
+        className="spectrogram-axis-title"
+      >
+        Hz
+      </text>
+      {tickBins.map((bin) => {
+        // bin=0 is the lowest freq, rendered at the bottom of the canvas
+        const y = height - (bin / Math.max(1, nMels - 1)) * height;
+        const hz = melFreqs[bin] ?? 0;
+        // Keep labels inside the axis box (avoid clipping at top/bottom edges)
+        const clampedY = Math.max(10, Math.min(height - 3, y));
+        return (
+          <g key={bin}>
+            <line
+              x1={FREQ_AXIS_WIDTH - 4}
+              x2={FREQ_AXIS_WIDTH}
+              y1={clampedY}
+              y2={clampedY}
+              className="spectrogram-axis-tick"
+            />
+            <text
+              x={FREQ_AXIS_WIDTH - 7}
+              y={clampedY + 3}
+              textAnchor="end"
+              className="spectrogram-axis-label"
+            >
+              {formatHz(hz)}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 function SpectrogramPanel({ trackId, duration }: SpectrogramPanelProps) {
   const [data, setData] = useState<SpectrogramData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -125,26 +205,35 @@ function SpectrogramPanel({ trackId, duration }: SpectrogramPanelProps) {
     };
   }, [trackId]);
 
+  const subtitle = data?.sr
+    ? `128 mel bins · 0 – ${formatHz(data.sr / 2)}Hz · вход CNN/AST модели`
+    : "Вход модели: 128 mel bins × время";
+
   return (
-    <Panel
-      title="Мел-спектрограмма"
-      subtitle="Вход модели: 128 mel bins × время"
-      span={4}
-    >
+    <Panel title="Мел-спектрограмма" subtitle={subtitle} span={4}>
       {loading && <div className="spectrogram-placeholder">Вычисление спектрограммы...</div>}
       {error && <div className="spectrogram-error">{error}</div>}
       {data && (
-        <ChartFrame height={HEIGHT}>
-          {({ timeScale, width, height }) => (
-            <SpectrogramCanvas
-              data={data}
-              width={width}
-              height={height}
-              timeScale={timeScale}
-              duration={duration}
-            />
-          )}
-        </ChartFrame>
+        <div className="spectrogram-row">
+          <FrequencyAxis
+            melFreqs={data.mel_freqs ?? []}
+            nMels={data.n_mels}
+            height={HEIGHT}
+          />
+          <div className="spectrogram-plot">
+            <ChartFrame height={HEIGHT}>
+              {({ timeScale, width, height }) => (
+                <SpectrogramCanvas
+                  data={data}
+                  width={width}
+                  height={height}
+                  timeScale={timeScale}
+                  duration={duration}
+                />
+              )}
+            </ChartFrame>
+          </div>
+        </div>
       )}
     </Panel>
   );

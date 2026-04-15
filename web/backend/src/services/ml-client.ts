@@ -26,6 +26,10 @@ export async function getSpectrogram(audioPath: string): Promise<{
   n_frames: number;
   hop_seconds: number;
   duration_sec: number;
+  sr?: number;
+  fmin?: number;
+  fmax?: number;
+  mel_freqs?: number[];
   mel: number[][];
 }> {
   const file = Bun.file(audioPath);

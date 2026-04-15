@@ -48,6 +48,7 @@ async def spectrogram(file: UploadFile = File(...)) -> dict[str, Any]:
 
     Output is downsampled to at most ~512 frames along time axis for front-end rendering.
     """
+    import librosa
     import numpy as np
     from musicml.features import compute_log_mel, load_audio
 
@@ -96,11 +97,22 @@ async def spectrogram(file: UploadFile = File(...)) -> dict[str, Any]:
         # Return as list of lists (freq low → high); round to 3 decimals
         mel_list = np.round(mel_norm, 3).tolist()
 
+        # Mel filterbank center frequencies (Hz) — one per mel bin, so the
+        # frontend can render a frequency axis without duplicating librosa's
+        # conversion logic.
+        fmax = float(sr_loaded) / 2.0
+        mel_freqs = librosa.mel_frequencies(n_mels=n_mels, fmin=0.0, fmax=fmax)
+        mel_freqs_list = [round(float(f), 1) for f in mel_freqs.tolist()]
+
         return {
             "n_mels": n_mels,
             "n_frames": mel.shape[1],
             "hop_seconds": hop_seconds,
             "duration_sec": duration_sec,
+            "sr": int(sr_loaded),
+            "fmin": 0.0,
+            "fmax": fmax,
+            "mel_freqs": mel_freqs_list,
             "mel": mel_list,
         }
     except Exception as exc:
