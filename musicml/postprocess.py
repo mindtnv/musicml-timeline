@@ -796,12 +796,12 @@ def decode_segment_head_v2(
     class_names: list[str],
     hop_seconds: float = 1.0,
     *,
-    temperature: float = 1.0,
-    base_transition_penalty: float = 1.2,
+    temperature: float = 1.4,
+    base_transition_penalty: float = 2.0,
     use_position_priors: bool = True,
-    position_penalty: float = 10.0,
-    position_boost: float = 0.7,
-    boundary_fraction: float = 0.18,
+    position_penalty: float = 14.0,
+    position_boost: float = 1.0,
+    boundary_fraction: float = 0.12,
     apply_latency_shift: bool = False,
     window_seconds: float = 10.0,
     novelty_snap_radius_sec: float = 2.0,
@@ -903,15 +903,19 @@ def decode_segment_head_v2(
         snap_r = max(0, int(round(novelty_snap_radius_sec / hop_seconds)))
         preds = snap_boundaries_to_novelty(preds, novelty, search_radius=snap_r)
 
-    # 7. Per-class min duration
+    # 7. Per-class min duration — raised from the original 3–6 s because the
+    # model's per-window predictions produce rapid oscillations that yield
+    # 20+ segments even for simple blues/jazz tracks.  15 s for Verse/Chorus/
+    # Instrumental removes the noise while still allowing genuinely short
+    # sections through the Viterbi path.
     if per_class_min_duration_sec is None:
         per_class_min_duration_sec = {
-            "Intro": 3.0,
-            "Verse": 6.0,
-            "Bridge": 3.0,
-            "Chorus": 6.0,
-            "Instrumental": 6.0,
-            "Outro": 3.0,
+            "Intro": 5.0,
+            "Verse": 15.0,
+            "Bridge": 8.0,
+            "Chorus": 12.0,
+            "Instrumental": 15.0,
+            "Outro": 5.0,
         }
     min_frames_per_class = {
         class_names.index(name): max(1, int(round(sec / hop_seconds)))

@@ -5,6 +5,9 @@ import { fetchTrack, deleteTrack, getAudioUrl } from "../api/client";
 import AudioPlayer from "./AudioPlayer";
 import LoadingState from "./LoadingState";
 import ShortcutsHelp from "./ShortcutsHelp";
+import ShareExportMenu from "./ShareExportMenu";
+// ArcBadge is rendered inside EmotionPanel via its `actions` prop
+import EmbeddingPanel from "../dashboard/panels/EmbeddingPanel";
 import { computeMood } from "./MoodBadge";
 import { DashboardSkeleton } from "./Skeleton";
 import { DashboardProvider } from "../dashboard/DashboardContext";
@@ -221,6 +224,9 @@ function TrackCard() {
           </button>
           <div className="dashboard-hero-actions">
             <ShortcutsHelp />
+            {id && track.status === "ready" && tl && (
+              <ShareExportMenu trackId={id} />
+            )}
             {track.status === "ready" && tl && dur > 0 && (
               <button
                 className="btn btn-sm btn-vibe"
@@ -355,7 +361,15 @@ function TrackCard() {
 
           <div className="dashboard-grid">
             {tl.segment && <StructurePanel segments={tl.segment} />}
-            <EmotionPanel framePredictions={fp} duration={dur} />
+            <EmotionPanel
+              framePredictions={fp}
+              duration={dur}
+              emotionalArc={tl.emotional_arc}
+              keyMoments={tl.key_moments}
+            />
+            {id && tl.track_embedding && (
+              <EmbeddingPanel trackId={id} />
+            )}
             {fp?.arousal_reg && fp?.valence_reg && (
               <EmotionalProfilePanel
                 arousalReg={fp.arousal_reg}

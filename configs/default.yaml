@@ -61,28 +61,32 @@ postprocess:
   segment_decoder: v2
 
   # --- v2 parameters ---
-  # Temperature for probs before Viterbi (1.0 = off; >1 softens).
-  v2_temperature: 1.0
+  # Temperature for probs before Viterbi (1.0 = off; >1 softens overconfident
+  # posteriors so priors/transitions have more influence).
+  v2_temperature: 1.4
   # Base cost for any class transition not listed in the structural matrix.
-  v2_base_transition_penalty: 1.2
+  # 2.0 discourages rapid oscillation (was 1.2 — too permissive for blues/jazz).
+  v2_base_transition_penalty: 2.0
   # Intro is forced to live in the first `boundary_fraction` of the track,
-  # Outro in the last `boundary_fraction`. Smaller => stricter.
-  v2_boundary_fraction: 0.18
+  # Outro in the last `boundary_fraction`. 0.12 = first/last ~12 %.
+  v2_boundary_fraction: 0.12
   # Log-prior penalty for Intro/Outro outside their allowed zone.
-  v2_position_penalty: 10.0
+  v2_position_penalty: 14.0
   # Small positive log-prior that actively prefers Intro near start /
   # Outro near end (over the neutral Verse/Chorus classes).
-  v2_position_boost: 0.7
+  v2_position_boost: 1.0
   # Snap each boundary to nearest local max of the novelty curve within
   # +/- this many seconds. 0 disables snapping.
   v2_novelty_snap_radius_sec: 2.0
+  # Per-class minimum segment duration. Raised from original 3–6 s to prevent
+  # the per-window classifier from producing 20+ micro-segments on simple tracks.
   v2_per_class_min_duration_sec:
-    Intro: 3.0
-    Verse: 6.0
-    Bridge: 3.0
-    Chorus: 6.0
-    Instrumental: 6.0
-    Outro: 3.0
+    Intro: 5.0
+    Verse: 15.0
+    Bridge: 8.0
+    Chorus: 12.0
+    Instrumental: 15.0
+    Outro: 5.0
 
   # Blend Foote-style audio novelty (from log-mel self-similarity) with
   # probability novelty when snapping boundaries. 0 = probs only, 1 = audio only.

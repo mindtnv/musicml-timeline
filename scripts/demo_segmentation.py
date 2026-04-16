@@ -142,7 +142,9 @@ def main() -> int:
             print(f"[skip {tid}]")
             continue
 
-        probs = run_model_on_track(model, feat_p, stats, cfg, device)
+        probs, raw_feats, feat_hop = run_model_on_track(
+            model, feat_p, stats, cfg, device, return_features=True,
+        )
         T = probs.shape[0]
         duration = T * hop
 
@@ -157,10 +159,12 @@ def main() -> int:
             use_viterbi=True, transition_penalty=1.0,
             use_position_priors=True, median_kernel=5, min_duration=6.0,
         )
-        # v2 (new defaults)
+        # v2 + audio (full stack)
         segs_v2 = decode_segment_head_v2(
             probs, class_names=class_names, hop_seconds=hop,
             window_seconds=cfg["windowing"]["window_seconds"],
+            audio_features=raw_feats,
+            feature_hop_seconds=feat_hop,
         )
 
         # Score each
@@ -179,6 +183,15 @@ def main() -> int:
 
         acc_v1 = score(segs_v1) * 100
         acc_v2 = score(segs_v2) * 100
+
+        # Sanity: does the last segment land on Outro, and does GT have Outro?
+        gt_last = gt_segs[-1]["label"] if gt_segs else "-"
+        v1_last = (segs_v1[-1].label if segs_v1 else "-")
+        v2_last = (segs_v2[-1].label if segs_v2 else "-")
+        print(
+            f"  last segment  gt={gt_last:12s}  "
+            f"v1={v1_last:12s}  v2={v2_last:12s}"
+        )
 
         render_track(axes[3 * i], gt_segs, duration,
                      f"{tid}  (GT)", class_names)

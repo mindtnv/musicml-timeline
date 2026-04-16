@@ -9,6 +9,7 @@ import {
   getAudioPath,
   ensureUploadDir,
   getUploadsDir,
+  revokeSharesForTrack,
 } from "../services/storage";
 import {
   validateUrl,
@@ -216,6 +217,7 @@ export const trackRoutes = new Elysia()
       return { error: "Track not found" };
     }
     await deleteCover(params.id);
+    await revokeSharesForTrack(params.id);
     return { success: true };
   })
 

@@ -48,4 +48,29 @@ export interface Timeline {
     onset_strength: number[];
     feature_hop_seconds: number;
   };
+  /** Emotional arc archetype (Vonnegut-style shape classification). */
+  emotional_arc?: {
+    archetype: string;
+    label_ru: string;
+    label_en: string;
+    emoji: string;
+    description_ru: string;
+    /** 4 quarter-means of the normalised energy curve (for sparkline). */
+    curve: number[];
+  };
+  /** Key emotional moments detected from arousal/valence curves. */
+  key_moments?: {
+    type: string;
+    time_sec: number;
+    frame: number;
+    label_ru: string;
+    label_en: string;
+    emoji: string;
+    color: string;
+    description_ru: string;
+    arousal: number;
+    valence: number;
+  }[];
+  /** Mean embedding from the CNN backbone (512-dim). Used for similarity. */
+  track_embedding?: number[];
 }

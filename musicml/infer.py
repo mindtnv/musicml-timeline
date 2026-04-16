@@ -498,17 +498,17 @@ def build_timeline(
                         class_names=class_names_map[head_name],
                         hop_seconds=hop_seconds,
                         temperature=post_cfg.get(
-                            "v2_temperature", 1.0),
+                            "v2_temperature", 1.4),
                         base_transition_penalty=post_cfg.get(
-                            "v2_base_transition_penalty", 1.2),
+                            "v2_base_transition_penalty", 2.0),
                         use_position_priors=post_cfg.get(
                             "use_position_priors", True),
                         position_penalty=post_cfg.get(
-                            "v2_position_penalty", 10.0),
+                            "v2_position_penalty", 14.0),
                         position_boost=post_cfg.get(
-                            "v2_position_boost", 0.7),
+                            "v2_position_boost", 1.0),
                         boundary_fraction=post_cfg.get(
-                            "v2_boundary_fraction", 0.18),
+                            "v2_boundary_fraction", 0.12),
                         novelty_snap_radius_sec=post_cfg.get(
                             "v2_novelty_snap_radius_sec", 2.0),
                         window_seconds=cfg["windowing"]["window_seconds"],
@@ -595,10 +595,38 @@ def build_timeline(
     if audio_features is not None:
         timeline["audio_features"] = audio_features
 
-    # Embeddings
+    # Emotional arc archetype (Vonnegut-style shape classification)
+    ar_reg = raw_predictions.get("arousal_reg")
+    va_reg = raw_predictions.get("valence_reg")
+    if ar_reg is not None or va_reg is not None:
+        from musicml.arc import classify_arc
+        from musicml.moments import detect_moments
+
+        arc = classify_arc(
+            ar_reg if ar_reg is not None else [],
+            va_reg if va_reg is not None else [],
+        )
+        timeline["emotional_arc"] = arc
+
+        moments = detect_moments(
+            ar_reg if ar_reg is not None else [],
+            va_reg if va_reg is not None else [],
+            hop_seconds=hop_seconds,
+        )
+        timeline["key_moments"] = moments
+
+    # Embeddings — store the per-track mean vector (compact, used for
+    # similarity search) and optionally the full per-window matrix (used
+    # for the 2D embedding map or future per-segment similarity).
     embeddings = raw_predictions.get("embeddings")
     if embeddings is not None:
-        timeline["embeddings"] = embeddings.tolist()
+        mean_emb = np.mean(embeddings, axis=0)
+        timeline["track_embedding"] = [
+            round(float(v), 6) for v in mean_emb
+        ]
+        # Full matrix omitted from default JSON to keep payload small.
+        # Uncomment the next line if needed:
+        # timeline["embeddings"] = embeddings.tolist()
 
     return timeline
 

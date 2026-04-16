@@ -1,5 +1,6 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import type { TimeScale } from "../dashboard/useTimeScale";
+import type { KeyMoment } from "../api/types";
 
 interface EmotionCurvesProps {
   arousalReg: number[];
@@ -9,6 +10,10 @@ interface EmotionCurvesProps {
   timeScale: TimeScale;
   width: number;
   height: number;
+  /** Key moments to render as markers on the chart. */
+  keyMoments?: KeyMoment[];
+  /** Called when a moment marker is clicked (seek to that time). */
+  onMomentClick?: (timeSec: number) => void;
 }
 
 const FONT = '600 10px "JetBrains Mono", "SF Mono", "Fira Code", monospace';
@@ -46,8 +51,11 @@ function EmotionCurves({
   timeScale,
   width,
   height,
+  keyMoments,
+  onMomentClick,
 }: EmotionCurvesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hoveredMoment, setHoveredMoment] = useState<KeyMoment | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -148,14 +156,151 @@ function EmotionCurves({
       ctx.stroke(apath);
       ctx.shadowBlur = 0;
     }
-  }, [arousalReg, valenceReg, hopSeconds, duration, timeScale, width, height]);
+    // ── Key moment markers ──
+    if (keyMoments && keyMoments.length > 0) {
+      const markerR = 6;
+      for (const m of keyMoments) {
+        const mx = timeScale.scale(m.time_sec);
+        // Place marker at arousal level for that frame
+        const fi = Math.min(Math.round(m.time_sec / hopSeconds), arousalReg.length - 1);
+        const arVal = fi >= 0 ? rescale(arousalReg[fi]) : 0.5;
+        const my = plotTop + plotHeight * (1 - arVal);
+
+        // Vertical dashed line
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = m.color + "44";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(mx, plotTop);
+        ctx.lineTo(mx, plotBottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Marker: outer ring + filled center
+        ctx.beginPath();
+        ctx.arc(mx, my, markerR + 2, 0, Math.PI * 2);
+        ctx.fillStyle = m.color + "30";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(mx, my, markerR, 0, Math.PI * 2);
+        ctx.fillStyle = m.color;
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.5)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+    }
+  }, [arousalReg, valenceReg, hopSeconds, duration, timeScale, width, height, keyMoments]);
+
+  // Hit-test moments on mouse events
+  const findMoment = useCallback(
+    (e: React.MouseEvent): KeyMoment | null => {
+      if (!keyMoments?.length || !canvasRef.current) return null;
+      const rect = canvasRef.current.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const hitR = 22; // generous hit area so markers are easy to hover
+      for (const m of keyMoments) {
+        const markerX = timeScale.scale(m.time_sec);
+        if (Math.abs(markerX - mx) < hitR) return m;
+      }
+      return null;
+    },
+    [keyMoments, timeScale],
+  );
+
+  // Render interactive overlay hit-zones for each moment.
+  // The canvas itself has pointer-events:none (ChartFrame rule), so we use
+  // absolutely-positioned divs that sit ON TOP of the canvas and the
+  // TimeCursor layer, catching hover/click independently.
+  const plotTop = 8;
+  const plotBottom = height - 20;
+  const plotHeight = plotBottom - plotTop;
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="emotion-curves-canvas"
-      style={{ width, height, display: "block" }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="emotion-curves-canvas"
+        style={{ width, height, display: "block" }}
+      />
+      {/* Clickable hit-zones for each moment marker */}
+      {keyMoments && keyMoments.length > 0 && (
+        <div
+          ref={overlayRef}
+          className="moment-overlay"
+          style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+        >
+          {keyMoments.map((m) => {
+            const mx = timeScale.scale(m.time_sec);
+            const fi = Math.min(
+              Math.round(m.time_sec / hopSeconds),
+              arousalReg.length - 1,
+            );
+            const arVal = fi >= 0 ? rescale(arousalReg[fi]) : 0.5;
+            const my = plotTop + plotHeight * (1 - arVal);
+            return (
+              <div
+                key={`${m.type}-${m.time_sec}`}
+                className="moment-hitzone"
+                style={{
+                  position: "absolute",
+                  left: mx - 16,
+                  top: my - 16,
+                  width: 32,
+                  height: 32,
+                  pointerEvents: "auto",
+                  cursor: "pointer",
+                  zIndex: 10,
+                }}
+                onMouseEnter={(e) => {
+                  setHoveredMoment(m);
+                  setMousePos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseMove={(e) => {
+                  setMousePos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseLeave={() => setHoveredMoment(null)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onMomentClick) onMomentClick(m.time_sec);
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
+      {/* Tooltip — fixed position to escape overflow:hidden */}
+      {hoveredMoment && mousePos && (
+        <div
+          className="moment-tooltip"
+          style={{
+            position: "fixed",
+            left: mousePos.x,
+            top: mousePos.y - 16,
+            transform: "translate(-50%, -100%)",
+          }}
+        >
+          <span className="moment-tooltip-head">
+            <span
+              className="moment-tooltip-dot"
+              style={{ background: hoveredMoment.color }}
+            />
+            {hoveredMoment.label_ru}
+            <span className="moment-tooltip-time">
+              {Math.floor(hoveredMoment.time_sec / 60)}:
+              {String(Math.floor(hoveredMoment.time_sec % 60)).padStart(2, "0")}
+            </span>
+          </span>
+          <span className="moment-tooltip-desc">
+            {hoveredMoment.description_ru}
+          </span>
+        </div>
+      )}
+    </>
   );
 }
 

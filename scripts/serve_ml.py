@@ -146,6 +146,7 @@ async def analyze(file: UploadFile = File(...)) -> dict[str, Any]:
             cfg=_cfg,
             device=_device,
             include_audio_features=True,
+            do_extract_embeddings=True,
         )
     except Exception as exc:
         raise HTTPException(

@@ -46,6 +46,19 @@ export interface TimelineMetadata {
   hop_seconds: number;
 }
 
+export interface KeyMoment {
+  type: string;
+  time_sec: number;
+  frame: number;
+  label_ru: string;
+  label_en: string;
+  emoji: string;
+  color: string;
+  description_ru: string;
+  arousal: number;
+  valence: number;
+}
+
 export interface Timeline {
   metadata: TimelineMetadata;
   segment?: TimelineSegment[];
@@ -54,4 +67,17 @@ export interface Timeline {
   genre?: TimelineSegment[];
   frame_predictions?: FramePredictions;
   audio_features?: AudioFeatures;
+  /** Emotional arc archetype (Vonnegut-style shape). */
+  emotional_arc?: {
+    archetype: string;
+    label_ru: string;
+    label_en: string;
+    emoji: string;
+    description_ru: string;
+    curve: number[];
+  };
+  /** Key emotional moments (peaks, drops, climax, tension, etc). */
+  key_moments?: KeyMoment[];
+  /** Mean backbone embedding (512-dim). Used for similarity search. */
+  track_embedding?: number[];
 }

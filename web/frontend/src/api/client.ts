@@ -130,3 +130,117 @@ export interface SpectrogramData {
 export async function fetchSpectrogram(id: string): Promise<SpectrogramData> {
   return request<SpectrogramData>(`/tracks/${encodeURIComponent(id)}/spectrogram`);
 }
+
+// ---------------------------------------------------------------------------
+// Export + Share
+// ---------------------------------------------------------------------------
+
+export type ExportFormat = "json" | "csv" | "srt" | "markers" | "md";
+
+/** File-download URL for one of the supported export formats. */
+export function getExportUrl(id: string, format: ExportFormat): string {
+  const slug = format === "markers" ? "export-markers.txt" : `export.${format}`;
+  return `${BASE}/tracks/${encodeURIComponent(id)}/${slug}`;
+}
+
+export interface ShareRecord {
+  shareId: string;
+  trackId: string;
+  createdAt: string;
+}
+
+/** Create (or retrieve existing) share link for a track. */
+export async function createShareLink(trackId: string): Promise<ShareRecord> {
+  return request<ShareRecord>("/shares", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ trackId }),
+  });
+}
+
+/** Return the currently-active share record for a track, if any. */
+export async function getShareForTrack(
+  trackId: string,
+): Promise<ShareRecord | null> {
+  try {
+    return await request<ShareRecord>(
+      `/shares/by-track/${encodeURIComponent(trackId)}`,
+    );
+  } catch {
+    return null;
+  }
+}
+
+/** Revoke a public share link. */
+export async function revokeShareLink(shareId: string): Promise<void> {
+  await fetch(`${BASE}/shares/${encodeURIComponent(shareId)}`, {
+    method: "DELETE",
+  });
+}
+
+/**
+ * Fetch a publicly-shared track by its short share id. The backend already
+ * returns the same `Track` shape (minus filename/error) plus an `audioUrl`
+ * and, if present, a rewritten `coverUrl` pointing at the public endpoints.
+ */
+export interface SharedTrack extends Track {
+  shareId: string;
+  audioUrl: string;
+}
+
+export async function fetchSharedTrack(shareId: string): Promise<SharedTrack> {
+  return request<SharedTrack>(`/shares/${encodeURIComponent(shareId)}`);
+}
+
+/** Build the absolute URL a user pastes into Slack / DMs. */
+export function buildShareUrl(shareId: string): string {
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "";
+  return `${origin}/s/${shareId}`;
+}
+
+// ---------------------------------------------------------------------------
+// Embeddings — similarity + 2D map
+// ---------------------------------------------------------------------------
+
+export interface SimilarTrack {
+  id: string;
+  title?: string;
+  artist?: string;
+  originalName: string;
+  coverUrl?: string;
+  similarity: number;
+  genre?: string;
+}
+
+export interface SimilarResponse {
+  trackId: string;
+  similar: SimilarTrack[];
+}
+
+export async function fetchSimilarTracks(
+  id: string,
+  k = 5,
+): Promise<SimilarResponse> {
+  return request<SimilarResponse>(
+    `/tracks/${encodeURIComponent(id)}/similar?k=${k}`,
+  );
+}
+
+export interface EmbeddingPoint {
+  id: string;
+  title: string;
+  artist?: string;
+  coverUrl?: string;
+  genre?: string;
+  x: number;
+  y: number;
+}
+
+export interface EmbeddingsMapResponse {
+  points: EmbeddingPoint[];
+}
+
+export async function fetchEmbeddingsMap(): Promise<EmbeddingsMapResponse> {
+  return request<EmbeddingsMapResponse>("/embeddings-map");
+}

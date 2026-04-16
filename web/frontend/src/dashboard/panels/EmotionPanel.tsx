@@ -1,11 +1,15 @@
-import type { FramePredictions } from "../../api/types";
+import type { FramePredictions, Timeline, KeyMoment } from "../../api/types";
 import Panel from "../Panel";
 import ChartFrame from "../ChartFrame";
+import { useDashboard } from "../DashboardContext";
 import EmotionCurves from "../../components/EmotionCurves";
+import ArcBadge from "../../components/ArcBadge";
 
 interface EmotionPanelProps {
   framePredictions?: FramePredictions;
   duration: number;
+  emotionalArc?: Timeline["emotional_arc"];
+  keyMoments?: KeyMoment[];
 }
 
 const CURVE_HEIGHT = 220;
@@ -16,10 +20,11 @@ const CURVE_PAD_LEFT = 36;
 // shows them as curves over time (where the dynamics live).  The two are
 // complementary, not duplicates — keep both, drop the duplicate hero
 // numbers (those live in EmotionalProfilePanel).
-function EmotionPanel({ framePredictions, duration }: EmotionPanelProps) {
+function EmotionPanel({ framePredictions, duration, emotionalArc, keyMoments }: EmotionPanelProps) {
   const aReg = framePredictions?.arousal_reg ?? [];
   const vReg = framePredictions?.valence_reg ?? [];
   const hop = framePredictions?.frame_hop_seconds ?? 1.0;
+  const { seek } = useDashboard();
 
   if (aReg.length === 0 && vReg.length === 0) return null;
 
@@ -28,6 +33,7 @@ function EmotionPanel({ framePredictions, duration }: EmotionPanelProps) {
       title="Динамика эмоций"
       subtitle="Регрессионные выходы модели · arousal & valence во времени"
       span={4}
+      actions={emotionalArc ? <ArcBadge arc={emotionalArc} /> : undefined}
     >
       <div className="emotion-curve-row">
         <ChartFrame
@@ -44,6 +50,8 @@ function EmotionPanel({ framePredictions, duration }: EmotionPanelProps) {
               timeScale={timeScale}
               width={width}
               height={height}
+              keyMoments={keyMoments}
+              onMomentClick={seek}
             />
           )}
         </ChartFrame>
