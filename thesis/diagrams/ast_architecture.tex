@@ -1,0 +1,180 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc,backgrounds,decorations.pathreplacing}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Monochrome academic palette
+\definecolor{blockfill}{HTML}{F5F5F5}
+\definecolor{darkfill}{HTML}{2D2D2D}
+\definecolor{lightline}{HTML}{BBBBBB}
+\definecolor{ink}{HTML}{1A1A1A}
+\definecolor{mid}{HTML}{555555}
+\definecolor{light}{HTML}{999999}
+
+\tikzset{
+  every node/.style={font=\sffamily},
+  block/.style={
+    rectangle, draw=ink, fill=blockfill, line width=.6pt,
+    minimum height=.85cm, align=center, inner sep=4pt,
+    font=\sffamily\small
+  },
+  darkblock/.style={
+    rectangle, draw=ink, fill=darkfill, line width=.6pt,
+    minimum height=.85cm, align=center, inner sep=4pt,
+    font=\sffamily\small, text=white
+  },
+  thinblock/.style={
+    rectangle, draw=lightline, fill=blockfill, line width=.4pt,
+    minimum width=.75cm, minimum height=1cm, align=center,
+    font=\sffamily\tiny, text=mid
+  },
+  wideblock/.style={
+    rectangle, draw=ink, fill=blockfill, line width=.7pt,
+    minimum width=1.3cm, minimum height=1cm, align=center,
+    font=\sffamily\footnotesize, text=ink
+  },
+  head/.style={
+    rectangle, draw=ink, fill=white, line width=.6pt,
+    minimum height=.85cm, text width=2.2cm, align=center,
+    font=\sffamily\footnotesize, text=ink
+  },
+  arr/.style={-{Stealth[length=5pt,width=4pt]}, line width=.6pt, color=ink},
+  dasharr/.style={-{Stealth[length=5pt,width=4pt]}, line width=.5pt, color=light, dashed},
+  brace/.style={decorate, decoration={brace, amplitude=4pt}, line width=.5pt, color=mid},
+  bracemirror/.style={decorate, decoration={brace, amplitude=4pt, mirror}, line width=.5pt, color=mid},
+  note/.style={font=\sffamily\scriptsize, text=mid},
+  smallnote/.style={font=\sffamily\tiny, text=light},
+  stagelabel/.style={font=\sffamily\footnotesize\itshape, text=mid, anchor=east},
+}
+
+\begin{document}
+\begin{tikzpicture}
+
+% ===========================================================
+% TOP-TO-BOTTOM VERTICAL FLOW — classic transformer paper style
+% All blocks centered on x=0, arrows go straight down
+% ===========================================================
+
+% ----- INPUT STAGE -----
+\node[block, text width=4cm] at (0, 0) (audio)
+  {Входной сигнал $\mathbf{x} \in \mathbb{R}^{T_s}$};
+\node[stagelabel] at (-3.2, 0) {вход};
+
+\node[block, text width=4cm] at (0, -1.3) (mel)
+  {Лог-мел спектрограмма $128 \times T$};
+\node[stagelabel] at (-3.2, -1.3) {признаки};
+
+\node[block, text width=4cm] at (0, -2.6) (patch)
+  {Патч-эмбеддинг $16\!\times\!16 \to 768$};
+
+\node[block, text width=4cm] at (0, -3.9) (pos)
+  {$+$ CLS токен \,\,$+$\,\, поз. эмбеддинг};
+\node[stagelabel] at (-3.2, -3.25) {токенизация};
+
+\draw[arr] (audio) -- (mel);
+\draw[arr] (mel) -- (patch);
+\draw[arr] (patch) -- (pos);
+
+% ----- FROZEN LAYERS (row of 8) -----
+% Row centered on x=0, 8 blocks × 0.75cm + 7 gaps × 0.1cm = 6.7cm wide
+% Start at x = -3.35 + 0.375 = -2.975 (center of first block)
+\foreach \i in {1,...,8}{
+  \pgfmathsetmacro{\xp}{-2.975 + (\i-1)*0.85}
+  \node[thinblock] at (\xp, -5.6) (fl\i) {\textbf{\i}\\SA\\FFN};
+}
+\begin{scope}[on background layer]
+  \node[draw=lightline, dashed, line width=.5pt, rounded corners=2pt,
+        fill=white, fit=(fl1)(fl8), inner sep=5pt] (fbox) {};
+\end{scope}
+\node[font=\sffamily\footnotesize\itshape, text=mid, anchor=east, align=right]
+  at (-3.8, -5.6) {замороженные\\ слои ($\times 8$)};
+
+\draw[arr] (pos.south) -- (fbox.north);
+
+% ----- TRAINABLE LAYERS (row of 4) -----
+% 4 blocks × 1.3cm + 3 gaps × 0.25cm = 5.95cm wide, centered on x=0
+\foreach \i [count=\n from 9] in {1,...,4}{
+  \pgfmathsetmacro{\xp}{-2.325 + (\i-1)*1.55}
+  \node[wideblock] at (\xp, -7.7) (tl\i) {L\n\\MHSA\\FFN};
+}
+\begin{scope}[on background layer]
+  \node[draw=ink, line width=.8pt, rounded corners=2pt,
+        fill=white, fit=(tl1)(tl4), inner sep=5pt] (tbox) {};
+\end{scope}
+\node[font=\sffamily\footnotesize\itshape, text=mid, anchor=east, align=right]
+  at (-3.8, -7.7) {дообучаемые\\ слои ($\times 4$)};
+
+\draw[arr] (fbox.south) -- (tbox.north);
+
+% ----- CLS POOLING + FC -----
+\node[block, text width=3cm] at (0, -9.5) (clsout)
+  {CLS-выход \,\,$\mathbb{R}^{768}$};
+\node[darkblock, text width=3cm] at (0, -10.7) (fc)
+  {Общий FC \,\,$768 \to 256$};
+
+\draw[arr] (tbox.south) -- (clsout.north);
+\draw[arr] (clsout) -- (fc);
+
+\node[font=\sffamily\footnotesize\itshape, text=mid, anchor=east, align=right]
+  at (-3.8, -10.1) {пулинг\\ и проекция};
+
+% ----- HEADS ROW -----
+% 4 heads in single row centered on x=0, width 2.2cm each, 0.35cm gap
+% Total width 4×2.55 - 0.35 = 9.85cm, centered → start at -4.925+1.1 = -3.825
+\node[head] at (-3.825, -12.3) (h1) {Сегмент\\{\tiny $K=6$}};
+\node[head] at (-1.275, -12.3) (h2) {Возбуждение\\{\tiny $K=3$}};
+\node[head] at ( 1.275, -12.3) (h3) {Валентность\\{\tiny $K=3$}};
+\node[head] at ( 3.825, -12.3) (h4) {Жанр\\{\tiny $K=10$}};
+
+% Bus line from fc down, then spread to heads
+\coordinate (bus) at (0, -11.6);
+\draw[line width=.5pt, color=ink] (fc.south) -- (bus);
+\draw[line width=.5pt, color=ink] (h1.north |- bus) -- (h4.north |- bus);
+\draw[arr]     (h1.north |- bus) -- (h1.north);
+\draw[arr]     (h2.north |- bus) -- (h2.north);
+\draw[dasharr] (h3.north |- bus) -- (h3.north);
+\draw[dasharr] (h4.north |- bus) -- (h4.north);
+
+\node[font=\sffamily\footnotesize\itshape, text=mid, anchor=east, align=right]
+  at (-5, -12.3) {классификационные\\ головы};
+
+% Сегмент note
+\node[smallnote, below=1pt of h1] {$\to$ Витерби};
+
+% ----- REGRESSION HEADS (auxiliary, dashed gray) -----
+\node[head, draw=lightline, text=mid, text width=1.5cm, minimum height=.7cm]
+  at (-1.275, -13.9) (hr1) {$\hat{a}_{\text{reg}}$};
+\node[head, draw=lightline, text=mid, text width=1.5cm, minimum height=.7cm]
+  at ( 1.275, -13.9) (hr2) {$\hat{v}_{\text{reg}}$};
+\draw[dasharr] (h2.south) -- (hr1.north);
+\draw[dasharr] (h3.south) -- (hr2.north);
+\node[smallnote, below=1pt of hr1] {регрессия};
+\node[smallnote, below=1pt of hr2] {регрессия};
+
+\node[font=\sffamily\footnotesize\itshape, text=mid, anchor=east, align=right]
+  at (-5, -13.9) {регрессионные\\ головы (вспом.)};
+
+% ----- SIDE NOTE: input params -----
+\node[note, anchor=west, text width=2.4cm] at (2.5, 0)
+  {$sr{=}22050$\\окно $10$\,с\\шаг $1$\,с};
+
+% ----- BOTTOM ANNOTATION -----
+\node[note, anchor=north, text width=16cm, align=center]
+  at (0, -15.4) {
+  Всего: $87$М параметров \quad|\quad
+  Обучаемые: $14$М (слои 9--12 $+$ головы) \quad|\quad
+  Предобучение: AudioSet ($2$М клипов, $527$ классов)\\[2pt]
+  LR бэкбона: $5{\times}10^{-5}$ \quad|\quad
+  LR голов: $10^{-3}$ \quad|\quad
+  Эфф. батч: $16 \times 4 = 64$
+};
+
+\end{tikzpicture}
+\end{document}

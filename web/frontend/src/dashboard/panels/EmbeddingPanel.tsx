@@ -163,9 +163,9 @@ function CollapsibleMap({ highlightId }: { highlightId: string }) {
           <polyline points="6 9 12 15 18 9" />
         </svg>
         <span className="emb-map-toggle-label">
-          {open ? "Скрыть карту эмбеддингов" : "Показать карту эмбеддингов"}
+          {open ? "Скрыть карту библиотеки" : "Показать карту библиотеки"}
         </span>
-        <span className="emb-map-toggle-hint">PCA 768→2D</span>
+        <span className="emb-map-toggle-hint"></span>
       </button>
       {open && <ScatterCanvas highlightId={highlightId} />}
     </div>
@@ -230,7 +230,7 @@ function ScatterCanvas({ highlightId }: { highlightId: string }) {
   return (
     <div className="emb-map-section">
       <div className="emb-map-label">
-        Карта библиотеки · {points.length} треков · PCA 768→2D
+        Карта библиотеки · {points.length} треков
       </div>
       <div ref={wrapRef} className="emb-map-wrap">
         <canvas
@@ -265,8 +265,8 @@ function ScatterCanvas({ highlightId }: { highlightId: string }) {
 function EmbeddingPanel({ trackId }: Props) {
   return (
     <Panel
-      title="Embedding-пространство"
-      subtitle="Похожие треки по cosine similarity + 2D проекция библиотеки через PCA"
+      title="Похожие треки"
+      subtitle="Треки с наиболее похожим звучанием из вашей библиотеки"
       span={4}
     >
       <SimilarGrid trackId={trackId} />

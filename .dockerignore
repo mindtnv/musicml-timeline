@@ -1,0 +1,56 @@
+# Build artefacts / local env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+build/
+dist/
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Datasets (huge, never go into the image)
+data/
+results/
+
+# Checkpoints: the image bind-mounts them at runtime via docker-compose;
+# nothing in the repo is baked in. If you prefer a self-contained image,
+# whitelist the one you need, e.g.:
+#   !checkpoints/ast_v3/best.pt
+checkpoints/
+
+# Frontend build artefacts and node_modules
+web/node_modules/
+web/dist/
+web/.next/
+web/.cache/
+node_modules/
+
+# Thesis / docs — irrelevant to the inference service
+thesis/
+docs/
+guide.pdf
+
+# Local caches / IDE
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Editor swap files
+*.swp
+*~
+
+# Plans / scratch
+.claude/
+plans/
+
+# Temp uploads/cache from prior runs
+cache/
+uploads/

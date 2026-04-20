@@ -1,123 +1,97 @@
-% !TEX program = xelatex
+% !TEX program = pdflatex
 % !BIB program = biber
 %
-% Магистерская НИР — основной файл
-% ТвГУ, 2026.  Антонов М.Д.
+% Магистерская диссертация
+% ФГБОУ ВО «Тверской государственный университет»
+% Факультет прикладной математики и кибернетики
+% Автор: Антонов М. Е., научный руководитель: Кудряшов М. Ю.
 %
-% Сборка: latexmk -xelatex main.tex
-% Или:   xelatex main && biber main && xelatex main && xelatex main
+% Сборка (MiKTeX / TeX Live):
+%   pdflatex main && biber main && pdflatex main && pdflatex main
+%
 
-\documentclass[14pt,a4paper,oneside]{extarticle}
+\documentclass[master,paper]{pmk-graduate}
 
-% --- Geometry (ГОСТ Р 7.0.11-2011) -----------------------------------------
-\usepackage[
-  left=30mm, right=15mm, top=20mm, bottom=20mm,
-  headheight=14pt, footskip=10mm
-]{geometry}
+% Scalable fonts (lmodern) + T2A fontenc гарантируют работу microtype font expansion
+\usepackage{lmodern}
 
-% --- Fonts ------------------------------------------------------------------
-\usepackage{fontspec}
-\setmainfont{Times New Roman}
-\setsansfont{Arial}
-\setmonofont{Consolas}[Scale=0.92]
+% Inline-код в тексте (используется в главах как \code{...})
+\newcommand{\code}[1]{\texttt{#1}}
 
-% --- Languages --------------------------------------------------------------
-\usepackage{polyglossia}
-\setdefaultlanguage{russian}
-\setotherlanguage{english}
-
-% --- Spacing ----------------------------------------------------------------
-\usepackage{setspace}
-\onehalfspacing                       % 1.5 line spacing (ГОСТ)
-\usepackage{indentfirst}              % indent first paragraph of each section
-\setlength{\parindent}{1.25cm}        % 1.25cm красная строка
-\setlength{\parskip}{0pt}
-
-% --- Math, symbols ----------------------------------------------------------
-\usepackage{amsmath, amssymb, amsthm, mathtools}
-
-% --- Section headings -------------------------------------------------------
-\usepackage{titlesec}
-
-% Section becomes "Глава N." prefix (only in main matter, not appendix).
-\titleformat{\section}
-  {\bfseries\fontsize{14}{16}\selectfont\centering}
-  {Глава \thesection.}{0.5em}{}
-\titleformat{\subsection}
-  {\bfseries\fontsize{13}{15}\selectfont}
-  {\thesubsection}{0.7em}{}
-\titleformat{\subsubsection}
-  {\itshape\fontsize{12}{14}\selectfont}
-  {\thesubsubsection}{0.7em}{}
-
-\titlespacing*{\section}{0pt}{18pt}{10pt}
-\titlespacing*{\subsection}{0pt}{10pt}{6pt}
-\titlespacing*{\subsubsection}{0pt}{8pt}{4pt}
-
-% Appendix uses "Приложение X." instead of "Глава N."
-\newcommand{\appendixformat}{%
-  \titleformat{\section}
-    {\bfseries\fontsize{14}{16}\selectfont\centering}
-    {Приложение \thesection.}{0.5em}{}
-}
-
-% --- Tables -----------------------------------------------------------------
+% Качественные линейки в таблицах (\toprule, \midrule, \bottomrule)
 \usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{tabularx}
+% Многострочные ячейки
+\usepackage{multirow}
+% Гибкие размеры колонок
 \usepackage{array}
-\usepackage{makecell}
-\renewcommand{\arraystretch}{1.15}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 
-% --- Captions ---------------------------------------------------------------
-\usepackage[font=small,labelfont=bf]{caption}
+% Математические символы и среды
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
 
-% --- Graphics ---------------------------------------------------------------
+% Поддержка Unicode-символов, встречающихся в тексте
+\DeclareUnicodeCharacter{2212}{-}% минус U+2212
+\DeclareUnicodeCharacter{00B1}{$\pm$}% плюс-минус
+\DeclareUnicodeCharacter{2248}{$\approx$}% почти равно
+\DeclareUnicodeCharacter{2264}{$\leq$}% меньше или равно
+\DeclareUnicodeCharacter{2265}{$\geq$}% больше или равно
+\DeclareUnicodeCharacter{00D7}{$\times$}% умножить
+\DeclareUnicodeCharacter{2192}{$\to$}% стрелка вправо
+\DeclareUnicodeCharacter{2190}{$\leftarrow$}% стрелка влево
+\DeclareUnicodeCharacter{2194}{$\leftrightarrow$}% двусторонняя стрелка
+\DeclareUnicodeCharacter{2013}{--}% en dash
+\DeclareUnicodeCharacter{2014}{---}% em dash
+\DeclareUnicodeCharacter{2026}{\ldots}% многоточие
+\DeclareUnicodeCharacter{00B2}{$^2$}% ²
+\DeclareUnicodeCharacter{00B3}{$^3$}% ³
+\DeclareUnicodeCharacter{00B0}{$^\circ$}% °
+\DeclareUnicodeCharacter{03B1}{$\alpha$}
+\DeclareUnicodeCharacter{03B2}{$\beta$}
+\DeclareUnicodeCharacter{03B3}{$\gamma$}
+\DeclareUnicodeCharacter{03B4}{$\delta$}
+\DeclareUnicodeCharacter{03B5}{$\varepsilon$}
+\DeclareUnicodeCharacter{03BB}{$\lambda$}
+\DeclareUnicodeCharacter{03BC}{$\mu$}
+\DeclareUnicodeCharacter{03C0}{$\pi$}
+\DeclareUnicodeCharacter{03C3}{$\sigma$}
+\DeclareUnicodeCharacter{03C6}{$\varphi$}
+\DeclareUnicodeCharacter{03C9}{$\omega$}
+\DeclareUnicodeCharacter{00A0}{~}% неразрывный пробел
+\DeclareUnicodeCharacter{00A9}{\textcopyright}
+\DeclareUnicodeCharacter{00AE}{\textregistered}
+\DeclareUnicodeCharacter{2122}{\texttrademark}
+
+% --- Графика и подсветка кода -----------------------------------------------
 \usepackage{graphicx}
-\usepackage{float}
 \graphicspath{{figures/}{../results/plots/}}
-
-% --- Code listings ----------------------------------------------------------
+\usepackage{float}
 \usepackage{xcolor}
 \usepackage{listings}
 
-% Define languages not bundled with `listings`: JavaScript/TypeScript and bash
+% Определение языка JavaScript (listings его не знает «из коробки»)
 \lstdefinelanguage{JavaScript}{
-  keywords={break,case,catch,continue,debugger,default,delete,do,else,false,
-    finally,for,function,if,in,instanceof,new,null,return,switch,this,throw,
-    true,try,typeof,var,void,while,with,let,const,async,await,of,import,export,
-    from,class,extends,super},
-  ndkeywords={true,false,null,undefined,NaN,Infinity},
-  morecomment=[l]{//},
+  keywords={const,let,var,function,return,if,else,for,while,do,switch,case,break,continue,new,this,typeof,instanceof,class,extends,super,async,await,import,export,from,default,null,undefined,true,false,try,catch,finally,throw,of,in},
+  keywordstyle=\bfseries\color{blue!60!black},
+  ndkeywords={console,document,window,Math,Date,JSON,Promise,Array,Object,String,Number,Boolean},
+  ndkeywordstyle=\color{purple!70!black},
+  sensitive=true,
+  comment=[l]{//},
   morecomment=[s]{/*}{*/},
+  commentstyle=\itshape\color{gray!70!black},
+  stringstyle=\color{green!50!black},
   morestring=[b]',
   morestring=[b]",
   morestring=[b]`,
-  sensitive=true
-}
-\lstdefinelanguage{TypeScript}[]{JavaScript}{
-  morekeywords={interface,type,enum,implements,readonly,public,private,protected,
-    abstract,as,namespace,declare,module,never,unknown,any,number,string,boolean,
-    object,Symbol,bigint},
-  sensitive=true
-}
-\lstdefinelanguage{bash}{
-  morekeywords={if,then,else,elif,fi,for,while,do,done,case,esac,return,in,
-    function,select,until,export,local,readonly,source,alias,unalias,echo,
-    cd,pwd,ls,cat,grep,sed,awk,find,xargs,test},
-  morecomment=[l]\#,
-  morestring=[b]',
-  morestring=[b]",
-  sensitive=true
 }
 
 \lstset{
   basicstyle=\ttfamily\small,
   keywordstyle=\bfseries\color{blue!60!black},
-  commentstyle=\color{gray!70},
+  commentstyle=\itshape\color{gray!70!black},
   stringstyle=\color{green!50!black},
   breaklines=true,
   frame=single,
@@ -129,49 +103,170 @@
   inputencoding=utf8,
 }
 
-% --- Hyperlinks -------------------------------------------------------------
-\usepackage[
-  bookmarks=true,
-  bookmarksopen=true,
-  bookmarksnumbered=true,
-  unicode=true,
-  colorlinks=true,
-  linkcolor=black,
-  citecolor=black,
-  urlcolor=blue!60!black,
-  pdfborder={0 0 0}
-]{hyperref}
-
-% --- Bibliography -----------------------------------------------------------
-\usepackage[
-  backend=biber,
-  style=gost-numeric,
-  language=auto,
-  sorting=none,
-  maxnames=5,
-  giveninits=true
-]{biblatex}
+% --- Подключение библиографии -----------------------------------------------
 \addbibresource{references.bib}
 
-% --- Custom commands --------------------------------------------------------
-\newcommand{\code}[1]{\texttt{#1}}
-\newcommand{\eg}{например}
-\newcommand{\ie}{т.\,е.}
+% ============================================================================
+%  МЕТАДАННЫЕ РАБОТЫ
+% ============================================================================
 
-% =============================================================================
+% ООП: Интеллектуальные системы. Теория и приложения
+% (направление 09.04.03 «Прикладная информатика»)
+\program{mista}
+
+\title{%
+Определение структурных сегментов и эмоциональных характеристик
+музыкальных композиций методами машинного обучения%
+\english
+Structural Segmentation and Emotional Characterisation of Musical
+Compositions by Machine Learning Methods%
+}
+
+\student{%
+Антонов Михаил Евгеньевич%
+\brief М.\,Е.\,Антонов%
+\group 1152%
+\english Antonov Mikhail Evgenyevich%
+}
+
+\superviser{%
+Кудряшов Максим Юрьевич%
+\brief М.\,Ю.\,Кудряшов%
+\position доцент кафедры информационных технологий%
+\degree кандидат физико-математических наук%
+\rank доцент%
+}
+
+\year{2025-2026}
+
+\goal{%
+разработка и экспериментальное исследование программного модуля
+автоматического анализа музыкальных композиций, который по
+аудиозаписи восстанавливает структурную разметку во времени
+(вступление, куплет, припев, проигрыш, концовка), эмоциональную
+характеристику (valence/arousal в модели Рассела) и жанровую
+принадлежность на основе мульти-задачной модели глубокого
+обучения.%
+}
+
+% ---------------------------------------------------------------------------
+% Задачи: перечень переписывается в подраздел «Цель и задачи» и повторно
+% используется в подразделе «Основные результаты». Формат элемента:
+%   \task{<формулировка задачи>\result{<краткий результат>}}
+% ---------------------------------------------------------------------------
+\begin{tasks}
+\task{%
+Провести обзор области Music Information Retrieval и обосновать
+мульти-задачный подход к объединению четырёх задач (сегментация,
+arousal, valence, жанр).%
+\result{%
+Обзор 38 источников; обосновано применение общего аудио-энкодера
+с четырьмя классификационными головами.%
+}}
+
+\task{%
+Подготовить обучающий корпус на основе трёх открытых датасетов
+(DEAM, Harmonix~Set, GTZAN) с унифицированным пайплайном
+извлечения признаков.%
+\result{%
+Собран корпус 3\,545 композиций; реализован модуль
+\texttt{musicml.features}; разбиение без утечек по трекам;
+176\,127 окон 10\,с с шагом 1\,с.%
+}}
+
+\task{%
+Разработать и реализовать пять архитектур мульти-задачных
+моделей~--- CNN, CNN\,+\,BiLSTM, PANNs\,+\,Linear,
+PANNs\,+\,BiLSTM, AST~--- для оценки вклада temporal modeling,
+pretraining и трансформерной парадигмы.%
+\result{%
+Реализована CNN с SE-блоками ($\approx$\,800\,тыс. параметров),
+надстройки BiLSTM, линейный классификатор над PANNs и частично
+размороженный AST (14{,}4\,млн trainable из 87\,млн).%
+}}
+
+\task{%
+Выполнить экспериментальное сравнение пяти архитектур по четырём
+задачам на едином тестовом корпусе.%
+\result{%
+Четыре последовательных эксперимента (v1, v2, AST~v2,
+negative-result CNN~v3). Лучшая конфигурация~--- AST~v2:
+среднее accuracy 58{,}5\,\%, сегмент 40{,}6\,\%
+(+5{,}3\,п.п. к CNN), жанры 81{,}5\,\%.%
+}}
+
+\task{%
+Реализовать пост-обработку сегментных предсказаний на базе
+декодера Витерби с музыкологическими априори.%
+\result{%
+Декодер v2 с temperature scaling, матрицей переходов, позиционными
+приорами и per-class min-duration повышает Boundary~F1 на
+14\,пунктов относительно argmax.%
+}}
+
+\task{%
+Разработать веб-прототип для интерактивной демонстрации
+результатов.%
+\result{%
+Трёхзвенная система React\,19\,+\,Vite / Elysia~(Bun) / FastAPI,
+дашборд из шести синхронизированных панелей, Vibe~Mode
+(WebGL2-шейдер), ID3/YouTube-метаданные.%
+}}
+
+\task{%
+Сформулировать ограничения подхода и направления дальнейшей
+работы.%
+\result{%
+Ограничения: OOD на современной музыке, потолок per-window
+($\sim$\,55\,\% сегмента), размер AST (574\,МБ), отсутствие
+multi-label жанров. Направления: temporal-декодеры BiLSTM/CRF
+поверх AST-эмбеддингов, FMA/SALAMI, distillation, streaming.%
+}}
+\end{tasks}
+
+% ---------------------------------------------------------------------------
+% Английская аннотация. Объём — от 1/2 до 1 страницы.
+% ---------------------------------------------------------------------------
+\begin{englishabstract}
+This master's thesis presents a software module for automatic
+multi-task analysis of musical recordings. For an input track the
+system produces a temporal timeline of structural segments (Intro,
+Verse, Chorus, Bridge, Instrumental, Outro), arousal/valence
+curves (Russell circumplex) and a top-3 genre prediction.
+
+Five architectural configurations are developed and compared: a
+CNN per-window with Squeeze-and-Excitation attention, CNN\,+\,BiLSTM,
+a linear classifier and a BiLSTM over frozen PANNs embeddings, and
+a partially fine-tuned Audio Spectrogram Transformer (AST)
+pretrained on AudioSet. All are trained jointly on DEAM, Harmonix
+Set and GTZAN by a round-robin multi-task scheduler with focal
+loss and SpecAugment. Four sequential experiments (v1, v2, AST~v2
+extension and a negative-result CNN~v3) yield AST~v2 as the best
+overall configuration with average accuracy 58.5\,\% and a
+5.3-point gain on structural segmentation over the strongest
+CNN baseline. A post-processing pipeline based on Viterbi
+decoding with a musicological transition matrix, position priors
+and per-class minimum durations raises the boundary~F1 of the
+structural segmentation by 14~points over the raw argmax
+baseline.
+
+The work also delivers an interactive web prototype with a
+synchronised six-panel dashboard and a fullscreen Vibe~Mode WebGL2
+visualizer reactive to the audio spectrum.
+
+\end{englishabstract}
+
+% ============================================================================
+%  ОСНОВНОЙ ТЕКСТ
+% ============================================================================
 \begin{document}
 
-% --- Титульный лист ---------------------------------------------------------
-\input{title}
+\maketitlepage
 
-% --- Оглавление -------------------------------------------------------------
-\tableofcontents
-\newpage
-
-% --- Введение ---------------------------------------------------------------
+% --- Введение (не нумеруется) -----------------------------------------------
 \input{chapters/00_introduction}
 
-% --- Главы ------------------------------------------------------------------
+% --- Основная часть ---------------------------------------------------------
 \input{chapters/01_literature_review}
 \input{chapters/02_problem_statement}
 \input{chapters/03_data}
@@ -180,15 +275,14 @@
 \input{chapters/06_prototype}
 \input{chapters/07_analysis}
 
-% --- Заключение -------------------------------------------------------------
+% --- Заключение (не нумеруется) ---------------------------------------------
 \input{chapters/99_conclusion}
 
 % --- Список литературы ------------------------------------------------------
-\printbibliography[heading=bibintoc, title={Список использованных источников}]
+\printthebibliography
 
 % --- Приложения -------------------------------------------------------------
 \appendix
-\appendixformat
 \input{chapters/A_appendices}
 
 \end{document}

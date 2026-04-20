@@ -42,7 +42,7 @@ function SimilarTracks({ trackId }: Props) {
     <section className="similar-tracks">
       <h3 className="similar-tracks-title">
         Похожие треки
-        <span className="similar-tracks-badge">по эмбеддингам</span>
+        <span className="similar-tracks-badge">по звучанию</span>
       </h3>
       <div className="similar-tracks-grid">
         {similar.map((t) => (

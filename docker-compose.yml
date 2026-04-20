@@ -1,0 +1,37 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: musicml-timeline:latest
+    container_name: musicml-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      MUSICML_CKPT: /app/checkpoints/ast_v3/best.pt
+      MUSICML_CONFIG: /app/configs/ast.yaml
+      MUSICML_CACHE_DIR: /app/cache
+      MUSICML_HOST: 0.0.0.0
+      MUSICML_PORT: "8000"
+      OMP_NUM_THREADS: "4"
+      MKL_NUM_THREADS: "4"
+    volumes:
+      - ./checkpoints:/app/checkpoints:ro
+      - ./cache:/app/cache
+      - ./uploads:/app/uploads
+      - hf_cache:/app/.cache/huggingface
+    # AST eats ~2.5 GB RSS; keep a headroom for librosa and the request
+    # buffer. Raise if you switch to a larger host.
+    mem_limit: 4g
+    mem_reservation: 2g
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # Cold start pulls HF weights on first run — give it a long grace.
+      start_period: 180s
+
+volumes:
+  hf_cache:

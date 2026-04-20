@@ -1,100 +1,31 @@
-\section{Обзор предметной области}\label{ch:1}
+\chapter{Обзор предметной области}\label{ch:1}
 
-\subsection{Music Information Retrieval как научная дисциплина}\label{sec:1-1}
+\section{Music Information Retrieval как научная дисциплина}\label{sec:1-1}
 
-\textbf{Music Information Retrieval (MIR)} — междисциплинарная область, объединяющая методы обработки сигналов, машинного обучения, музыкальной теории и психоакустики для извлечения семантической информации из аудиозаписей музыки. Сформировалась как самостоятельное направление в начале 2000-х годов с учреждением ежегодной конференции ISMIR (International Society for Music Information Retrieval) в 2000 году~\cite{downie2003mir}.
+\textbf{Music Information Retrieval (MIR)} — междисциплинарная область, оформившаяся с учреждением конференции ISMIR в 2000 году~\cite{downie2003mir}. Задачи MIR делятся на классификацию трека (жанр, настроение), покадровую разметку (onset, tempo, chord), сегментацию (MSA, emotion) и регрессию (arousal/valence). Настоящая работа решает три задачи покадровой разметки и одну track-level (жанр) в единой мульти-задачной модели.
 
-Типичные задачи MIR делятся на несколько групп:
+\textbf{Признаковое представление.} Базовое представление~--- \textbf{log-mel спектрограмма}~\cite{stevens1937mel}: 128 мел-полос (30--11025\,Гц при sr=22050\,Гц), STFT window 2048, hop 512 ($\approx 23$\,мс)~\cite{choi2017tutorial,kong2020panns}. Альтернативы (chroma, MFCC, CQT) не вошли в финальную модель: вклад chroma $\leq 1$\,п.п.
 
-\textbf{Классификация на уровне трека} — модель присваивает целому аудиофайлу одну или несколько меток. Сюда относятся определение жанра (genre classification), исполнителя (artist identification), настроения (mood detection), языка вокала. Эти задачи близки к задачам компьютерного зрения image classification.
+\section{Структурная сегментация музыкальных композиций}\label{sec:1-2}
 
-\textbf{Покадровая разметка (frame-level labeling)} — модель формирует временной ряд предсказаний с заданным шагом. Примеры: транскрипция нот (note onset detection), оценка темпа (tempo tracking), определение тональности (key estimation), извлечение хора (chord recognition).
+Music Structure Analysis (MSA) — разбиение трека на смысловые фрагменты (Intro, Verse, Chorus, Bridge, Instrumental, Outro) на уровне \textbf{boundary detection} и \textbf{section labeling}. 6-классовая section labeling~--- одна из сложнейших задач MIR: различия Verse/Chorus определяются контекстом (повторяемость, динамика).
 
-\textbf{Сегментация (segmentation)} — модель разбивает трек на непрерывные интервалы по структурному, эмоциональному или акустическому признаку. К этой группе принадлежат задачи структурного анализа (Music Structure Analysis), сегментации по эмоциям (emotion segmentation), детекции тишины и переходов.
+\textbf{Классические подходы} опираются на \textbf{self-similarity matrix (SSM)}~\cite{foote2000novelty}: novelty curve~\cite{foote2000novelty}, convex hull~\cite{serra2014unsupervised}, spectral clustering~\cite{mcfee2014spectral}. Достигают F1 до 0.6--0.7 на SALAMI для boundary detection, но не решают section labeling.
 
-\textbf{Регрессия на непрерывных шкалах} — оценка непрерывных величин: arousal/valence (по шкалам Russell), tempo BPM, loudness LUFS.
-
-\textbf{Generative задачи} — синтез музыки, генерация аккомпанемента, source separation. В рамках настоящей работы не рассматриваются.
-
-Настоящая работа фокусируется на трёх задачах второй группы (покадровая разметка) и одной задаче первой группы (классификация жанра), решаемых одновременно средствами мульти-задачной модели. Такая постановка отражает практическую потребность создания \textbf{полной семантической разметки} аудиотрека для пользовательских приложений: автоматического создания превью, ритм-игр, музыкальных рекомендательных систем.
-
-\subsubsection{Признаковое представление аудио}
-
-Базовым представлением для MIR-моделей с 2010-х годов является \textbf{мел-спектрограмма} — двумерное представление частотно-временной структуры сигнала, где частотная ось преобразована из линейного герцевого масштаба в перцептивно равномерную мел-шкалу~\cite{stevens1937mel}. Для последующего применения свёрточных сетей логарифмическая компрессия амплитуды (\code{librosa.power\_to\_db}) дополнительно сглаживает динамический диапазон. Получаемое представление (log-mel) сравнимо по информативности с человеческим восприятием тембра и достаточно для большинства классификационных задач.
-
-В данной работе используется log-mel с параметрами: 128 мел-полос (диапазон 30–11025\,Гц при sample rate 22050\,Гц), окно STFT 2048 семплов, hop 512 семплов ($\approx 23$\,мс). Эти значения соответствуют общепринятым практикам в литературе~\cite{choi2017tutorial,kong2020panns}.
-
-Альтернативные представления — chroma (12-полосная гистограмма по нотам), MFCC (мел-кепстральные коэффициенты), constant-Q спектрограмма (CQT) — рассматривались на этапе ablation, но не вошли в финальную модель: вклад chroma в качество классификации оказался несущественным ($\leq 1$\,п.п. accuracy), а вычислительные затраты на CQT при сравнимом качестве не оправданы.
-
-\subsection{Структурная сегментация музыкальных композиций}\label{sec:1-2}
-
-Задача структурной сегментации (Music Structure Analysis, MSA) состоит в автоматическом разбиении аудиотрека на смысловые фрагменты, соответствующие музыкальной форме: вступление (Intro), куплет (Verse), припев (Chorus), бридж (Bridge), инструментальная часть (Instrumental), завершение (Outro). Задача решается на двух уровнях:
-
-\begin{enumerate}
-  \item \textbf{Boundary detection} — обнаружение моментов структурных переходов без присвоения меток.
-  \item \textbf{Section labeling} — классификация выделенных интервалов в одну из заранее определённых категорий.
-\end{enumerate}
-
-Совмещение обеих подзадач в единой модели остаётся открытой проблемой: 6-классовая section labeling считается одной из наиболее сложных задач MIR, поскольку различия между Verse и Chorus определяются не только спектральными признаками, но и контекстом всей композиции (повторяемостью, динамикой, аранжировкой).
-
-\subsubsection{Классические подходы}
-
-До эпохи глубокого обучения структурная сегментация решалась через явное моделирование само-подобия аудио. Ключевая структура — \textbf{self-similarity matrix (SSM)}~\cite{foote2000novelty}, где элемент \code{(i,j)} отражает сходство признаковых векторов в моментах \code{i} и \code{j}. Хор и куплет проявляются как яркие диагональные блоки на SSM, бриджи — как уникальные области без повторов.
-
-На основе SSM строятся:
+\textbf{Глубокое обучение} доминирует с 2014 года:
 
 \begin{itemize}
-  \item \textbf{Novelty curve} (Foote, 2000)~\cite{foote2000novelty} — функция, измеряющая локальный контраст SSM по диагонали; пики novelty curve соответствуют границам сегментов.
-  \item \textbf{Convex hull algorithm} (Serrà, 2014)~\cite{serra2014unsupervised} — сегментация SSM через выпуклую оболочку диагональных проекций.
-  \item \textbf{Spectral clustering на SSM} (McFee \& Ellis, 2014)~\cite{mcfee2014spectral} — группировка похожих временных интервалов через лапласиан матрицы.
+  \item Ullrich et al., 2014~\cite{ullrich2014boundary} — CNN-boundary detection, F1 $\approx 0.46$ на SALAMI ($\pm 3$\,с);
+  \item Serrà et al., 2018~\cite{serra2018cnnhmm} — CNN + HMM, роль temporal smoothing;
+  \item Wang et al., 2022~\cite{wang2022catchchorus} — Transformer над CNN, F1 $\approx 0.55$;
+  \item Gong \& Glass, 2023~\cite{gong2023structural} — AST-based, F1 $\approx 0.62$ на Harmonix.
 \end{itemize}
 
-Достоинства классических методов: интерпретируемость, отсутствие необходимости в большом обучающем наборе, хорошее качество boundary detection (F1 до 0.6–0.7 на SALAMI). Недостатки: требуют тщательной настройки гиперпараметров под конкретный жанр, плохо обобщаются на сложные структуры (электронная музыка с пост-роковыми элементами), не решают section labeling без дополнительного классификатора.
+\textbf{Ограничения.} Типичная accuracy 6-классовой section labeling~--- 40--45\%~\cite{wang2022catchchorus,gong2023structural}. Причины: class imbalance, inter-annotator disagreement (15\% на границах, 25\% на лейблах~\cite{smith2011salami}), акустическая неразличимость Intro/Outro, domain shift. Современные решения применяют HMM или Viterbi с musicological priors~\cite{serra2018cnnhmm,gong2023structural} (см. §4.7).
 
-\subsubsection{Подходы на основе глубокого обучения}
+\section{Распознавание эмоций в музыке}\label{sec:1-3}
 
-С 2014 года доминирующим направлением становятся свёрточные нейронные сети, обучаемые непосредственно на размеченных датасетах:
-
-\begin{itemize}
-  \item \textbf{Ullrich et al., 2014}~\cite{ullrich2014boundary} — первая публикация о применении CNN к MSA. Авторы обучают модель предсказывать boundary indicator function (вероятность того, что данный фрейм является границей) на датасете SALAMI. Достигают F1 $\approx 0.46$ при допуске $\pm 3$ секунды — превосходит классические методы.
-  \item \textbf{Serrà et al., 2018}~\cite{serra2018cnnhmm} — комбинирует CNN-предсказания с пост-обработкой через HMM с переходными вероятностями. Показывает, что temporal smoothing критичен для устранения «шума» CNN-предсказаний.
-  \item \textbf{Wang et al., 2022}~\cite{wang2022catchchorus} — Transformer-based архитектура с self-attention над CNN-эмбеддингами. Достигает F1 $\approx 0.55$ на SALAMI.
-  \item \textbf{Gong \& Glass, 2023}~\cite{gong2023structural} — pure-attention модель на основе AST (см. §1.5.5), достигает F1 $\approx 0.62$ на Harmonix.
-\end{itemize}
-
-\subsubsection{Ограничения существующих подходов}
-
-Несмотря на прогресс, MSA остаётся самой слабой задачей в ряду MIR-проблем. Типичные значения accuracy section labeling на 6 классах не превышают 40–45\%~\cite{wang2022catchchorus,gong2023structural}. Основные причины:
-
-\begin{enumerate}
-  \item \textbf{Class imbalance}: Verse и Chorus составляют 60–70\% размеченного времени в датасетах вроде Harmonix; редкие классы (Outro, Instrumental) — менее 5\%.
-  \item \textbf{Inter-annotator disagreement}: даже профессиональные музыканты расходятся в маркировке границ примерно в 15\% случаев, в категории section — в 25\% случаев~\cite{smith2011salami}.
-  \item \textbf{Acoustic similarity}: Intro и Outro акустически идентичны (разреженная фактура, сниженная динамика); их можно различить только по позиции в треке. Verse и Pre-chorus также часто неразличимы спектрально.
-  \item \textbf{Domain shift}: модели, обученные на классической поп-музыке (Harmonix), плохо обобщаются на электронную, экспериментальную, фолк-музыку.
-\end{enumerate}
-
-Современные решения включают пост-обработку через HMM или Viterbi-декодирование с musicological priors~\cite{serra2018cnnhmm,gong2023structural}, что и применяется в настоящей работе (см. §4.7).
-
-\subsection{Распознавание эмоций в музыке}\label{sec:1-3}
-
-Задача Music Emotion Recognition (MER) состоит в автоматической оценке эмоциональной окраски аудиофрагмента. Существуют два основных подхода к формализации:
-
-\subsubsection{Дискретные категории (categorical model)}
-
-В этом подходе каждому фрагменту присваивается одна из заранее определённых эмоциональных меток: «happy», «sad», «aggressive», «calm». Корни подхода восходят к работам Hevner~\cite{hevner1936expression}, предложившей восьмисекторную схему музыкальных аффектов. Современные датасеты (DEAP, MoodSwings) используют 4–8 базовых категорий.
-
-Достоинства: интерпретируемость, прямая совместимость с user interface (emoji-теги). Недостатки: эмоциональное пространство дискретизируется субъективно, теряется тонкая градация.
-
-\subsubsection{Непрерывные шкалы — Russell circumplex model}
-
-Альтернатива — двумерное непрерывное пространство по Russell~\cite{russell1980circumplex}:
-
-\begin{itemize}
-  \item \textbf{Valence} — ось «приятное/неприятное» (по горизонтали, $x \in [-1, +1]$).
-  \item \textbf{Arousal} — ось «активное/спокойное» (по вертикали, $y \in [-1, +1]$).
-\end{itemize}
-
-Russell показал, что большинство эмоциональных оценок музыки можно представить точкой в этом квадранте. Четыре квадранта получают семантические интерпретации:
+Music Emotion Recognition (MER) формализуется двумя способами: \textbf{дискретные категории}~\cite{hevner1936expression} и \textbf{Russell circumplex}~\cite{russell1980circumplex}~--- двумерное непрерывное пространство \emph{valence} и \emph{arousal} в $[-1,+1]$.
 
 \begin{table}[H]
 \centering
@@ -111,48 +42,13 @@ Q4 & + & − & Умиротворённое (peaceful, calm) \\
 \end{tabular}
 \end{table}
 
-DEAM dataset~\cite{aljanaki2017deam} предоставляет покадровые непрерывные аннотации arousal/valence для 1802 30-секундных фрагментов. Соглашение между аннотаторами (inter-annotator agreement) измеряется Pearson correlation и составляет $\rho \approx 0.55$–$0.65$ — что считается удовлетворительным для субъективной задачи такого рода.
+DEAM~\cite{aljanaki2017deam} предоставляет покадровые непрерывные A/V для 1802 фрагментов; inter-annotator Pearson $\rho \approx 0.55$--$0.65$. В работе значения квантуются в 3 класса (Low/Mid/High, Dark/Neutral/Bright): снижает шум, упрощает сегментацию. Исходные значения сохраняются для 2D-визуализации (§6.2).
 
-\subsubsection{Дискретизация в категории}
+\textbf{Подходы.} CNN~\cite{choi2017crnn}, CRNN~\cite{wang2017autotagging}, Transformer~\cite{won2020selfattention}. SOTA на DEAM (3-классовая): arousal 65--70\%, valence 55--60\%. Разрыв: arousal коррелирует со спектральными признаками, valence требует гармонического контекста.
 
-Несмотря на привлекательность непрерывного подхода, для задач визуализации и пользовательского интерфейса дискретные категории информативнее. В настоящей работе непрерывные оценки DEAM квантизованы в 3 уровня по каждой оси (Low/Mid/High для arousal, Dark/Neutral/Bright для valence), что:
+\section{Классификация жанров}\label{sec:1-4}
 
-\begin{enumerate}
-  \item Снижает вариативность аннотаций (3 категории менее зависимы от субъективных порогов, чем непрерывная шкала).
-  \item Упрощает временную сегментацию (3-классовая argmax легко поддаётся median filter).
-  \item Сохраняет основную семантическую информацию (низкий/средний/высокий уровень).
-\end{enumerate}
-
-При этом исходные непрерывные значения сохраняются как regression targets для дополнительной 2D-визуализации (Russell circumplex в прототипе системы — см. §6.2).
-
-\subsubsection{Подходы к решению}
-
-Для MER применяются те же архитектуры, что и для классификации — CNN (Choi et al., 2017~\cite{choi2017crnn}), CRNN с BiLSTM (Wang et al., 2017~\cite{wang2017autotagging}), Transformer-based (Won et al., 2020~\cite{won2020selfattention}). Текущий SOTA на DEAM 3-классовой arousal: 65–70\% accuracy, valence: 55–60\%. Разрыв между arousal и valence объясняется тем, что arousal сильнее коррелирует со спектральными признаками (громкость, темп, плотность атак), тогда как valence требует понимания мелодико-гармонического контекста, который CNN извлекает менее эффективно.
-
-\subsection{Классификация жанров}\label{sec:1-4}
-
-Genre classification — исторически первая задача MIR, начавшаяся с работы Tzanetakis \& Cook (2002)~\cite{tzanetakis2002gtzan}, которые опубликовали датасет \textbf{GTZAN} — 1000 30-секундных фрагментов в 10 жанрах (blues, classical, country, disco, hip-hop, jazz, metal, pop, reggae, rock).
-
-GTZAN остаётся стандартом сравнения уже более 20 лет, несмотря на известные ограничения~\cite{sturm2014state}:
-
-\begin{itemize}
-  \item Дубликаты треков (около 5\% записей повторяются под разными метками).
-  \item Ошибки маркировки (особенно в категориях rock/country/blues).
-  \item Устаревшая таксономия — не отражает современные жанры (electronic, hip-hop subgenres, indie, lo-fi).
-  \item Фрагменты по 30 секунд не передают долгосрочную структуру.
-\end{itemize}
-
-Современные альтернативы:
-
-\begin{itemize}
-  \item \textbf{FMA (Free Music Archive)}~\cite{defferrard2017fma} — 100 тыс. треков, 161 жанровая категория, multi-label.
-  \item \textbf{MagnaTagATune}~\cite{law2009magnatagatune} — 25 тыс. фрагментов с 188 социальными тегами.
-  \item \textbf{Million Song Dataset}~\cite{bertinmahieux2011msd} — метаданные 1 млн треков, в том числе пользовательские теги Last.fm.
-\end{itemize}
-
-В настоящей работе используется именно GTZAN — несмотря на ограничения — поскольку это позволяет напрямую сопоставить полученные результаты с обширной литературой и сохранить сравнимость с baseline-моделями. \textbf{Ограничения out-of-distribution} (поведение на современных жанрах вне 10 категорий GTZAN) явно адресуются в прототипе системы через UI-механизм top-3 классификаций с предупреждением о низкой уверенности (см. §6.3).
-
-Текущие SOTA-результаты на GTZAN:
+Genre classification начинается с Tzanetakis \& Cook (2002)~\cite{tzanetakis2002gtzan} и датасета \textbf{GTZAN} (1000 фрагментов, 10 жанров). Несмотря на известные ограничения~\cite{sturm2014state}, GTZAN остаётся референсным. Альтернативы: FMA~\cite{defferrard2017fma}, MagnaTagATune~\cite{law2009magnatagatune}, MSD~\cite{bertinmahieux2011msd}. В работе выбран GTZAN ради сопоставимости; OOD адресуется через top-3 UI (§6.3).
 
 \begin{table}[H]
 \centering
@@ -165,121 +61,32 @@ MFCC + SVM & 2002 & 61\% & Tzanetakis~\cite{tzanetakis2002gtzan} \\
 CNN baseline & 2015 & 75\% & Sigtia~\cite{sigtia2014improved} \\
 CRNN & 2017 & 79\% & Choi~\cite{choi2017crnn} \\
 Multi-DNN ensemble & 2018 & 82\% & Sturm~\cite{sturm2014state} \\
-PANNs (CNN14, AudioSet pretrained) & 2020 & 87\% & Kong~\cite{kong2020panns} \\
-AST (Audio Spectrogram Transformer) & 2021 & 89\% & Gong~\cite{gong2021ast} \\
+PANNs (CNN14) & 2020 & 87\% & Kong~\cite{kong2020panns} \\
+AST & 2021 & 89\% & Gong~\cite{gong2021ast} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-В рамках настоящей работы достигнут показатель 83.9\% (CNN v2, обучение с нуля) и 81.5\% (AST v2, fine-tuned), что соответствует среднему уровню современных решений на GTZAN.
+В работе достигнуты 83.9\% (CNN v2) и 81.5\% (AST v2).
 
-\subsection{Архитектуры аудио-классификаторов}\label{sec:1-5}
+\section{Архитектуры аудио-классификаторов}\label{sec:1-5}
 
-\subsubsection{Свёрточные нейронные сети (CNN)}
+\textbf{CNN.} Базовый блок Conv2D 3$\times$3 + BN + ReLU + MaxPool, GAP в конце. $\sim$1M параметров, обучение 3--5\,ч. Ограниченное receptive field (5--10\,с), отсутствие pretraining. Baseline~--- 5 conv-блоков (32$\to$512) с SE (§4.2).
 
-Свёрточные сети применяются к log-mel спектрограмме как к двумерному «изображению» с одним каналом. Базовый блок состоит из 2D-свёртки 3$\times$3, пакетной нормализации (BatchNorm) и нелинейности ReLU. Последовательность нескольких таких блоков с MaxPool 2$\times$2 формирует backbone, преобразующий спектрограмму в компактный feature vector через global average pooling (GAP).
+\textbf{Squeeze-and-Excitation (SE)}~\cite{hu2018se} — channel attention: squeeze (GAP) $\to$ excitation (FC+sigmoid) $\to$ масштабирование. Прирост 1--3\,п.п. при +5--10\% параметров.
 
-Преимущества CNN: высокая параметрическая эффективность ($\sim$1M параметров), хорошее качество на однозадачных бенчмарках, быстрое обучение (3–5 часов на GPU). Недостатки: ограниченное receptive field (порядка 5–10 секунд), плохое моделирование долгосрочных зависимостей, отсутствие предобучения на больших корпусах.
+\textbf{BiLSTM}~\cite{hochreiter1997lstm} — двунаправленная рекуррентная сеть поверх CNN-эмбеддингов. Учитывает долгосрочный контекст, но сокращает число обучающих примеров~--- риск переобучения. Применяется в CNN+BiLSTM и PANNs+BiLSTM (§5.4).
 
-В настоящей работе baseline CNN построен из 5 conv-блоков (32 $\to$ 64 $\to$ 128 $\to$ 256 $\to$ 512 каналов) с механизмом Squeeze-and-Excitation после каждого блока. Подробное описание архитектуры — в §4.2.
+\textbf{PANNs}~\cite{kong2020panns} — CNN14, предобучена на AudioSet; выдаёт 2048-мерный embedding на 1-секундное окно. Используется как замороженный feature extractor.
 
-\subsubsection{Squeeze-and-Excitation (SE)}
+\textbf{Audio Spectrogram Transformer (AST)}~\cite{gong2021ast} — ViT~\cite{dosovitskiy2021vit} над спектрограммой: log-mel 128$\times$T в патчи 16$\times$16 (overlap 6\,px), 768-мерные токены, CLS + positional embeddings, 12-слойный Transformer (12 heads), классификация по CLS. $\sim$87M параметров; pretraining на AudioSet (\code{MIT/ast-finetuned-audioset-10-10-0.4593}). Глобальное восприятие и богатый transfer learning; checkpoint 574\,MB vs 21\,MB у CNN, inference $\sim$8\,с vs 2\,с. В работе AST применён с заморозкой первых 8 из 12 слоёв (§4.5).
 
-Squeeze-and-Excitation~\cite{hu2018se} — механизм channel attention, добавляемый к CNN-блокам. Идея: после каждого conv-слоя вычисляется глобальный средний канал (squeeze), пропускается через две полносвязные операции с sigmoid (excitation), и полученные веса умножаются на исходные каналы. Это позволяет модели динамически усиливать «важные» частотные диапазоны и ослаблять неинформативные.
+\section{Multi-task learning в MIR}\label{sec:1-6}
 
-Эффект SE-блоков на MIR-задачах: улучшение accuracy на 1–3 п.п. при увеличении числа параметров на 5–10\%. В нашей работе SE-блоки добавлены после каждого из 5 conv-блоков.
+\textbf{Multi-task learning (MTL)}~\cite{caruana1997mtl} — одна модель решает несколько связанных задач через общий backbone. В MIR задачи структуры, эмоций и жанра взаимосвязаны: жанр определяет структурные паттерны; эмоциональная динамика согласована со структурой. Общий backbone действует как регуляризатор. Технические подходы: joint loss $L = \sum w_i L_i$, round-robin batching, gradient surgery. В работе~--- round-robin loader и взвешенная сумма с фиксированными весами (segment: 1.5, остальные: 1.0).
 
-\subsubsection{BiLSTM для temporal modeling}
+\section{Pretraining + fine-tuning}\label{sec:1-7}
 
-Bidirectional LSTM~\cite{hochreiter1997lstm} — рекуррентная сеть, обрабатывающая последовательность в обоих направлениях. В контексте MIR применяется как «голова» поверх CNN-эмбеддингов: трек разбивается на окна, каждое окно сжимается CNN в вектор фиксированной размерности, и LSTM строит контекстуально-зависимое представление каждого окна.
+Ключевые техники: \textbf{differential learning rate} (backbone 1e-5..5e-5, головы 1e-3..1e-4) против catastrophic forgetting; \textbf{layer freezing} (полная = feature extractor, частичная = адаптация верхних слоёв); \textbf{gradient accumulation} (AST: batch=16, accum=4, effective=64). Эти техники позволили AST за 3 часа превзойти CNN-baseline по segment accuracy на 5.3\,п.п. (§5.4).
 
-Преимущество BiLSTM перед per-window классификацией: учёт долгосрочного контекста (LSTM «помнит» что было 30+ секунд назад). Недостатки: количество обучающих примеров уменьшается (одна последовательность вместо $\sim$200 окон $\to$ потеря разнообразия), повышенный риск переобучения.
-
-В нашей работе BiLSTM-варианты (CNN+BiLSTM, PANNs+BiLSTM) — часть 2$\times$2 факторного эксперимента; результаты см. §5.4.
-
-\subsubsection{PANNs — pretraining на AudioSet}
-
-\textbf{PANNs (Pretrained Audio Neural Networks)}~\cite{kong2020panns} — семейство CNN-моделей, предобученных на датасете AudioSet ($\sim$2M YouTube-фрагментов, 527 категорий звуков). Наиболее популярная модель — CNN14, выдающая 2048-мерный embedding на каждое 1-секундное окно.
-
-Применение PANNs как «замороженного» feature extractor — стандартный transfer learning paradigm в современном MIR: вместо обучения CNN с нуля используются готовые embedding, и обучается только классификационная голова. Преимущество: сильный inductive bias из AudioSet (миллионы примеров vs наши тысячи). Недостаток: фиксированные представления не адаптируются под специфику задачи.
-
-В настоящей работе PANNs сравнивается с обучаемой с нуля CNN в рамках 2$\times$2 эксперимента (см. §5.3).
-
-\subsubsection{Audio Spectrogram Transformer (AST)}
-
-Наиболее значимый архитектурный прорыв в MIR за последние годы — \textbf{Audio Spectrogram Transformer}~\cite{gong2021ast}, предложенный Gong et al. (2021). AST впервые применил парадигму \textbf{Vision Transformer}~\cite{dosovitskiy2021vit} к аудио-спектрограммам, отказавшись от свёрток в пользу чистого self-attention.
-
-\textbf{Принцип работы:}
-
-\begin{enumerate}
-  \item Log-mel спектрограмма размером 128 $\times$ T делится на патчи 16 $\times$ 16 (с перекрытием 6 пикселей по обеим осям).
-  \item Каждый патч линейно проецируется в 768-мерный токен.
-  \item Добавляются positional embeddings (learnable) и специальный CLS-токен.
-  \item Последовательность токенов подаётся на 12-слойный Transformer-encoder с 12 attention heads.
-  \item Классификация выполняется по выходу CLS-токена через линейный слой.
-\end{enumerate}
-
-Общее число параметров: 87M, из которых $\sim$85M — в трансформере, остальное в эмбеддингах и голове.
-
-\textbf{Pretraining на AudioSet.} Авторы AST предобучают модель на классификации 527 категорий AudioSet через multi-label cross-entropy. Длительность предобучения: $\sim$5 дней на 8 V100 GPU. Готовые веса распространяются под именем \code{MIT/ast-finetuned-audioset-10-10-0.4593} (числа в названии — параметры frequency/time strides и downstream accuracy на AudioSet).
-
-\textbf{Преимущества AST:}
-
-\begin{enumerate}
-  \item \textbf{Глобальное восприятие} — self-attention видит каждый патч в контексте всей спектрограммы, что критично для структурного анализа (припев должен «помнить» как звучит куплет).
-  \item \textbf{Transfer learning} — pretraining на 2M аудио предоставляет богатые представления, недоступные при обучении с нуля на 2.5K треков.
-  \item \textbf{Унифицированная архитектура} — один и тот же модель подходит для всех MIR-задач (segment, emotion, genre).
-\end{enumerate}
-
-\textbf{Недостатки:}
-
-\begin{enumerate}
-  \item \textbf{Большой checkpoint} — 574\,MB (vs $\sim$21\,MB у CNN).
-  \item \textbf{Более медленный inference} — 8 секунд на 3-минутный трек (vs 2 секунды у CNN) на одном GPU.
-  \item \textbf{Чувствительность к гиперпараметрам fine-tuning} — слишком агрессивное размораживание layers ведёт к catastrophic forgetting.
-\end{enumerate}
-
-В настоящей работе AST применён как финальная модель прототипа после fine-tuning на DEAM+Harmonix+GTZAN с замораживанием первых 8 из 12 transformer-слоёв. Подробное описание fine-tuning стратегии — в §4.5.
-
-\subsection{Multi-task learning в MIR}\label{sec:1-6}
-
-\textbf{Multi-task learning (MTL)}~\cite{caruana1997mtl} — парадигма обучения, при которой одна модель решает несколько связанных задач одновременно через общий backbone и специализированные «головы» для каждой задачи. Идея: связанные задачи разделяют полезные представления, и совместное обучение действует как форма регуляризации, повышающая обобщающую способность.
-
-В MIR multi-task learning естественно мотивирован тем, что задачи структурного, эмоционального и жанрового анализа взаимосвязаны:
-
-\begin{itemize}
-  \item \textbf{Genre влияет на структуру}: рок-композиции имеют чётко выраженную verse-chorus форму, классическая музыка — более свободную (sonata-form, fugue), электронная — секциями build-up/drop.
-  \item \textbf{Эмоциональная динамика коррелирует со структурой}: переход куплет $\to$ припев типично сопровождается ростом arousal и сменой valence (pre-chorus как «подготовка» эмоционального пика).
-  \item \textbf{Жанр и эмоция связаны}: metal статистически чаще тёмный и активный (Q2 квадрант), classical часто спокойный и позитивный (Q4), blues — спокойный и тёмный (Q3).
-\end{itemize}
-
-Эти корреляции делают MTL естественной парадигмой: общий backbone извлекает универсальные акустические признаки, головы адаптируют их под конкретную задачу. Кроме того, MTL действует как регуляризатор — модель вынуждена обучаться представлениям, полезным для всех задач сразу, что снижает переобучение на малых датасетах.
-
-\textbf{Технические подходы к MTL:}
-
-\begin{enumerate}
-  \item \textbf{Joint loss optimization} — суммарный loss $L = \sum w_i \cdot L_i$ с фиксированными или адаптивными весами.
-  \item \textbf{Round-robin batching} — каждый батч содержит примеры из одного датасета, циклически чередуются; backward выполняется только по доступным головам.
-  \item \textbf{Adversarial / gradient surgery} методы (PCGrad, GradNorm) — балансировка градиентов между задачами.
-\end{enumerate}
-
-В настоящей работе используется первый и второй подходы: round-robin loader формирует батчи DEAM/Harmonix/GTZAN последовательно, loss суммируется по 4 головам с фиксированными per-task весами (segment: 1.5, остальные: 1.0).
-
-\subsection{Pretraining + fine-tuning paradigm}\label{sec:1-7}
-
-Стратегия «предобучение на большом корпусе $\to$ дообучение на целевой задаче» — доминирующий подход во всех областях глубокого обучения с конца 2010-х. В MIR эта парадигма реализуется через AudioSet-pretrained модели (PANNs, AST).
-
-\textbf{Differential learning rate} — техника, при которой разные части модели получают разные learning rates. Обычно:
-
-\begin{itemize}
-  \item Pretrained backbone — низкий LR (1e-5 .. 5e-5), чтобы не «сломать» предобученные представления.
-  \item Свежеинициализированные heads — высокий LR (1e-3 .. 1e-4), чтобы быстро обучить task-специфичные классификаторы.
-\end{itemize}
-
-\textbf{Layer freezing} — частичная или полная заморозка pretrained слоёв. Полная заморозка превращает модель в feature extractor (PANNs+Linear). Частичная (например, заморозить первые 8 из 12 слоёв трансформера) позволяет верхним слоям адаптироваться к специфике задачи без catastrophic forgetting.
-
-\textbf{Gradient accumulation} — при ограниченной GPU-памяти effective batch size наращивается через накопление градиентов по нескольким микро-батчам перед optimizer step. В нашей работе AST обучается с batch\_size=16, grad\_accumulation=4, что даёт effective batch=64.
-
-Применение этих техник к AST в данной работе позволило за 3 часа обучения превзойти CNN-baseline по segment accuracy на 5.3 п.п. при сравнимом качестве на остальных задачах (см. §5.4).
-
-\textbf{Резюме главы 1.} Анализ литературы показывает: (а) MSA остаётся самой сложной задачей MIR с типичной accuracy 30–45\%; (б) классические методы (SSM, novelty curve) уступают современным CNN/Transformer, но дают интерпретируемые границы; (в) Russell circumplex — общепринятая модель эмоций, дискретизация в 3 класса упрощает задачу без потери семантики; (г) GTZAN — устаревший, но стандартный бенчмарк для жанра; (д) AST с pretraining на AudioSet — текущий SOTA в audio classification, превосходит CNN и PANNs в transfer learning. Все эти выводы определяют архитектурные решения настоящей работы.
+\textbf{Резюме главы 1.} MSA остаётся сложнейшей задачей MIR; AST с AudioSet-pretraining определяется как наиболее перспективная архитектура для финальной модели.

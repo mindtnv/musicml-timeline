@@ -436,13 +436,14 @@ def build_timeline(
     audio_features: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build structured timeline from raw predictions."""
+    import numpy as np
+
     from musicml.postprocess import (
         decode_segment_head,
         decode_segment_head_v2,
         merge_segments,
         smooth_predictions,
     )
-    import numpy as np
 
     win_cfg = cfg["windowing"]
     post_cfg = cfg["postprocess"]
@@ -633,17 +634,22 @@ def build_timeline(
 
 def run_inference(
     audio_path: str | Path,
-    ckpt_path: str | Path,
-    cfg: dict[str, Any],
+    ckpt_path: str | Path | None = None,
+    cfg: dict[str, Any] | None = None,
     device: str | None = None,
     do_extract_embeddings: bool = False,
     include_audio_features: bool = True,
+    model=None,
 ) -> dict[str, Any]:
     """Full inference pipeline: audio -> timeline dict.
 
     Dispatches to the appropriate model and prediction path based
-    on ``cfg["architecture"]``.
+    on ``cfg["architecture"]``. If ``model`` is provided, it is reused
+    instead of loading from ``ckpt_path`` — critical for serving AST
+    on CPU where torch.load(710MB) takes 5-10s per request.
     """
+    if cfg is None:
+        raise ValueError("cfg is required")
     if device is None:
         from musicml.utils import get_device
 
@@ -653,9 +659,10 @@ def run_inference(
     batch_size = cfg["training"].get("batch_size", 32)
 
     if arch in ("cnn", "ast"):
-        model = load_model(
-            ckpt_path, cfg["model"], device=device, architecture=arch,
-        )
+        if model is None:
+            model = load_model(
+                ckpt_path, cfg["model"], device=device, architecture=arch,
+            )
         windows, duration, raw_feats, feat_hop = extract_features(
             audio_path, cfg, return_raw=True,
         )
@@ -667,9 +674,10 @@ def run_inference(
         raw_preds["_raw_log_mel"] = raw_feats
         raw_preds["_feature_hop_seconds"] = feat_hop
     else:
-        model = load_model(
-            ckpt_path, cfg["model"], device=device, architecture=arch,
-        )
+        if model is None:
+            model = load_model(
+                ckpt_path, cfg["model"], device=device, architecture=arch,
+            )
         raw_preds, duration = predict_with_embeddings(
             model, audio_path, cfg, device, architecture=arch,
             batch_size=batch_size,

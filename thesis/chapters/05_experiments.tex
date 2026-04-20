@@ -1,56 +1,18 @@
-\section{Эксперименты}\label{ch:5}
+\chapter{Эксперименты}\label{ch:5}
 
-В рамках работы проведено четыре последовательных эксперимента: (5.3) baseline-запуск всех четырёх архитектур 2$\times$2 факторного дизайна (v1); (5.4) улучшенный запуск с обновлёнными гиперпараметрами (v2); (5.5) расширение трансформер-архитектурой AST v2; (5.6) попытка дальнейшего улучшения через агрессивный CNN v3 retrain (failed experiment, документируется как академически честный negative result). Дополнительно проведён (5.8) ablation post-processing pipeline для оценки вклада Viterbi-декодирования и position priors.
+Проведено четыре последовательных эксперимента: (§5.3) baseline всех четырёх архитектур 2$\times$2 (v1); (§5.4) улучшенный запуск (v2); (§5.5) AST v2; (§5.6) CNN v3 (negative result). Дополнительно (§5.8) ablation post-processing.
 
-\subsection{Протокол оценки}\label{sec:5-1}
+\section{Протокол оценки}\label{sec:5-1}
 
-\subsubsection{Метрики}
+\textbf{Метрики.} Accuracy, macro-F1, per-class P/R/F1. Для сегмента дополнительно \textbf{Boundary F1 $\pm$3\,с}~--- стандартная MIR-метрика.
 
-Каждая из четырёх классификационных задач оценивается тремя стандартными метриками:
+\textbf{Splits}: 70/15/15 на уровне треков, seed=42. Test: DEAM $\approx$11.6K окон, Harmonix $\approx$23.4K, GTZAN $\approx$3.2K. Eval из ckpt с лучшим val\_loss, один раз.
 
-\begin{itemize}
-  \item \textbf{Accuracy} — доля корректно классифицированных окон. Простая, но искажается дисбалансом классов.
-  \item \textbf{Macro-averaged F1} — среднее арифметическое F1 по всем классам без учёта частоты. Более честная метрика при несбалансированных датасетах.
-  \item \textbf{Per-class precision / recall / F1} — детальное разложение по классам, позволяющее идентифицировать какие именно классы плохо распознаются.
-\end{itemize}
+\textbf{Random baselines}: Segment~--- 16.7\%, Arousal/Valence~--- 33.3\%, Genre~--- 10.0\%.
 
-Дополнительно для сегментной задачи измеряется:
+\section{Гиперпараметры обучения}\label{sec:5-2}
 
-\begin{itemize}
-  \item \textbf{Boundary F1 $\pm$3 секунды} — стандартная метрика MIR для оценки качества обнаружения структурных переходов. Граница считается корректной, если предсказанная не более чем на 3 секунды отклоняется от правильной.
-\end{itemize}
-
-\subsubsection{Train/val/test протокол}
-
-\begin{itemize}
-  \item \textbf{Splits}: 70/15/15 на уровне треков, фиксированный seed=42 (см. §3.3).
-  \item \textbf{Размеры test-сетов}: DEAM $\approx$11.6K окон, Harmonix $\approx$23.4K окон, GTZAN $\approx$3.2K окон.
-  \item \textbf{Eval после обучения}: модель загружается из ckpt с лучшим val\_loss; eval на test выполняется один раз.
-  \item \textbf{Воспроизводимость}: все random seeds зафиксированы; результаты воспроизводимы при повторном запуске.
-\end{itemize}
-
-\subsubsection{Random baselines}
-
-Для интерпретации абсолютных значений приведены random baselines (равновероятный выбор класса):
-
-\begin{table}[H]
-\centering
-\caption{Random baselines по задачам}
-\begin{tabular}{lll}
-\toprule
-Задача & Классов & Random baseline accuracy \\
-\midrule
-Segment & 6 & 16.7\% \\
-Arousal & 3 & 33.3\% \\
-Valence & 3 & 33.3\% \\
-Genre & 10 & 10.0\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Гиперпараметры обучения}\label{sec:5-2}
-
-Сводные параметры финальной конфигурации v2 (применяются ко всем архитектурам, кроме AST):
+Конфигурация v2 для всех архитектур кроме AST (см. §4.5):
 
 \begin{table}[H]
 \centering
@@ -59,43 +21,22 @@ Genre & 10 & 10.0\% \\
 \toprule
 Параметр & Значение \\
 \midrule
-Optimizer & AdamW \\
-Initial learning rate & 1.0e-3 \\
-Weight decay & 5.0e-4 \\
-Batch size & 64 \\
-Epochs & 50 (с patience=15) \\
+Optimizer & AdamW, lr=1.0e-3, weight\_decay=5.0e-4 \\
+Batch size / Epochs / Patience & 64 / 50 / 15 \\
 Scheduler & CosineAnnealingWarmRestarts (T\_0=10, T\_mult=2) \\
-Loss type & Focal Loss \\
-Focal gamma & 1.5 \\
-Mixup alpha & 0.2 (per-window), 0.0 (BiLSTM) \\
-Max class weight & 2.5 \\
-Window seconds & 10.0 \\
-Hop seconds & 1.0 \\
-SpecAugment freq mask & 27 полос \\
-SpecAugment time mask & 60 фреймов \\
-SpecAugment n masks & 2 \\
+Loss & Focal Loss, $\gamma=1.5$, max\_class\_weight=2.5 \\
+Mixup $\alpha$ & 0.2 (per-window), 0.0 (BiLSTM) \\
+Window / Hop & 10.0\,с / 1.0\,с \\
+SpecAugment & freq\_mask=27, time\_mask=60, n\_masks=2 \\
 Dropout & 0.4 \\
 Per-task weights & seg:1.5, aro\_cls:1.0, val\_cls:1.0, gen:1.0, *\_reg:0.5 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Гиперпараметры AST отличаются: differential lr (\code{backbone: 5e-5}, \code{heads: 1e-3}), \code{batch\_size=16}, \code{grad\_accumulation=4}, \code{epochs=30}, \code{dropout=0.3} (см. §4.5).
+\section{Эксперимент v1 (baseline-запуск)}\label{sec:5-3}
 
-\subsection{Эксперимент v1 (baseline-запуск)}\label{sec:5-3}
-
-\subsubsection{Конфигурация v1}
-
-Первая версия моделей обучалась с консервативными параметрами:
-\begin{itemize}
-  \item 4 conv-блока в CNN backbone (без 5-го уровня).
-  \item 30 эпох, OneCycleLR.
-  \item focal\_gamma = 2.0 (агрессивный фокус на сложных).
-  \item max\_class\_weight = 4.0 (полная inverse-frequency компенсация).
-  \item window = 8 секунд.
-\end{itemize}
-
-\subsubsection{Результаты v1}
+\textbf{Конфигурация v1.} 4 conv-блока, 30 эпох, OneCycleLR, \code{focal\_gamma=2.0}, \code{max\_class\_weight=4.0}, window=8\,с.
 
 \begin{table}[H]
 \centering
@@ -112,9 +53,7 @@ PANNs+BiLSTM & \textbf{31.4 / 31.5} & 62.8 / 62.9 & \textbf{55.9 / 56.0} & 81.0 
 \end{tabular}
 \end{table}
 
-\subsubsection{Диагностика проблем v1}
-
-\textbf{Сегментная задача (24.3\% CNN).} Per-class разбор показал критический дефект — модель подавляет мажоритарные классы:
+\textbf{Диагностика.} Per-class разбор CNN v1 показал, что модель подавляет мажоритарные классы.
 
 \begin{table}[H]
 \centering
@@ -127,21 +66,22 @@ Intro & 28.9 & 64.2 & 39.8 & Overpredicted \\
 Verse & 68.9 & \textbf{10.1} & 17.6 & Почти не предсказывается \\
 Bridge & 19.2 & 51.5 & 28.0 & Overpredicted \\
 Chorus & 70.9 & \textbf{18.4} & 29.2 & Почти не предсказывается \\
-Instrumental & 10.0 & 62.5 & 17.3 & Overpredicted, низкая precision \\
+Instrumental & 10.0 & 62.5 & 17.3 & Low precision \\
 Outro & 4.1 & 14.4 & 6.4 & Плох по всем метрикам \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Диагноз: \code{max\_class\_weight=4.0} чрезмерно усиливал миноритарные классы — модель «перестраховывалась», предсказывая Intro/Bridge/Instrumental вместо Verse/Chorus, поскольку ошибка на миноритарном классе стоила в 4 раза дороже.
+Диагноз: \code{max\_class\_weight=4.0} чрезмерно усиливал миноритарные классы. \textbf{CNN+BiLSTM на genre (45.5\%)}~--- катастрофическое переобучение на 699 GTZAN-треках.
 
-\textbf{CNN+BiLSTM на жанре (45.5\%).} Катастрофическое переобучение: train accuracy $>$90\%, val $\approx$ 45\%. Причина — BiLSTM с $\sim$400K параметров обучался на 699 GTZAN-треках, недостаточно для генерализации. Per-window CNN не страдал от этого, поскольку видел $\sim$16K окон.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_factorial_heatmap.png}
+\caption{Тепловая карта $2{\times}2$-факторного дизайна v1: temporal modeling $\times$ feature quality.}
+\label{fig:factorial}
+\end{figure}
 
-\subsection{Эксперимент v2 (улучшенный запуск)}\label{sec:5-4}
-
-\subsubsection{Изменения относительно v1}
-
-На основе диагностики v1 внесены следующие изменения (см. §4.6):
+\section{Эксперимент v2 (улучшенный запуск)}\label{sec:5-4}
 
 \begin{table}[H]
 \centering
@@ -150,20 +90,17 @@ Outro & 4.1 & 14.4 & 6.4 & Плох по всем метрикам \\
 \toprule
 Параметр & v1 & v2 & Эффект \\
 \midrule
-Conv blocks & 4 & 5 (с SE-блоками) & Больше ёмкости backbone \\
-Window & 8\,с & 10\,с & Больше контекста для сегментов \\
+Conv blocks & 4 & 5 (с SE) & Больше ёмкости \\
+Window & 8\,с & 10\,с & Больше контекста \\
 Focal gamma & 2.0 & 1.5 & Менее агрессивный фокус \\
-Max class weight & 4.0 & 2.5 & Меньшая компенсация дисбаланса \\
-Segment loss weight & 1.0 & 1.5 & Приоритизация сегментной задачи \\
-Epochs & 30 & 50 & Больше времени для конвергенции \\
-Patience & 10 & 15 & Толерантность к плато \\
-Scheduler & OneCycleLR & CosineAnnealingWarmRestarts & Возможность выйти из локального минимума \\
-Temporal jitter & нет & $\pm 1.0$\,с & Робастность к неточности границ Harmonix \\
+Max class weight & 4.0 & 2.5 & Меньшая компенсация \\
+Segment loss weight & 1.0 & 1.5 & Приоритизация сегмента \\
+Epochs / Patience & 30/10 & 50/15 & Больше конвергенции \\
+Scheduler & OneCycleLR & CosineWR & Выход из локальных минимумов \\
+Temporal jitter & нет & $\pm 1.0$\,с & Робастность к границам \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\subsubsection{Результаты v2}
 
 \begin{table}[H]
 \centering
@@ -180,8 +117,6 @@ PANNs+Linear & 24.0 / 21.7 & 61.2 / 61.6 & 53.8 / 53.3 & 81.9 / 81.4 \\
 \end{tabular}
 \end{table}
 
-\subsubsection{Сравнение v1 → v2}
-
 \begin{table}[H]
 \centering
 \caption{Таблица 5.3. Дельты v2 относительно v1}
@@ -197,19 +132,9 @@ PANNs+BiLSTM & +1.5 / +1.2 & +2.1 / +1.1 & −0.9 / −3.0 & −3.3 / −2.6 \\
 \end{tabular}
 \end{table}
 
-\textbf{Ключевые выводы:}
+CNN segment +11.0\,п.п. (Verse recall 10$\to$28\%, Chorus 18$\to$40\%), CNN+BiLSTM genre +15.4\,п.п. CNN потерял $\sim$4\,п.п. на эмоциях~--- цена приоритизации сегмента.
 
-\begin{enumerate}
-  \item \textbf{CNN segment: +11.0\,п.п.} — крупнейший абсолютный прирост. Verse recall 10→28\%, Chorus recall 18→40\%. Подтверждает гипотезу о том, что v1 переусиливал миноритарные классы.
-
-  \item \textbf{CNN+BiLSTM genre: +15.4\,п.п.} — с катастрофического 45.5\% до приемлемых 60.9\%. Снижение max\_class\_weight и увеличение окна помогли BiLSTM лучше обобщать.
-
-  \item \textbf{CNN+BiLSTM arousal: +9.3\,п.п.} — BiLSTM получает лучшие embeddings от 5-блочной CNN с SE.
-
-  \item \textbf{Trade-off CNN на эмоциях}: CNN потерял $\sim$4\,п.п. на arousal/valence — цена приоритизации сегментной задачи (segment\_weight 1.0→1.5 перенаправляет часть ёмкости backbone на segment).
-\end{enumerate}
-
-\subsubsection{Per-class разбор сегментов (CNN v2)}
+\textbf{Per-class разбор сегментов (CNN v2):}
 
 \begin{table}[H]
 \centering
@@ -228,38 +153,15 @@ Outro & 4.1 / 14.4 / 6.4 & 6.2 / 5.9 / 6.0 & −8.5 \\
 \end{tabular}
 \end{table}
 
-Verse и Chorus — два наиболее частых и практически важных класса — кардинально улучшились: их совокупный recall вырос с 14\% до 34\%. Снижение recall на редких классах (Instrumental −33\,п.п., Bridge −12\,п.п.) — цена перебалансировки. Это компромисс, осознанно принятый в пользу качества основных классов: для пользователя важнее правильно отделить Verse от Chorus, чем между собой различать Bridge и Instrumental.
+Verse и Chorus~--- наиболее частые и практически важные~--- кардинально улучшились (recall 14$\to$34\%).
 
-\subsubsection{Ответы на RQ1–RQ4}
+\textbf{Ответы на RQ1--RQ4.} \textbf{RQ1}: одна модель решает 4 задачи, особенно Genre (83.9\%, SOTA-уровень). \textbf{RQ2}: BiLSTM улучшает emotion, но вредит genre у CNN+BiLSTM (переобучение); у PANNs+BiLSTM эффект мягче. \textbf{RQ3}: PANNs не дают преимущества~--- AudioSet-pretraining оптимизирован под звуковые события; fine-tuning (§5.5) принципиально важнее. \textbf{RQ4}: ни один из факторов не решающий; реальный прорыв~--- трансформеры (§5.5).
 
-\textbf{RQ1 (мульти-задачная CNN).} Ответ положительный: одна модель эффективно решает 4 задачи, особенно сильно на Genre (83.9\% — на уровне специализированных моделей в literature) и Arousal (62\%). Сегментация остаётся слабой (35.3\%) — в пределах типичных результатов 6-классовой section labeling в literature~\cite{wang2022catchchorus,gong2023structural}.
+\section{Эксперимент AST v2 (расширение трансформер-архитектурой)}\label{sec:5-5}
 
-\textbf{RQ2 (temporal modeling).} Ответ ограниченно положительный: BiLSTM улучшает arousal (CNN: 62 → CNN+BiLSTM: 62.3) и valence (51.7 → 54.2), но \textbf{вредит} genre (83.9 → 60.9 для CNN+BiLSTM). Причина — переобучение BiLSTM на малой выборке Harmonix-треков. Для PANNs+BiLSTM эффект менее выражен (frozen backbone снижает риск переобучения).
+\textbf{Мотивация.} Необходима архитектура с глобальным receptive field \textbf{и} богатой инициализацией, более ёмкая и адаптируемая. AST~\cite{gong2021ast} удовлетворяет обоим.
 
-\textbf{RQ3 (качество признаков).} Ответ удивительный: \textbf{PANNs не дают преимущества} перед обучаемой с нуля CNN на большинстве задач. PANNs+Linear хуже CNN на сегменте (24 vs 35.3) и сравним на остальных. Гипотеза: AudioSet pretraining оптимизирован под звуковые события (звон, шум, голос), что не идеально для музыкального анализа. Дополнительная проверка через AST (см. §5.5) показывает, что pretraining помогает только при возможности fine-tuning.
-
-\textbf{RQ4 (фактор больше влияния).} Ни один из двух факторов 2$\times$2 эксперимента не оказался решающим. Лучший на сегменте — PANNs+BiLSTM (32.9), на arousal/valence — он же. На genre — CNN per-window (83.9). Различия меньше 3\,п.п. между лучшим и средним. Реальный прорыв пришёл с третьей архитектурной парадигмой — трансформерами (AST, см. §5.5).
-
-\subsection{Эксперимент AST v2 (расширение трансформер-архитектурой)}\label{sec:5-5}
-
-\subsubsection{Мотивация}
-
-После 2$\times$2 эксперимента стало очевидно: ни CNN, ни PANNs не дают качественного скачка. Гипотеза — необходима архитектура с \textbf{глобальным receptive field} (как BiLSTM) \textbf{и} богатой инициализацией (как PANNs), но более ёмкая и адаптируемая. AST~\cite{gong2021ast} удовлетворяет обоим требованиям: self-attention видит всю спектрограмму, AudioSet-pretraining обеспечивает богатую инициализацию, частичная заморозка позволяет fine-tuning без catastrophic forgetting.
-
-\subsubsection{Конфигурация AST v2}
-
-\begin{itemize}
-  \item Базовая модель: \code{MIT/ast-finetuned-audioset-10-10-0.4593} (87M параметров).
-  \item Заморожены: patch embedding + первые 8 из 12 transformer-слоёв.
-  \item Trainable: верхние 4 слоя + heads + CLS-токен $\approx$ 14.4M параметров.
-  \item Differential lr: backbone 5e-5, heads 1e-3, weight\_decay 0.01.
-  \item batch\_size = 16, gradient\_accumulation = 4 (effective batch = 64).
-  \item 30 эпох, patience 10, scheduler — CosineAnnealingWarmRestarts(T\_0=10, T\_mult=2).
-\end{itemize}
-
-Время обучения: $\sim$3 часа на одном GPU (12GB VRAM). Существенно дольше CNN v2 ($\sim$3.5\,ч), что сравнимо с PANNs+BiLSTM ($\sim$5\,ч с учётом precompute embeddings).
-
-\subsubsection{Результаты AST v2}
+\textbf{Конфигурация.} \code{MIT/ast-finetuned-audioset-10-10-0.4593} (87M). Заморожены: patch embedding + первые 8 слоёв. Trainable: верхние 4 слоя + heads + CLS $\approx$ 14.4M. Differential lr: backbone 5e-5, heads 1e-3, wd 0.01. \code{batch\_size=16}, \code{grad\_accumulation=4}. 30 эпох, patience 10, CosineWR. $\sim$3\,ч на 12GB GPU.
 
 \begin{table}[H]
 \centering
@@ -276,8 +178,6 @@ Genre & 81.5 & 80.8 & −2.4\,п.п. \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\textbf{Per-class сегмент:}
 
 \begin{table}[H]
 \centering
@@ -296,40 +196,11 @@ Outro & 4.5 & 6.1 & 5.2 \\
 \end{tabular}
 \end{table}
 
-\subsubsection{Ответ на RQ5}
+\textbf{Ответ на RQ5.} AST v2 превзошёл CNN по сегменту (+5.3\,п.п.); источник~--- сбалансированные Verse (45.7\% vs 27.9\%) и Chorus (45.6\% vs 40.3\%). На genre AST уступает (−2.4\,п.п.). \textbf{Trade-off:} AST лучше среднего и лучший на сегменте, но требует 30$\times$ больше памяти (574 vs 21\,MB) и 4$\times$ больше inference-времени.
 
-AST v2 действительно превзошёл CNN-baseline по сегментной задаче (+5.3\,п.п. accuracy). Главный источник прироста — более сбалансированные предсказания на Verse (recall 45.7\% vs 27.9\% у CNN v2) и Chorus (45.6\% vs 40.3\%). Это подтверждает гипотезу о ценности глобального self-attention для распознавания повторяющихся структурных паттернов.
+\section{Эксперимент CNN v3 (failed retrain)}\label{sec:5-6}
 
-Однако AST v2 уступил CNN v2 на genre (−2.4\,п.п.). Причина — для 10-классовой genre classification на 30-секундных GTZAN-фрагментах глобальный контекст менее ценен (фрагмент уже короток), а CNN с inductive bias (translation invariance) более эффективен.
-
-\textbf{Ключевой trade-off:} AST v2 даёт лучший средний результат и драматически лучше на сегменте, но требует в 30 раз больше памяти (574\,MB vs 21\,MB checkpoint) и в 4 раза больше времени inference (8\,с vs 2\,с на 3-минутный трек). Для прототипа выбран AST v2 — приоритет качества над эффективностью.
-
-\subsection{Эксперимент CNN v3 (failed retrain)}\label{sec:5-6}
-
-\subsubsection{Мотивация}
-
-После выявления слабого сегмента у CNN v2 (35.3\%) выдвинута гипотеза: \textbf{усиление сегментной задачи} через более агрессивные веса даст +3–7\,п.п. accuracy.
-
-\subsubsection{Конфигурация CNN v3}
-
-\begin{table}[H]
-\centering
-\caption{Конфигурация CNN v3}
-\begin{tabular}{L{4cm}L{3cm}L{3cm}}
-\toprule
-Параметр & CNN v2 & \textbf{CNN v3} \\
-\midrule
-segment\_weight & 1.5 & \textbf{3.5} \\
-focal\_gamma & 1.5 & \textbf{2.5} \\
-max\_class\_weight & 2.5 & \textbf{3.5} \\
-Остальное & — & без изменений \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Гипотеза: тройное усиление (loss weight $\times$ focal gamma $\times$ class weight) перенаправит больше градиента в сторону редких сегментных классов, улучшая Verse/Chorus/Instrumental без ущерба для остальных задач.
-
-\subsubsection{Результаты CNN v3}
+\textbf{Гипотеза.} Тройное усиление сегментной задачи: \code{segment\_weight} 1.5$\to$3.5, \code{focal\_gamma} 1.5$\to$2.5, \code{max\_class\_weight} 2.5$\to$3.5.
 
 \begin{table}[H]
 \centering
@@ -347,33 +218,13 @@ Genre & 83.9 & 79.1 & −4.8 \\
 \end{tabular}
 \end{table}
 
-\subsubsection{Анализ провала}
+\textbf{Анализ провала.} Early stopping на эпохе 19, лучший val\_loss на эпохе 4~--- быстрое переобучение. Class weights после обрезания \code{[Intro:3.05, Verse:0.44, ... Outro:3.5]} сместили модель в overprediction. CNN v3~--- academically valuable negative result: v2 уже близок к оптимуму для CNN.
 
-CNN v3 показал противоположный эффект — сегмент \textbf{упал} на 13.2\,п.п. Анализ training log выявил причины:
-
-\begin{enumerate}
-  \item \textbf{Early stopping на эпохе 19}, лучший val\_loss достигнут уже на эпохе 4, дальше только ухудшение. Модель быстро переобучилась на редкие сегментные классы.
-  \item \textbf{Class weights после обрезания}: \code{[Intro: 3.05, Verse: 0.44, Bridge: 1.14, Chorus: 0.47, Instrumental: 3.5, Outro: 3.5]}. Соотношение Intro/Verse теперь 7:1 — модель «карается» за ошибку на Intro в 7 раз сильнее, чем на Verse. Это сместило её в сторону overprediction редких классов.
-  \item \textbf{Деградация genre на 4.8\,п.п.} — следствие мульти-задачной природы: чрезмерная оптимизация одной головы (segment weight 3.5) забирает ёмкость backbone у других.
-\end{enumerate}
-
-\subsubsection{Что мы извлекли}
-
-CNN v3 — \textbf{академически ценный negative result}:
-
-\begin{itemize}
-  \item Подтверждает, что v2 уже находится в окрестности оптимума для CNN-архитектуры.
-  \item Показывает, что class imbalance невозможно «решить» простым увеличением весов — нужен либо больше данных (что недоступно), либо лучшая архитектура (что и сделал AST v2).
-  \item Демонстрирует риск aggressive reweighting в multi-task контексте: усиление одной задачи деградирует остальные.
-\end{itemize}
-
-Этот результат включён в отчёт как иллюстрация научной добросовестности — публикация неудачных экспериментов также является вкладом в literature.
-
-\subsection{Сводная таблица всех 6 моделей}\label{sec:5-7}
+\section{Сводная таблица всех моделей}\label{sec:5-7}
 
 \begin{table}[H]
 \centering
-\caption{Таблица 5.7. Финальное сравнение всех конфигураций}
+\caption{Таблица 5.7. Финальное сравнение}
 \begin{tabular}{L{0.5cm}L{3cm}L{2cm}L{1.5cm}L{1.5cm}L{1.5cm}L{1.5cm}L{1.5cm}}
 \toprule
 \# & Модель & Параметров & Segment & Arousal & Valence & Genre & Avg \\
@@ -389,30 +240,25 @@ CNN v3 — \textbf{академически ценный negative result}:
 \end{tabular}
 \end{table}
 
-* trainable параметры (frozen backbone не считается).
+* trainable параметры. Чемпионы: Segment~--- AST v2 (40.6\%); Arousal/Valence~--- PANNs+BiLSTM; Genre~--- CNN v2 (83.9\%); Среднее~--- AST v2 (58.5\%). Для прототипа выбрана AST v2.
 
-\textbf{Чемпионы по задачам:}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{fig_comparison_5configs.png}
+\caption{Сравнение пяти архитектур по четырём задачам (v2-запуск + AST~v2).}
+\label{fig:comparison-5}
+\end{figure}
 
-\begin{itemize}
-  \item \textbf{Segment}: AST v2 (40.6\%) — глобальный self-attention + AudioSet pretraining
-  \item \textbf{Arousal}: PANNs+BiLSTM (64.9\%) — temporal modeling помогает emotion
-  \item \textbf{Valence}: PANNs+BiLSTM (55.0\%) — то же
-  \item \textbf{Genre}: CNN v2 (83.9\%) — простая задача, CNN inductive bias выигрывает
-  \item \textbf{Среднее}: AST v2 (58.5\%) — лучший компромисс
-\end{itemize}
+\section{Ablation: вклад post-processing pipeline}\label{sec:5-8}
 
-Для прототипа выбрана \textbf{AST v2 + Viterbi post-processing} как комбинация лучшего среднего качества и драматически лучшей сегментной точности.
-
-\subsection{Ablation: вклад post-processing pipeline}\label{sec:5-8}
-
-Для оценки вклада каждого компонента pipeline (см. §4.7) проведено ablation на test-сете Harmonix с моделью AST v2:
+Ablation на test-сете Harmonix с AST v2 (см. §4.7):
 
 \begin{table}[H]
 \centering
 \caption{Таблица 5.8. Ablation post-processing}
 \begin{tabular}{L{5cm}L{3.5cm}L{2.5cm}L{2.5cm}}
 \toprule
-Метод & Сегментов в треке (avg) & Boundary F1 $\pm$3\,с & Section F1 \\
+Метод & Сегментов (avg) & Boundary F1 $\pm$3\,с & Section F1 \\
 \midrule
 Argmax (без post-processing) & 28.4 & 0.31 & 0.32 \\
 + Median filter (kernel=5) & 14.2 & 0.36 & 0.34 \\
@@ -423,34 +269,6 @@ Argmax (без post-processing) & 28.4 & 0.31 & 0.32 \\
 \end{tabular}
 \end{table}
 
-\textbf{Выводы:}
+Viterbi даёт максимальный прирост (+6\,п.п. Boundary F1). Полный pipeline: +14\,п.п. Boundary F1, +7\,п.п. Section F1.
 
-\begin{enumerate}
-  \item \textbf{Argmax без обработки даёт 28 сегментов на трек} — невозможно для пользователя интерпретировать. Полный pipeline сокращает до 7.5 сегментов — близко к реальному числу музыкальных секций (5–10).
-
-  \item \textbf{Viterbi даёт максимальный прирост Boundary F1}: +6\,п.п. относительно median filter. Это подтверждает, что глобальная оптимизация последовательности эффективнее локального сглаживания.
-
-  \item \textbf{Position priors дают +1\,п.п.} — небольшой, но устраняют грубые ошибки (Intro в середине трека), критически влияющие на user perception.
-
-  \item \textbf{Min-duration merge даёт +2\,п.п.} — устраняет короткие шумовые сегменты.
-
-  \item \textbf{Полный pipeline +14\,п.п. Boundary F1 / +7\,п.п. Section F1} относительно сырых argmax-предсказаний.
-\end{enumerate}
-
-Качественные примеры из прототипа:
-
-\begin{itemize}
-  \item \textbf{Dynamite (Taio Cruz)} — pop-композиция 3:24:
-    \begin{itemize}
-      \item Без post-processing: 28 сегментов с «Intro» в середине, частые переходы Chorus↔Bridge.
-      \item С полным pipeline: 7 сегментов в правильной структуре Intro → Chorus-Verse-Chorus-Bridge-Chorus → Outro.
-    \end{itemize}
-
-  \item \textbf{Just Dance (Lady Gaga)} — dance-pop 4:06:
-    \begin{itemize}
-      \item Без post-processing: 35 хаотичных сегментов с Outro на 30-й секунде.
-      \item С полным pipeline: 16 структурно осмысленных сегментов с выраженной verse-chorus-bridge формой.
-    \end{itemize}
-\end{itemize}
-
-\textbf{Резюме главы 5.} Проведено четыре эксперимента: 2$\times$2 факторный (v1 baseline и v2 улучшенный), AST v2 как пятая архитектура, CNN v3 как failed retrain. AST v2 показал лучший результат по совокупности задач (среднее 58.5\%, segment 40.6\%) и выбран как production-модель прототипа. Результаты подтверждают: для сегментной задачи критичны глобальный контекст (self-attention) и AudioSet-pretraining; для жанра достаточен простой CNN inductive bias; emotion-задачи слабо зависят от выбора архитектуры. Ablation post-processing продемонстрировал +14\,п.п. Boundary F1 от полного pipeline (Viterbi + position priors + min-duration merge).
+\textbf{Резюме.} AST v2 показал лучший средний (58.5\%) и сегмент (40.6\%), выбран как production-модель.

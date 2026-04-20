@@ -7,16 +7,16 @@
 set -e
 
 # Add MiKTeX to PATH if not present
-if ! command -v xelatex >/dev/null 2>&1; then
+if ! command -v pdflatex >/dev/null 2>&1; then
   export PATH="/c/Users/mindt/AppData/Local/Programs/MiKTeX/miktex/bin/x64:$PATH"
 fi
 
 cd "$(dirname "$0")"
 
-echo "[build] xelatex pass 1..."
-xelatex -interaction=nonstopmode -halt-on-error main.tex > /tmp/xelatex1.log 2>&1 || {
+echo "[build] pdflatex pass 1..."
+pdflatex -interaction=batchmode -halt-on-error main.tex > /tmp/pdflatex1.log 2>&1 || {
   echo "[build] FAILED on pass 1. Last 30 lines of log:"
-  tail -30 main.log 2>/dev/null || tail -30 /tmp/xelatex1.log
+  tail -30 main.log 2>/dev/null || tail -30 /tmp/pdflatex1.log
   exit 1
 }
 
@@ -27,15 +27,15 @@ biber main > /tmp/biber.log 2>&1 || {
   # Continue — biber failing is non-fatal if no \cite
 }
 
-echo "[build] xelatex pass 2..."
-xelatex -interaction=nonstopmode -halt-on-error main.tex > /tmp/xelatex2.log 2>&1 || {
+echo "[build] pdflatex pass 2..."
+pdflatex -interaction=batchmode -halt-on-error main.tex > /tmp/pdflatex2.log 2>&1 || {
   echo "[build] FAILED on pass 2. Last 30 lines:"
   tail -30 main.log
   exit 1
 }
 
-echo "[build] xelatex pass 3..."
-xelatex -interaction=nonstopmode -halt-on-error main.tex > /tmp/xelatex3.log 2>&1 || {
+echo "[build] pdflatex pass 3..."
+pdflatex -interaction=batchmode -halt-on-error main.tex > /tmp/pdflatex3.log 2>&1 || {
   echo "[build] FAILED on pass 3. Last 30 lines:"
   tail -30 main.log
   exit 1

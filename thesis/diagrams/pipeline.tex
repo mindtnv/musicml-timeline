@@ -1,0 +1,99 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc,backgrounds}
+\usepackage{amsmath}
+
+\definecolor{ink}{HTML}{1A1A1A}
+\definecolor{mid}{HTML}{555555}
+\definecolor{light}{HTML}{999999}
+\definecolor{blockfill}{HTML}{F5F5F5}
+\definecolor{lightline}{HTML}{BBBBBB}
+
+\tikzset{
+  every node/.style={font=\sffamily},
+  stage/.style={
+    rectangle, draw=ink, fill=blockfill, line width=.7pt,
+    minimum height=1.4cm, text width=2.2cm, align=center,
+    font=\sffamily\small, inner sep=5pt
+  },
+  darkstage/.style={
+    rectangle, draw=ink, fill=ink, line width=.7pt,
+    minimum height=1.4cm, text width=2.2cm, align=center,
+    font=\sffamily\small, inner sep=5pt, text=white
+  },
+  data/.style={
+    rectangle, draw=lightline, fill=white, line width=.5pt,
+    minimum height=.55cm, text width=1.6cm, align=center,
+    font=\sffamily\tiny, text=mid
+  },
+  arr/.style={-{Stealth[length=5pt,width=4pt]}, line width=.7pt, color=ink},
+  dasharr/.style={-{Stealth[length=4pt,width=3pt]}, line width=.5pt, color=light, dashed},
+  stlabel/.style={font=\sffamily\scriptsize, text=mid},
+}
+
+\begin{document}
+\begin{tikzpicture}[node distance=1cm]
+
+% Stages
+\node[stage] (s1) {Вход\\{\tiny MP3/WAV/FLAC}};
+\node[stage, right=.8cm of s1] (s2) {Извлечение\\признаков\\{\tiny Лог-мел $128{\times}T$}};
+\node[darkstage, right=.8cm of s2, text width=2.4cm] (s3) {AST\\энкодер\\{\tiny 12 слоёв, 768-мерн.}};
+\node[stage, right=.8cm of s3] (s4) {Пост-\\обработка\\{\tiny Витерби $+$ приоры}};
+\node[stage, right=.8cm of s4, text width=2.4cm] (s5) {Веб-\\дэшборд\\{\tiny 6 панелей, 60\,fps}};
+
+\draw[arr] (s1) -- (s2);
+\draw[arr] (s2) -- (s3);
+\draw[arr] (s3) -- (s4);
+\draw[arr] (s4) -- (s5);
+
+% Labels above
+\node[stlabel, above=3pt of s1] {(a)};
+\node[stlabel, above=3pt of s2] {(b)};
+\node[stlabel, above=3pt of s3] {(c)};
+\node[stlabel, above=3pt of s4] {(d)};
+\node[stlabel, above=3pt of s5] {(e)};
+
+% Task outputs below model (single row, wider)
+\node[data, below=.9cm of s3, xshift=-2.6cm, text width=1.8cm] (t1) {Сегмент ($K{=}6$)};
+\node[data, right=.15cm of t1, text width=1.8cm] (t2) {Возбуждение ($K{=}3$)};
+\node[data, right=.15cm of t2, text width=1.8cm] (t3) {Валентность ($K{=}3$)};
+\node[data, right=.15cm of t3, text width=1.8cm] (t4) {Жанр ($K{=}10$)};
+
+\draw[dasharr] (s3.south) -- ++(0,-.35) -| (t1.north);
+\draw[dasharr] (s3.south) -- ++(0,-.35) -| (t2.north);
+\draw[dasharr] (s3.south) -- ++(0,-.35) -| (t3.north);
+\draw[dasharr] (s3.south) -- ++(0,-.35) -| (t4.north);
+
+\node[stlabel, below=3pt of t2, xshift=1.05cm] {4 классификационные головы};
+
+% Training data (below pipeline, shifted further down)
+\node[data, below=3.4cm of s2, xshift=-1cm] (d1) {DEAM\\$n{=}1802$};
+\node[data, right=.2cm of d1] (d2) {Harmonix\\$n{=}743$};
+\node[data, right=.2cm of d2] (d3) {GTZAN\\$n{=}999$};
+
+\draw[dasharr] (d1.north) -- ++(0,.5) -| (s3.west);
+\draw[dasharr] (d2.north) -- ++(0,.7);
+\draw[dasharr] (d3.north) -- ++(0,.5) -| (s3.south east);
+
+% Fit + label
+\begin{scope}[on background layer]
+  \node[draw=lightline, dashed, rounded corners=2pt, fit=(d1)(d3),
+        inner sep=5pt, fill=white] (dbox) {};
+\end{scope}
+\node[stlabel, below=2pt of dbox] {Обучающие данные ($n{=}3544$, мультизадачный RoundRobin)};
+
+% Output annotation
+\node[stlabel, below=.5cm of s5, text width=2.8cm, align=center] {
+  Структура $\cdot$ Эмоции\\
+  Жанр $\cdot$ Сходство\\
+  Спектрограмма $\cdot$ Сводка
+};
+
+\end{tikzpicture}
+\end{document}

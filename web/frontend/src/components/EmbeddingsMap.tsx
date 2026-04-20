@@ -155,12 +155,11 @@ function EmbeddingsMap({ highlightId }: Props) {
   return (
     <section className="embeddings-map">
       <h3 className="embeddings-map-title">
-        Карта эмбеддингов
-        <span className="embeddings-map-badge">PCA · {points.length} треков</span>
+        Карта библиотеки
+        <span className="embeddings-map-badge">{points.length} треков</span>
       </h3>
       <p className="embeddings-map-hint">
-        Каждая точка — трек в библиотеке, спроецированный на 2D через PCA
-        из 768-мерного embedding-пространства модели. Цвет = жанр.
+        Каждая точка — трек в вашей библиотеке. Цвет = жанр.
         Близкие точки — похожие по звучанию треки. Наведите для подсказки,
         клик откроет трек.
       </p>

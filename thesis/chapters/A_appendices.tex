@@ -1,330 +1,140 @@
-\section{Описание датасетов}\label{app:A}
-
-\subsection{DEAM (Database for Emotional Analysis of Music)}
+\chapter{Описание датасетов}\label{app:A}
 
 \begin{table}[H]
 \centering
-\caption{Характеристики DEAM}
-\begin{tabular}{L{6cm}L{8cm}}
+\caption{Сводные характеристики используемых датасетов}
+\begin{tabular}{L{3cm}L{4.5cm}L{3.5cm}L{3cm}}
 \toprule
-Характеристика & Значение \\
+Параметр & DEAM & Harmonix Set & GTZAN \\
 \midrule
-Источник & MediaEval 2013–2018 challenges, \url{http://cvml.unige.ch/databases/DEAM} \\
-Лицензия & Creative Commons (треки из Free Music Archive) \\
-Размер & 1802 фрагмента $\times$ 45 секунд каждый \\
-Sample rate & 44100\,Гц (мы передискретизируем до 22050\,Гц) \\
-Аннотации & Покадровые непрерывные arousal/valence ($\sim$ 60 фреймов на трек, шаг 500\,мс) \\
-Inter-annotator agreement (Pearson $\rho$) & arousal: 0.59, valence: 0.55 \\
-Распределение жанров (примерно) & Pop $\sim$25\%, Rock $\sim$20\%, Electronic $\sim$15\%, Classical $\sim$10\%, Hip-hop $\sim$8\%, Other $\sim$22\% \\
+Источник & MediaEval 2013--2018 & Nieto et al., 2019 & Tzanetakis \& Cook, 2002 \\
+Размер исходный & 1802 фрагмента & 912 треков & 1000 файлов \\
+Использовано & 1802 (все) & 743 (через yt-dlp) & 999 \\
+Длительность & 45\,с каждый & 3:43 среднее & 30\,с каждый \\
+Sample rate & 44100\,Гц $\to$ 22050 & Варьируется $\to$ 22050 & 22050\,Гц mono \\
+Лицензия & CC (FMA) & MIT (анн.) + YouTube & Public domain \\
+Аннотации & arousal/valence (0{,}5\,с) & section labels (17 $\to$ 6) & genre (10 классов) \\
+Inter-ann. agreement & $\rho_a\,{=}\,0{,}59$; $\rho_v\,{=}\,0{,}55$ & $\sim 75\%$ section & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Применение в работе.} Используется для обучения голов arousal\_cls (3 класса), valence\_cls (3 класса), arousal\_reg (regression), valence\_reg (regression). Дискретизация порогами $\pm 0.2$.
+\textbf{DEAM} используется для обучения голов arousal\_cls / valence\_cls (3 класса каждая, дискретизация порогами $\pm 0{,}2$) и регрессионных голов.
 
-\subsection{Harmonix Set}
+\textbf{Harmonix Set} маппинг 17$\to$6 классов сегментов:
+
+\begin{lstlisting}
+intro*                -> Intro
+verse*, theme         -> Verse
+bridge, transition*   -> Bridge
+chorus*, hook         -> Chorus
+instrumental, solo    -> Instrumental
+outro, fadeout        -> Outro
+\end{lstlisting}
+
+\textbf{GTZAN} --- жанры: blues, classical, country, disco, hiphop, jazz, metal, pop, reggae, rock (по 100 треков).
+
+\chapter{Гиперпараметры экспериментов}\label{app:B}
 
 \begin{table}[H]
 \centering
-\caption{Характеристики Harmonix Set}
-\begin{tabular}{L{6cm}L{8cm}}
+\caption{Сводные гиперпараметры трёх конфигураций}
+\begin{tabular}{L{5cm}C{2.5cm}C{2.5cm}C{2.5cm}}
 \toprule
-Характеристика & Значение \\
+Параметр & CNN v2 & AST v2 & CNN v3 (fail) \\
 \midrule
-Источник & Nieto et al., 2019; \url{https://github.com/urinieto/harmonixset} \\
-Лицензия & Аннотации — MIT, аудио — отсутствует (требуется загрузка через YouTube) \\
-Размер исходный & 912 треков с структурной разметкой \\
-Размер использован & 743 трека (после загрузки через yt-dlp; 169 удалены с YouTube) \\
-Длительность среднего трека & 3:43 \\
-Аннотации & Beat positions, downbeats, section labels (17 категорий → сжаты до 6) \\
-Inter-annotator agreement & section labels: $\sim$75\% \\
+Optimizer & AdamW & AdamW & AdamW \\
+LR & 1{,}0e-3 & 5e-5 (bb) / 1e-3 (h) & 1{,}0e-3 \\
+Weight decay & 5e-4 & 0{,}01 & 5e-4 \\
+Batch size & 64 & 16 (ga=4) & 64 \\
+Epochs (patience) & 50 (15) & 30 (10) & 50 (15) \\
+Scheduler & cosine WR ($T_0\,{=}\,10$) & cosine WR & cosine WR \\
+Loss & Focal ($\gamma\,{=}\,1{,}5$) & Focal (1{,}5) & Focal (2{,}5) \\
+Max class weight & 2{,}5 & 2{,}5 & 3{,}5 \\
+Mixup $\alpha$ & 0{,}2 & --- & 0{,}2 \\
+Dropout & 0{,}4 & 0{,}3 & 0{,}4 \\
+Segment loss weight & 1{,}5 & 1{,}5 & 3{,}5 \\
+AST freeze\_layers & --- & 8 (из 12) & --- \\
+Trainable params & $\sim 800$\,тыс. & $\sim 14{,}4$\,млн & $\sim 800$\,тыс. \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Маппинг 17 → 6 классов:}
+Общие для всех конфигураций: window=10\,с, hop=1\,с, $n_{\text{mels}}\,{=}\,128$, hop\_length=512, SpecAugment (freq\_mask=27, time\_mask=60, $n\,{=}\,2$), seed=42.
 
-\begin{lstlisting}
-intro, intro_a, intro_b               -> Intro
-verse, verse_a, verse_b, theme        -> Verse
-bridge, transition, transition_*      -> Bridge
-chorus, chorus_a, chorus_b, hook      -> Chorus
-instrumental, solo, breakdown         -> Instrumental
-outro, fadeout                        -> Outro
-\end{lstlisting}
+\chapter{Confusion matrices и графики}\label{app:C}
 
-\subsection{GTZAN}
-
-\begin{table}[H]
-\centering
-\caption{Характеристики GTZAN}
-\begin{tabular}{L{6cm}L{8cm}}
-\toprule
-Характеристика & Значение \\
-\midrule
-Источник & Tzanetakis \& Cook, 2002; \url{http://marsyas.info/downloads/datasets.html} \\
-Лицензия & Public domain (academic use) \\
-Размер & 1000 файлов wav, 30 секунд каждый \\
-Sample rate & 22050\,Гц (mono) \\
-Жанры & blues, classical, country, disco, hiphop, jazz, metal, pop, reggae, rock (по 100 треков) \\
-Использовано & 999 (один файл повреждён) \\
-Известные дубликаты & $\sim$5\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Гиперпараметры экспериментов}\label{app:B}
-
-\subsection{Финальная конфигурация (default.yaml для CNN/PANNs/BiLSTM)}
-
-\begin{lstlisting}
-audio:
-  sr: 22050
-  mono: true
-
-features:
-  mode: "log_mel"
-  n_fft: 2048
-  hop_length: 512
-  win_length: 2048
-  n_mels: 128
-  fmin: 30.0
-  fmax: null
-
-windowing:
-  window_seconds: 10.0
-  hop_seconds: 1.0
-
-model:
-  in_channels: 1
-  n_segment_classes: 6
-  n_arousal_classes: 3
-  n_valence_classes: 3
-  n_genre_classes: 10
-  dropout: 0.4
-  backbone_dropout: 0.25
-  enable_regression: true
-
-training:
-  seed: 42
-  lr: 1.0e-3
-  weight_decay: 5.0e-4
-  batch_size: 64
-  epochs: 50
-  early_stopping_patience: 15
-  scheduler: cosine_warm_restarts
-  loss_type: focal
-  focal_gamma: 1.5
-  mixup_alpha: 0.2
-  max_class_weight: 2.5
-
-spec_augment:
-  freq_mask: 27
-  time_mask: 60
-  n_masks: 2
-
-loss_weights:
-  segment: 1.5
-  arousal_cls: 1.0
-  valence_cls: 1.0
-  arousal_reg: 0.5
-  valence_reg: 0.5
-  genre: 1.0
-
-postprocess:
-  smooth_kernel: 5
-  min_segment_duration: 4.0
-  use_viterbi: true
-  transition_penalty: 1.0
-  use_position_priors: true
-  smooth_kernel_segment: 5
-  min_segment_duration_segment: 6.0
-\end{lstlisting}
-
-\subsection{AST v2 (ast.yaml)}
-
-Отличается от default следующим:
-
-\begin{lstlisting}
-architecture: "ast"
-
-model:
-  pretrained_model: "MIT/ast-finetuned-audioset-10-10-0.4593"
-  freeze_layers: 8
-  hidden_dim: 768
-  shared_fc_dim: 256
-  dropout: 0.3
-
-training:
-  lr: 5.0e-5         # backbone
-  lr_head: 1.0e-3    # heads
-  batch_size: 16
-  grad_accumulation_steps: 4
-  epochs: 30
-  early_stopping_patience: 10
-  weight_decay: 0.01
-\end{lstlisting}
-
-\subsection{CNN v3 (failed experiment, cnn\_v3.yaml)}
-
-Отличается от default только следующим:
-
-\begin{lstlisting}
-training:
-  focal_gamma: 2.5            # 1.5 in default
-  max_class_weight: 3.5       # 2.5 in default
-
-loss_weights:
-  segment: 3.5                # 1.5 in default
-\end{lstlisting}
-
-\section{Confusion matrices}\label{app:C}
-
-См. графические результаты в \code{results/plots/}:
+Графические результаты сохранены в \code{results/plots/}:
 
 \begin{itemize}
-  \item \code{confusion\_segment\_cnn\_v2.png} — CNN v2, сегментная задача
-  \item \code{confusion\_segment\_ast\_v2.png} — AST v2, сегментная задача (для сравнения)
-  \item \code{confusion\_arousal\_v2.png}, \code{confusion\_valence\_v2.png}, \code{confusion\_genre\_v2.png} — для CNN v2
-  \item \code{comparison\_4tasks.png} — сравнение 6 моделей по 4 задачам в виде гистограммы
-  \item \code{delta\_v1\_v2.png} — изменения метрик v1 → v2
+  \item \code{cnn\_v2/cm\_\{segment,arousal,valence,genre\}.png} --- confusion matrices CNN v2.
+  \item \code{ast\_v2/cm\_\{segment,arousal,valence,genre\}.png} --- confusion matrices AST v2.
+  \item \code{comparison\_5configs.png} --- сравнение 5 архитектур по 4 задачам.
+  \item \code{factorial\_heatmap.png} --- тепловая карта $2{\times}2$-дизайна.
+  \item \code{v1\_vs\_v2\_cnn.png} --- изменения метрик v1 $\to$ v2.
+  \item \code{timeline\_example.png}, \code{timeline\_classical.png} --- примеры инференса.
 \end{itemize}
 
-\section{Скриншоты прототипа}\label{app:D}
-
-Снимки экрана веб-прототипа (можно делать через preview\_screenshot или браузерную консоль):
-
-\begin{enumerate}
-  \item \textbf{Главная страница} — список треков с поиском, кнопкой загрузки.
-  \item \textbf{Dashboard трека} (Dynamite) — все 6 панелей: структура, эмоции, AV-trajectory, жанр, спектрограмма, сводка.
-  \item \textbf{Top-3 жанров с warning} — пример low-confidence классификации с жёлтой плашкой.
-  \item \textbf{AV-trajectory с кометой} — Russell circumplex с движущейся точкой и шлейфом за последние 20 секунд.
-  \item \textbf{Mel-spectrogram} — viridis-окрашенная спектрограмма на 3-минутном треке.
-  \item \textbf{Loading skeletons} — пример отображения skeleton-screens во время загрузки.
-\end{enumerate}
-
-\section{JSON-схема timeline}\label{app:E}
+\chapter{JSON-схема timeline}\label{app:D}
 
 Структура ответа \code{/api/tracks/:id}:
 
 \begin{lstlisting}
 {
-  "id": "uuid-string",
-  "filename": "uuid-string.mp3",
-  "originalName": "0375_dynamite.mp3",
-  "status": "ready",
-  "createdAt": "2026-04-15T...",
+  "id": "uuid", "filename": "uuid.mp3",
   "timeline": {
     "metadata": {
       "duration_sec": 204.1,
-      "window_seconds": 10.0,
-      "hop_seconds": 1.0
+      "window_seconds": 10.0, "hop_seconds": 1.0
     },
     "segment": [
-      { "start": 0.0, "end": 8.0, "label": "Chorus", "confidence": 0.63 },
-      { "start": 8.0, "end": 24.0, "label": "Verse", "confidence": 0.54 },
-      ...
+      { "start": 0.0, "end": 8.0,
+        "label": "Chorus", "confidence": 0.63 }, ...
     ],
-    "arousal": [ /* same shape */ ],
-    "valence": [ /* same shape */ ],
-    "genre":   [ /* same shape */ ],
+    "arousal": [...], "valence": [...], "genre": [...],
     "frame_predictions": {
-      "frame_hop_seconds": 1.0,
-      "segment_probs": [[0.18, 0.13, 0.05, 0.11, 0.11, 0.41], ...],
-      "arousal_probs": [[0.06, 0.27, 0.67], ...],
-      "valence_probs": [[0.06, 0.40, 0.53], ...],
-      "genre_probs":   [[0.05, 0.10, ...], ...],
-      "arousal_reg":   [0.36, 0.38, 0.41, ...],
-      "valence_reg":   [0.42, 0.45, 0.50, ...]
+      "segment_probs": [[0.18, 0.13, ...], ...],
+      "arousal_reg": [0.36, 0.38, ...],
+      "valence_reg": [0.42, 0.45, ...]
     },
     "audio_features": {
       "tempo_bpm": 123.0,
-      "key": { "key": "F", "mode": "Minor", "confidence": 0.78 }
+      "key": {"key": "F", "mode": "Minor", "confidence": 0.78}
     }
   }
 }
 \end{lstlisting}
 
-\section{CLI-команды для воспроизведения}\label{app:F}
+\chapter{CLI-команды воспроизведения}\label{app:E}
 
-\subsection{Подготовка данных}
+\begin{lstlisting}
+# Environment
+source .venv/bin/activate     # Linux/Mac
+.venv/Scripts/activate        # Windows
 
-\begin{lstlisting}[language=bash]
-# Activate environment
-source .venv/bin/activate          # Linux/Mac
-.venv/Scripts/activate             # Windows
-
-# DEAM
-python scripts/prepare_deam.py --data-dir data/deam
-
-# Harmonix (requires yt-dlp + ffmpeg)
+# Data preparation
+python scripts/prepare_deam.py      --data-dir data/deam
 python scripts/download_harmonix_audio.py --data-dir data/structure
 python scripts/prepare_structure.py --data-dir data/structure
+python scripts/prepare_gtzan.py     --data-dir data/gtzan
 
-# GTZAN
-python scripts/prepare_gtzan.py --data-dir data/gtzan
-\end{lstlisting}
+# Training (example: final AST v2)
+python scripts/train.py --config configs/ast.yaml \
+  --deam-dir data/deam --structure-dir data/structure \
+  --gtzan-dir data/gtzan --output-dir checkpoints/ast_v2
 
-\subsection{Обучение моделей}
+# Evaluation and inference
+python scripts/eval.py  --ckpt checkpoints/ast_v2/best.pt \
+  --config configs/ast.yaml --output results/eval_ast_v2.csv \
+  --deam-dir data/deam --structure-dir data/structure --gtzan-dir data/gtzan
+python scripts/infer.py --audio path/to/song.mp3 \
+  --ckpt checkpoints/ast_v2/best.pt --config configs/ast.yaml \
+  --output results/timeline.json --plot results/timeline.png
 
-\begin{lstlisting}[language=bash]
-# CNN v2 (default)
-python scripts/train.py \
-    --config configs/default.yaml \
-    --deam-dir data/deam --structure-dir data/structure --gtzan-dir data/gtzan \
-    --output-dir checkpoints/cnn_v2
+# Web prototype (three services in one command)
+bun run scripts/dev-all.ts    # ml-api:8000, backend:3000, frontend:5173
 
-# AST v2 (final)
-python scripts/train.py \
-    --config configs/ast.yaml \
-    --deam-dir data/deam --structure-dir data/structure --gtzan-dir data/gtzan \
-    --output-dir checkpoints/ast_v2
-
-# CNN v3 (failed)
-python scripts/train.py \
-    --config configs/cnn_v3.yaml \
-    --deam-dir data/deam --structure-dir data/structure --gtzan-dir data/gtzan \
-    --output-dir checkpoints/cnn_v3
-\end{lstlisting}
-
-\subsection{Оценка моделей}
-
-\begin{lstlisting}[language=bash]
-python scripts/eval.py \
-    --ckpt checkpoints/ast_v2/best.pt \
-    --config configs/ast.yaml \
-    --output results/eval_ast_v2.csv \
-    --deam-dir data/deam --structure-dir data/structure --gtzan-dir data/gtzan
-\end{lstlisting}
-
-\subsection{Инференс на одном файле}
-
-\begin{lstlisting}[language=bash]
-python scripts/infer.py \
-    --audio path/to/song.mp3 \
-    --ckpt checkpoints/ast_v2/best.pt \
-    --config configs/ast.yaml \
-    --output results/timeline.json \
-    --plot results/timeline.png
-\end{lstlisting}
-
-\subsection{Запуск веб-прототипа}
-
-\begin{lstlisting}[language=bash]
-# All three services with one command:
-bun run scripts/dev-all.ts
-
-# Or separately:
-python scripts/serve_ml.py --ckpt checkpoints/ast_v2/best.pt --config configs/ast.yaml --port 8000
-cd web/backend && bun run dev    # port 3000
-cd web/frontend && bun run dev   # port 5173
-\end{lstlisting}
-
-Открыть в браузере: \url{http://localhost:5173}.
-
-\subsection{Тесты и качество кода}
-
-\begin{lstlisting}[language=bash]
-pytest tests/ -v                   # 128 tests
+# Tests and linter
+pytest tests/ -v              # 128 tests
 ruff check musicml/ scripts/ tests/
 \end{lstlisting}

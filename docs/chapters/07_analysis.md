@@ -44,11 +44,11 @@ Trade-off AST: 30× больше памяти (574 MB vs 21 MB), 4× больш�
 │  ├─ Trainable: top 4 of 12 layers + 4 task heads (~14M params)  │
 │  └─ Inference: 8 seconds per 3-min track on GPU 12GB            │
 │                                                                   │
-│  Post-processing (musicml/postprocess.py)                        │
-│  ├─ Viterbi decoding, λ=1.0                                     │
-│  ├─ Position priors: Intro outside first 22%, Outro outside     │
-│  │  last 22%, penalty=10                                        │
-│  └─ Iterative min-duration merge (6 sec)                        │
+│  Post-processing v2 (musicml/postprocess.py)                     │
+│  ├─ Viterbi decoding, structural transition matrix, T=1.4       │
+│  ├─ Position priors: boundary=12%, penalty=14, boost=1.0        │
+│  ├─ Per-class min-duration (Verse/Instr=15s, Chorus=12s, ...)   │
+│  └─ Novelty snapping + repetition consistency                   │
 │                                                                   │
 │  Quality (test):                                                 │
 │  ├─ Segment: 40.6% acc / 30.8% macro-F1 / 0.45 boundary F1±3s   │

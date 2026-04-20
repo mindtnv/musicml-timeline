@@ -1,43 +1,20 @@
-\section{Анализ результатов и ограничения}\label{ch:7}
+\chapter{Анализ результатов и ограничения}\label{ch:7}
 
-Глава суммирует ответы на исследовательские вопросы (RQ1–RQ5), формализует выбор финальной модели, идентифицирует ограничения текущего подхода и сопоставляет полученные результаты с современным state-of-the-art.
+Глава суммирует ответы на исследовательские вопросы RQ1--RQ5, фиксирует финальную конфигурацию модели, идентифицирует ограничения и сопоставляет результаты с state-of-the-art.
 
-\subsection{Сводные ответы на исследовательские вопросы}\label{sec:7-1}
+\section{Сводные ответы на исследовательские вопросы}\label{sec:7-1}
 
-\subsubsection{RQ1: Эффективность мульти-задачной CNN}
+\textbf{RQ1 (мульти-задачная CNN): положительный с оговорками.} CNN~v2 конкурентна на трёх из четырёх задач: Genre~83{,}9\,\% (в диапазоне CNN-baseline 75--87\,\%~\cite{choi2017crnn,sigtia2014improved}), Arousal~62{,}0\,\%, Valence~51{,}7\,\% (близко к single-task SOTA на DEAM~\cite{wang2017autotagging,won2020selfattention}), Segment~35{,}3\,\% (в типичном диапазоне 6-классовой section labeling 30--45\,\%~\cite{wang2022catchchorus,gong2023structural}). MTL не привело к катастрофической деградации относительно single-task baseline (ablation~§5.7).
 
-\textbf{Ответ: положительный с оговорками.} CNN v2 показала конкурентные результаты на трёх из четырёх задач:
+\textbf{RQ2 (temporal modeling~--- BiLSTM): смешанный.} BiLSTM улучшает arousal (+0{,}3) и valence (+2{,}5) для CNN+BiLSTM, но резко вредит genre ($-23$) из-за переобучения на 699~GTZAN-треков. Для PANNs+BiLSTM эффект мягче (frozen backbone). Главный недостаток~--- сокращение числа обучающих примеров ($\sim$500~последовательностей против $\sim$16\,K~окон).
 
-\begin{itemize}
-  \item \textbf{Genre 83.9\%} — на уровне типичных CNN-baseline в literature~\cite{choi2017crnn,sigtia2014improved} (75–87\%).
-  \item \textbf{Arousal 62.0\%} — близко к single-task SOTA на DEAM (65–70\%~\cite{wang2017autotagging,won2020selfattention}).
-  \item \textbf{Valence 51.7\%} — соответствует литературному диапазону (50–60\%).
-  \item \textbf{Segment 35.3\%} — слабее, но в типичном диапазоне 6-классовой section labeling~\cite{wang2022catchchorus,gong2023structural} (30–45\%).
-\end{itemize}
+\textbf{RQ3 (качество признаков~--- PANNs vs from-scratch): PANNs не дают преимущества.} PANNs+Linear проигрывает CNN~v2 на 3~из 4~задач (Segment~$-11{,}3$, Arousal~$-0{,}8$, Genre~$-2{,}0$; только Valence~$+2{,}1$). AudioSet-pretraining оптимизирован под звуковые события, не под структурный музыкальный анализ; frozen embeddings не адаптируются. Transfer learning оправдан лишь при возможности fine-tuning (AST, RQ5).
 
-Мульти-задачное обучение не привело к катастрофической деградации ни одной задачи относительно single-task baseline (проверено в ablation §5.7). Это подтверждает применимость MTL для задач MIR при соблюдении правильного баланса per-task loss weights.
+\textbf{RQ4 (главный фактор влияния): ни один из двух факторов не решающий.} В 2$\times$2 максимальная разница между лучшим и средним конфигом~--- 3--5\,п.п. Прорыв пришёл с третьим фактором~--- архитектурным семейством трансформеров (RQ5).
 
-\subsubsection{RQ2: Вклад temporal modeling (BiLSTM)}
+\textbf{RQ5 (AST): положительный с trade-off.} AST~v2 даёт лучший результат на сегменте (40{,}6\,\% vs 35{,}3\,\%, +5{,}3\,п.п.) и лучшее среднее по 4~задачам (58{,}5\,\%) за счёт глобального self-attention для распознавания повторяющихся структурных паттернов. На genre AST уступает CNN~v2 ($-2{,}4$\,п.п.)~--- для 30-секундных GTZAN-фрагментов CNN inductive bias эффективнее. Trade-off: 30$\times$ памяти (574\,МБ vs 21\,МБ) и 4$\times$ времени inference (8\,с vs 2\,с).
 
-\textbf{Ответ: смешанный, зависит от задачи и backbone.} BiLSTM улучшает задачи, требующие долгосрочного контекста (arousal +0.3, valence +2.5 для CNN+BiLSTM), но \textbf{вредит} задачам с локальным контекстом (genre $-23$ для CNN+BiLSTM из-за переобучения на 699 GTZAN-треков). Для PANNs+BiLSTM эффект менее выражен (frozen backbone снижает риск переобучения). Главный недостаток BiLSTM — резкое сокращение числа обучающих примеров ($\sim$500 последовательностей вместо $\sim$16K окон), что критично для backbone, обучаемого с нуля.
-
-\subsubsection{RQ3: Качество признаков (PANNs vs from-scratch)}
-
-\textbf{Ответ: PANNs не дают преимущества для MIR-задач.} PANNs+Linear проигрывает CNN v2 на 3 из 4 задач (Segment $-11.3$, Arousal $-0.8$, Genre $-2.0$; только Valence $+2.1$). Гипотеза: AudioSet pretraining оптимизирован под звуковые события (звон, шум, голос, инструменты), что не идеально для задач музыкального структурного анализа. Frozen embeddings не адаптируются под специфику задачи. Результаты подтверждают, что transfer learning имеет смысл \textbf{только при возможности fine-tuning} (как у AST v2, см. RQ5).
-
-\subsubsection{RQ4: Главный фактор влияния}
-
-\textbf{Ответ: ни один из двух факторов не оказался решающим.} В рамках 2$\times$2 эксперимента максимальная разница между лучшим и средним конфигом составляет 3–5\,п.п. на любой задаче. Реальный прорыв пришёл с \textbf{третьим фактором} — архитектурным семейством трансформеров (см. RQ5). Это указывает на то, что для дальнейшего прогресса в MIR более важна революция архитектур, чем тонкая настройка существующих CNN/LSTM.
-
-\subsubsection{RQ5: Audio Spectrogram Transformer}
-
-\textbf{Ответ: положительный с trade-off.} AST v2 показал лучший результат на сегментной задаче (40.6\% vs 35.3\% у CNN v2, +5.3\,п.п.) и лучшее среднее по 4 задачам (58.5\%). Источник прироста — глобальное self-attention, позволяющее модели распознавать повторяющиеся структурные паттерны (припев, реприза). На genre AST уступает CNN v2 ($-2.4$\,п.п.) — для 30-секундных GTZAN-фрагментов глобальный контекст менее ценен, и CNN inductive bias оказывается эффективнее.
-
-Trade-off AST: 30$\times$ больше памяти (574\,MB vs 21\,MB), 4$\times$ больше времени inference (8\,с vs 2\,с). Для production-прототипа выбран AST v2 как баланс между качеством и эффективностью.
-
-\subsection{Финальная модель прототипа}\label{sec:7-2}
-
-Финальная конфигурация системы:
+\section{Финальная модель прототипа}\label{sec:7-2}
 
 \begin{lstlisting}
 +------------------------------------------------------------------+
@@ -46,11 +23,11 @@ Trade-off AST: 30$\times$ больше памяти (574\,MB vs 21\,MB), 4$\time
 |  - Trainable: top 4 of 12 layers + 4 task heads (~14M params)    |
 |  - Inference: 8 seconds per 3-min track on GPU 12GB              |
 |                                                                  |
-|  Post-processing (musicml/postprocess.py)                        |
-|  - Viterbi decoding, lambda=1.0                                  |
-|  - Position priors: Intro outside first 22%, Outro outside       |
-|    last 22%, penalty=10                                          |
-|  - Iterative min-duration merge (6 sec)                          |
+|  Post-processing v2 (musicml/postprocess.py)                     |
+|  - Viterbi decoding, structural transition matrix, T=1.4         |
+|  - Position priors: boundary=12%, penalty=14, boost=1.0          |
+|  - Per-class min-duration (Verse/Instr=15s, Chorus=12s, ...)     |
+|  - Novelty snapping + repetition consistency                     |
 |                                                                  |
 |  Quality (test):                                                 |
 |  - Segment: 40.6% acc / 30.8% macro-F1 / 0.45 boundary F1 +/-3s  |
@@ -60,123 +37,42 @@ Trade-off AST: 30$\times$ больше памяти (574\,MB vs 21\,MB), 4$\time
 +------------------------------------------------------------------+
 \end{lstlisting}
 
-Эта конфигурация обеспечивает наилучший баланс качества по совокупности задач (среднее 58.5\%) при приемлемой сложности и пригодна для интерактивной демонстрации в веб-прототипе.
+Конфигурация обеспечивает наилучший баланс качества (среднее 58{,}5\,\%) при приемлемой сложности и пригодна для интерактивной демонстрации.
 
-\subsection{Ограничения текущего подхода}\label{sec:7-3}
-
-\subsubsection{Out-of-distribution на современной музыке}
-
-\textbf{Проблема.} Жанровая голова обучена на GTZAN-2002 — датасете 20-летней давности с 10 устаревшими категориями (blues, classical, country, disco, hiphop, jazz, metal, pop, reggae, rock). Современные жанры — electronic, ambient, lo-fi, phonk, hyperpop, indie, drum-and-bass, trap — не представлены в обучающей выборке.
-
-Поведение модели на OOD-треках:
+\section{Ограничения текущего подхода}\label{sec:7-3}
 
 \begin{itemize}
-  \item \textbf{Электронная музыка} часто классифицируется как \code{classical} — модель использует «классику» как fallback для любого «не-ударного, не-рокового, инструментального» аудио (90\% GTZAN classical — оркестр/фортепиано без drum-set).
-  \item \textbf{Lo-fi / chillhop} часто получают \code{hiphop} — благодаря характерным хип-хоп drum-паттернам, но без должного учёта вокала и продакшна.
-  \item \textbf{Ambient / drone} идентифицируется как \code{classical} — то же объяснение что выше.
+  \item \textbf{OOD на современной музыке.} Жанровая голова обучена на GTZAN-2002 (10~устаревших классов); electronic, ambient, lo-fi, phonk, hyperpop не представлены. Поведение: электроника и ambient $\to$ \code{classical} (fallback для не-ударного инструментального), lo-fi $\to$ \code{hiphop} по drum-паттернам. Mitigation в прототипе: top-3~+~confidence warning~+~подпись к панели. Долгосрочно: дообучение на FMA (161 субжанр) или MagnaTagATune (188 multi-label).
+  \item \textbf{Нижний предел сегментной задачи.} Section labeling 40{,}6\,\% (AST) ограничен класс-имбалансом (Verse+Chorus~=~60\,\% окон Harmonix), annotator disagreement 25\,\%~\cite{smith2011salami}, acoustic ambiguity (Verse/Pre-chorus, Intro/Outro) и domain shift (Harmonix~--- преимущественно поп 2000-х). Post-processing повышает Boundary~F1 с 0{,}31 до 0{,}45 (+14\,п.п.), но фундаментальный потолок~$\approx$50\,\% без новых данных; долгосрочно~--- SALAMI (classical/jazz/world) или synthetic augmentation.
+  \item \textbf{Размер и латентность.} Checkpoint~574\,МБ, inference~8\,с на 3-минутный трек~--- непригодно для mobile, real-time и batch ($\sim$2{,}2\,ч на 1000~треков). Mitigation: переключение на CNN~v2 (21\,МБ, 2\,с) через \code{serve\_ml.py --ckpt checkpoints/cnn\_v2/best.pt} ($-5{,}3$\,п.п. сегмент, $+2{,}4$\,п.п. жанр). Долгосрочно~--- knowledge distillation AST$\to$CNN и INT8-квантизация.
+  \item \textbf{Single-label genre.} Модель предсказывает один жанр, хотя реальные треки часто мульти-жанровые (pop-rock, electronic-jazz). Mitigation: top-3 в UI. Долгосрочно~--- multi-label датасет + BCE + threshold-based prediction.
+  \item \textbf{Длинные треки.} AST обрабатывает окна по 10\,с с шагом 1\,с; для треков~$>$8\,мин память для per-frame predictions влияет на UI. Протестировано до 5~минут. Долгосрочно~--- streaming inference со скользящим окном или иерархический анализ.
 \end{itemize}
 
-\textbf{Mitigation.} В прототипе явно адресовано через UI:
-\begin{enumerate}
-  \item Top-3 genres вместо top-1 (показывает неуверенность модели).
-  \item Confidence warning при top-1 $<$ 45\% («Низкая уверенность... вероятно вне 10 классов GTZAN»).
-  \item Подпись к панели с перечнем не-поддерживаемых жанров.
-\end{enumerate}
-
-\textbf{Долгосрочное решение.} Дообучение жанровой головы на современном датасете (FMA с 161 субжанром или MagnaTagATune с 188 multi-label тегами). Это требует значительных вычислительных ресурсов и выходит за рамки настоящей работы.
-
-\subsubsection{Сегментная задача — нижний предел качества}
-
-\textbf{Проблема.} Section labeling 6 классов остаётся самой слабой задачей (40.6\% accuracy у AST v2). Источники ограничений:
-
-\begin{enumerate}
-  \item \textbf{Класс-имбаланс}: Verse + Chorus = 60\% обучающих окон Harmonix; редкие классы (Outro, Instrumental) — менее 10\%.
-  \item \textbf{Annotator disagreement}: даже эксперты Harmonix расходятся в 25\% случаев на section labels~\cite{smith2011salami}.
-  \item \textbf{Acoustic ambiguity}: Verse и Pre-chorus часто неразличимы спектрально; Intro и Outro идентичны (mitigated через position priors).
-  \item \textbf{Domain shift}: Harmonix содержит преимущественно поп-музыку 2000-х; перенос на классику, электронику, фолк работает хуже.
-\end{enumerate}
-
-\textbf{Mitigation в нашей работе.} Полный post-processing pipeline (§4.7) повышает Boundary F1 с 0.31 до 0.45 (+14\,п.п.) и Section F1 с 0.32 до 0.39 (+7\,п.п.). Но фундаментальный потолок — около 50\% accuracy для 6-классовой задачи без принципиально новых данных.
-
-\textbf{Долгосрочное решение.} Расширение Harmonix-аналогом на других жанрах (SALAMI охватывает classical, jazz, world music) или synthetic augmentation через генеративные модели музыки.
-
-\subsubsection{Размер и латентность модели}
-
-\textbf{Проблема.} AST v2 checkpoint занимает 574\,MB. На GPU 12GB inference 3-минутного трека длится 8 секунд. Это приемлемо для desktop-демонстратора, но непригодно для:
-
-\begin{itemize}
-  \item \textbf{Mobile deployment} (574\,MB модель + 12\,GB VRAM-зависимости — невозможно).
-  \item \textbf{Real-time analysis} (8-секундная задержка визуально заметна).
-  \item \textbf{Batch processing} на больших коллекциях (1000 треков займут $\sim$2.2\,часа).
-\end{itemize}
-
-\textbf{Mitigation в нашей работе.} Предусмотрена возможность переключения на CNN v2 (21\,MB checkpoint, 2 секунды inference) через смену конфига \code{serve\_ml.py --ckpt checkpoints/cnn\_v2/best.pt --config configs/default.yaml}. Trade-off: $-5.3$\,п.п. на сегменте, $+2.4$\,п.п. на жанре.
-
-\textbf{Долгосрочное решение.} Knowledge distillation AST → CNN или AST → small transformer (MobileViT-style). Quantization INT8 уменьшит размер в 4 раза с минимальной потерей качества.
-
-\subsubsection{Отсутствие multi-label genre}
-
-\textbf{Проблема.} Жанровая голова single-label (один жанр на трек). Реальная музыка часто принадлежит нескольким жанрам одновременно: «pop-rock», «electronic-jazz», «hip-hop с blues-влияниями». Текущая модель не умеет выражать это.
-
-\textbf{Mitigation.} Top-3 genres в UI частично адресует — пользователь видит несколько вероятных категорий. Но модель внутренне всё равно single-label.
-
-\textbf{Долгосрочное решение.} Переобучение на multi-label датасете (MagnaTagATune, FMA-tags) с binary cross-entropy и threshold-based prediction вместо argmax.
-
-\subsubsection{Нет поддержки длинных треков}
-
-\textbf{Проблема.} AST v2 обрабатывает окна по 10 секунд, агрегирует через шаг 1 секунда. Для треков длиннее 8 минут (классические симфонии, прог-рок эпопеи) количество окон становится большим, и память для хранения per-frame predictions начинает влиять на UI-производительность.
-
-\textbf{Mitigation в нашей работе.} Тестирование на треках до 5 минут. Long tracks ($>$8\,мин) формально работают, но без явной оптимизации.
-
-\textbf{Долгосрочное решение.} Streaming inference с скользящим окном или иерархический подход (анализ overall structure → детальный анализ выбранных секций по запросу).
-
-\subsection{Сравнение с современным state-of-the-art}\label{sec:7-4}
+\section{Сравнение с state-of-the-art}\label{sec:7-4}
 
 \begin{table}[H]
 \centering
-\caption{Таблица 7.1. Сравнение результатов настоящей работы с literature}
+\caption{Сравнение результатов настоящей работы с literature}
 \begin{tabular}{L{4cm}L{3cm}L{3cm}L{2cm}L{2.5cm}}
 \toprule
-Задача & Метрика & Наша модель & SOTA & Источник SOTA \\
+Задача & Метрика & Наша модель & SOTA & Источник \\
 \midrule
-Genre (GTZAN) & Accuracy & 83.9\% (CNN v2) & 89\% & AST~\cite{gong2021ast} \\
-Arousal (DEAM 3-cls) & Accuracy & 64.9\% (PANNs+LSTM) & 70\% & Won 2020~\cite{won2020selfattention} \\
-Valence (DEAM 3-cls) & Accuracy & 55.0\% (PANNs+LSTM) & 60\% & Won 2020~\cite{won2020selfattention} \\
-Section labeling (Harmonix 6-cls) & Accuracy & 40.6\% (AST v2) & $\sim$45\% & Wang 2022~\cite{wang2022catchchorus} \\
-Section labeling & Boundary F1$\pm$3s & 0.45 (AST v2 + post-processing) & 0.62 & Gong 2023~\cite{gong2023structural} \\
+Genre (GTZAN) & Accuracy & 83{,}9\,\% (CNN v2) & 89\,\% & AST~\cite{gong2021ast} \\
+Arousal (DEAM 3-cls) & Accuracy & 64{,}9\,\% (PANNs+LSTM) & 70\,\% & Won~2020~\cite{won2020selfattention} \\
+Valence (DEAM 3-cls) & Accuracy & 55{,}0\,\% (PANNs+LSTM) & 60\,\% & Won~2020~\cite{won2020selfattention} \\
+Section (Harmonix 6-cls) & Accuracy & 40{,}6\,\% (AST v2) & $\sim$45\,\% & Wang~2022~\cite{wang2022catchchorus} \\
+Section & Boundary~F1~$\pm$3\,с & 0{,}45 (AST v2 + postproc) & 0{,}62 & Gong~2023~\cite{gong2023structural} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Наши результаты на 5–8\,п.п. ниже SOTA по каждой метрике. Причины разрыва:
+Наши результаты на 5--8\,п.п. ниже SOTA. Причины: (1)~меньший вычислительный бюджет (один GPU~12\,ГБ и 3\,ч обучения против 4$\times$A100 и недель); (2)~многозадачность (4~задачи одновременно~--- типичный multi-task tax 3--7\,\%); (3)~меньшие данные (743~трека Harmonix против 3000+ в SALAMI+Beatles+Isophonics); (4)~production-prototype ограничивает бюджет на чистый~ML. Несмотря на разрыв, работа демонстрирует первую известную автору реализацию мульти-задачной модели для одновременного анализа структуры, эмоций и жанра в едином академически-документированном прототипе с web-интерфейсом.
 
-\begin{enumerate}
-  \item \textbf{Меньший вычислительный бюджет} — SOTA-работы используют 4$\times$A100 GPU и обучаются неделями; мы ограничены одним GPU 12GB и 3-часовым обучением.
-  \item \textbf{Многозадачность} — наша модель решает 4 задачи одновременно, SOTA — обычно одну. Это $\sim$3–7\% потеря качества на каждой задаче — типичный multi-task tax.
-  \item \textbf{Меньшие данные} — SOTA Harmonix-модели используют SALAMI + Beatles + Isophonics (объединённый корпус 3000+ треков); мы используем только 743 трека Harmonix.
-  \item \textbf{Production-ready prototype} — SOTA-работы публикуют только модель; мы реализовали полный prototype с UI, что ограничивает бюджет на чистый ML.
-\end{enumerate}
+\section{Научная новизна и практическая значимость}\label{sec:7-5}
 
-Несмотря на разрыв, наша работа демонстрирует \textbf{первую известную нам реализацию мульти-задачной модели} для одновременного анализа структуры, эмоций и жанра в едином академически-документированном прототипе с web-интерфейсом.
+\textbf{Научная новизна.} (1)~Систематическое сравнение пяти архитектур для мульти-задачного MIR на едином датасете~--- отсутствует в literature (обычно 2--3). (2)~Документированный negative result CNN~v3~--- академически честное сообщение о провале aggressive reweighting. (3)~Композитный post-processing pipeline (Viterbi + position priors + iterative min-duration merge) с количественной оценкой вклада каждого компонента. (4)~OOD honest UX~--- top-3 + confidence warning как pattern для academic-honest классификации.
 
-\subsection{Научная новизна и практическая значимость}\label{sec:7-5}
+\textbf{Практическая значимость.} Open-source прототип для исследований и обучения; воспроизводимый pipeline по конфигам в \code{configs/}; демонстрационная система для musicians/researchers/music-apps developers; базис для real-time inference, mobile deployment и новых датасетов.
 
-\subsubsection{Научная новизна}
-
-\begin{enumerate}
-  \item \textbf{Систематическое сравнение пяти архитектур} для мульти-задачного MIR на едином датасете — отсутствует в literature, где обычно сравниваются 2–3 архитектуры.
-  \item \textbf{Документированный negative result CNN v3} — академически честное сообщение о провале гипотезы aggressive reweighting; такие результаты редко публикуются, что ведёт к повторению ошибок другими исследователями.
-  \item \textbf{Композитный post-processing pipeline} (Viterbi + musicological position priors + iterative min-duration merge) с количественной оценкой вклада каждого компонента — стандартизация практик пост-обработки в MIR.
-  \item \textbf{Out-of-distribution honest UX} — top-3 + confidence warning как pattern для academic-honest классификации в условиях ограниченных категорий обучающего датасета.
-\end{enumerate}
-
-\subsubsection{Практическая значимость}
-
-\begin{enumerate}
-  \item \textbf{Open-source прототип} доступен для дальнейших исследований и образовательных целей.
-  \item \textbf{Reproducible pipeline} — все эксперименты воспроизводимы по конфигам в \code{configs/}.
-  \item \textbf{Демонстрационная система} для презентации возможностей DL-анализа музыки конечным пользователям (musicians, researchers, music apps developers).
-  \item \textbf{Базис для дальнейшего развития} — расширение на real-time inference, mobile deployment, новые датасеты — естественные следующие шаги.
-\end{enumerate}
-
-\textbf{Резюме главы 7.} Сводные ответы на RQ1–RQ5 подтверждают применимость мульти-задачного DL к MIR-задачам с trade-off между задачами. Финальная модель — AST v2 + Viterbi post-processing — обеспечивает лучший баланс качества (среднее 58.5\%, segment 40.6\%). Идентифицированы 5 групп ограничений (OOD на современной музыке, нижний предел сегментной точности, размер/латентность, single-label genre, длинные треки) с обоснованными mitigation в текущей реализации и предложениями долгосрочных решений. Сравнение с SOTA показывает разрыв 5–8\,п.п. — приемлемый для первой комплексной мульти-задачной реализации с production-prototype.
+\textbf{Резюме главы~7.} Ответы на RQ1--RQ5 подтверждают применимость мульти-задачного DL к MIR с trade-off между задачами. Финальная модель~--- AST~v2 + Viterbi post-processing, среднее качество 58{,}5\,\%, segment 40{,}6\,\%. Идентифицированы 5~групп ограничений с mitigation в текущей реализации. Разрыв со SOTA 5--8\,п.п.~--- приемлемый для первой комплексной мульти-задачной реализации с production-prototype.
