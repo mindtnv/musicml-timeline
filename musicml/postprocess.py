@@ -446,6 +446,7 @@ def build_soft_position_priors(
     penalty: float = 10.0,
     taper_fraction: float = 0.05,
     boost: float = 0.7,
+    min_boundary_frames: int = 0,
 ) -> np.ndarray:
     """Hard-cliff priors with a linear taper and an in-zone boost.
 
@@ -463,6 +464,12 @@ def build_soft_position_priors(
         return priors
 
     boundary_frames = max(1, int(T * boundary_fraction))
+    # Respect absolute minimum zone size — important for long tracks with
+    # long outros (boundary_fraction fraction of 300s = 30s is too narrow
+    # when real outros can be 40-50 s).
+    if min_boundary_frames > 0:
+        boundary_frames = max(boundary_frames, min_boundary_frames)
+        boundary_frames = min(boundary_frames, T - 1)
     taper_frames = max(1, int(T * taper_fraction))
     ts = np.arange(T, dtype=np.float64)
 
@@ -769,6 +776,101 @@ def enforce_class_min_duration(
     return preds
 
 
+def ensure_boundary_class_tail(
+    preds: np.ndarray,
+    probs: np.ndarray,
+    class_names: list[str],
+    *,
+    tail_class: str = "Outro",
+    tail_search_sec: float = 20.0,
+    hop_seconds: float = 1.0,
+    prob_threshold: float = 0.15,
+    min_tail_sec: float = 4.0,
+    force_if_position_fraction: float = 0.93,
+) -> np.ndarray:
+    """Guarantee a boundary class (Outro) covers the track's tail when supported.
+
+    Viterbi + min-duration can absorb short Outro runs into a dominant neighbour
+    (e.g. Chorus), leaving the tail of the track mislabeled.  This function
+    recovers it with two rules applied in order:
+
+    1. **Position fallback** — any frame whose relative position exceeds
+       ``force_if_position_fraction`` is relabeled to ``tail_class``.  This is a
+       hard guarantee: the very last ~7 % of the track is always labelled as
+       the tail class (Intro/Outro) when it exists.
+    2. **Evidence search** — walk backward from the end over at most
+       ``tail_search_sec`` seconds and find the earliest frame t where the
+       model's probability for ``tail_class`` is >= ``prob_threshold`` **and**
+       predicted label is not already ``tail_class``.  Relabel [t, T) to the
+       tail class when the resulting tail is at least ``min_tail_sec``.
+
+    Head/Intro analogue can be obtained by negating position and changing the
+    tail_class — not done here (Intro is already handled well by priors).
+    """
+    if tail_class not in class_names:
+        return preds
+    tail_idx = class_names.index(tail_class)
+    T = len(preds)
+    if T == 0:
+        return preds
+
+    out = preds.copy()
+
+    # Rule 1: hard position fallback on the very last frames
+    cutoff_pos = int(round(T * force_if_position_fraction))
+    if cutoff_pos < T:
+        # Only apply if the model didn't commit strongly to a competitor:
+        # if mean Outro prob in [cutoff_pos, T) is at least prob_threshold / 2,
+        # trust the position prior; otherwise leave the head of that zone alone
+        # but still fix the very last 3 frames.
+        mean_outro = float(probs[cutoff_pos:, tail_idx].mean())
+        if mean_outro >= prob_threshold / 2:
+            out[cutoff_pos:] = tail_idx
+        else:
+            # at least snap the last 3 seconds to avoid Bridge/Chorus ending
+            last3 = max(cutoff_pos, T - max(1, int(round(3.0 / hop_seconds))))
+            out[last3:] = tail_idx
+
+    # Rule 2: evidence-based back-walk from END.
+    # Start at the already-forced region (from Rule 1) or at the position
+    # cutoff, whichever is earlier. Walk BACKWARD, extending the Outro tail
+    # one frame at a time, as long as the cumulative mean Outro probability
+    # over the candidate tail stays above threshold AND we haven't seen a
+    # dominant non-Outro class for several consecutive frames.
+    min_tail_frames = max(1, int(round(min_tail_sec / hop_seconds)))
+    search_frames = min(T, int(round(tail_search_sec / hop_seconds)))
+    earliest_allowed = max(0, T - search_frames)
+
+    # Start tail at the position-forced cutoff if Rule 1 activated, else at T
+    tail_start = cutoff_pos if cutoff_pos < T else T
+    # Walk backward, one frame at a time, extending the tail only while
+    # Outro is genuinely competitive — prob >= threshold AND within a factor
+    # of the dominant class. Stops as soon as a strong competitor (Chorus with
+    # 0.6+ while Outro is 0.15) takes over. This prevents the tail from
+    # swallowing the real final chorus on tracks with short real outros.
+    competitor_streak = 0
+    max_competitor_streak = 2
+    for t in range(tail_start - 1, earliest_allowed - 1, -1):
+        p_outro = float(probs[t, tail_idx])
+        p_max_other = float(np.max(np.delete(probs[t], tail_idx)))
+        competitive = (
+            p_outro >= prob_threshold
+            and p_outro >= 0.55 * p_max_other
+        )
+        if competitive:
+            tail_start = t
+            competitor_streak = 0
+            continue
+        competitor_streak += 1
+        if competitor_streak >= max_competitor_streak:
+            break
+
+    if T - tail_start >= min_tail_frames:
+        out[tail_start:] = tail_idx
+
+    return out
+
+
 def correct_window_latency(
     preds: np.ndarray, shift_frames: int,
 ) -> np.ndarray:
@@ -799,9 +901,10 @@ def decode_segment_head_v2(
     temperature: float = 1.4,
     base_transition_penalty: float = 2.0,
     use_position_priors: bool = True,
-    position_penalty: float = 14.0,
-    position_boost: float = 1.0,
-    boundary_fraction: float = 0.12,
+    position_penalty: float = 8.0,
+    position_boost: float = 2.5,
+    boundary_fraction: float = 0.10,
+    min_boundary_sec: float = 20.0,
     apply_latency_shift: bool = False,
     window_seconds: float = 10.0,
     novelty_snap_radius_sec: float = 2.0,
@@ -812,6 +915,10 @@ def decode_segment_head_v2(
     enable_repetition: bool = True,
     repetition_min_section_sec: float = 8.0,
     repetition_similarity_threshold: float = 0.82,
+    ensure_outro_tail: bool = True,
+    outro_tail_search_sec: float = 20.0,
+    outro_tail_prob_threshold: float = 0.15,
+    outro_tail_force_position_fraction: float = 0.93,
 ) -> list[Segment]:
     """Improved segmentation decoder.
 
@@ -855,6 +962,9 @@ def decode_segment_head_v2(
             penalty=position_penalty,
             boost=position_boost,
             boundary_fraction=boundary_fraction,
+            min_boundary_frames=max(
+                0, int(round(min_boundary_sec / hop_seconds))
+            ),
         )
         log_probs = log_probs + priors
 
@@ -909,13 +1019,16 @@ def decode_segment_head_v2(
     # Instrumental removes the noise while still allowing genuinely short
     # sections through the Viterbi path.
     if per_class_min_duration_sec is None:
+        # Loosened from (Verse/Instr 15, Chorus 12, Outro 5) to let legitimate
+        # short sections (intro fades, brief outros) survive min-duration
+        # absorption instead of getting swallowed by the dominant neighbour.
         per_class_min_duration_sec = {
-            "Intro": 5.0,
-            "Verse": 15.0,
-            "Bridge": 8.0,
-            "Chorus": 12.0,
-            "Instrumental": 15.0,
-            "Outro": 5.0,
+            "Intro": 4.0,
+            "Verse": 8.0,
+            "Bridge": 6.0,
+            "Chorus": 8.0,
+            "Instrumental": 8.0,
+            "Outro": 3.0,
         }
     min_frames_per_class = {
         class_names.index(name): max(1, int(round(sec / hop_seconds)))
@@ -944,6 +1057,30 @@ def decode_segment_head_v2(
             preds, probs, pairs, preferred_classes=preferred,
         )
         # Re-apply min-duration after repetition relabel
+        preds = enforce_class_min_duration(preds, probs, min_frames_per_class)
+
+    # 7c. Boundary-class tail enforcement — guarantees the track ends with
+    # Outro when the model saw any Outro evidence in the last ~20 s, or
+    # when the last few percent of the track position demand it.  Without
+    # this, Outro predictions with runs shorter than min_duration get
+    # absorbed by the dominant neighbour (Chorus/Verse), leaving the tail
+    # mislabeled.
+    if ensure_outro_tail and "Outro" in class_names:
+        preds = ensure_boundary_class_tail(
+            preds,
+            probs,
+            class_names,
+            tail_class="Outro",
+            tail_search_sec=outro_tail_search_sec,
+            hop_seconds=hop_seconds,
+            prob_threshold=outro_tail_prob_threshold,
+            force_if_position_fraction=outro_tail_force_position_fraction,
+        )
+        # Re-apply min-duration: creating the Outro tail may have left a
+        # 1–2 frame residue of the previous class right before the new
+        # Outro start (e.g. "...Verse Chorus Chorus Chorus(1s) Outro").
+        # A second pass absorbs those stragglers into the neighbour with
+        # the strongest posterior.
         preds = enforce_class_min_duration(preds, probs, min_frames_per_class)
 
     # 8. Build segments from final predictions

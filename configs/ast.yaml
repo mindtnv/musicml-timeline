@@ -65,11 +65,35 @@ postprocess:
   smooth_kernel: 5
   min_segment_duration: 4.0
   # Segment head — Viterbi + position priors + aggressive smoothing
+  segment_decoder: v2
   use_viterbi: true
   transition_penalty: 1.0
   use_position_priors: true
   smooth_kernel_segment: 5
   min_segment_duration_segment: 6.0
+  # v2 decoder — tuned 2026-04-21 against TikTok + Just Dance
+  v2_temperature: 1.4
+  v2_base_transition_penalty: 2.0
+  v2_position_penalty: 8.0
+  v2_position_boost: 2.5
+  v2_boundary_fraction: 0.10
+  v2_min_boundary_sec: 20.0          # absolute minimum Outro zone size
+  v2_novelty_snap_radius_sec: 2.0
+  v2_audio_novelty_weight: 0.6
+  v2_enable_repetition: true
+  v2_repetition_min_section_sec: 8.0
+  v2_repetition_similarity_threshold: 0.82
+  v2_ensure_outro_tail: true
+  v2_outro_tail_search_sec: 30.0
+  v2_outro_tail_prob_threshold: 0.15
+  v2_outro_tail_force_position_fraction: 0.94
+  v2_per_class_min_duration_sec:
+    Intro: 4.0
+    Verse: 8.0
+    Bridge: 6.0
+    Chorus: 8.0
+    Instrumental: 8.0
+    Outro: 3.0
 
 segment_classes:
   - Intro

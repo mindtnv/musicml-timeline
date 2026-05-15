@@ -1,4 +1,5 @@
 import { NavLink, Link, useLocation } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 /**
  * Application header.  Shows the brand mark + primary nav links.
@@ -65,6 +66,8 @@ function AppHeader() {
         </NavLink>
 
         <span className="app-nav-divider" aria-hidden="true" />
+
+        <ThemeToggle />
 
         <span className="app-version" title="Версия декодера пост-процесса">
           v2.1
