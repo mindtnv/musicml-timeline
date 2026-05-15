@@ -505,11 +505,21 @@ def build_timeline(
                         use_position_priors=post_cfg.get(
                             "use_position_priors", True),
                         position_penalty=post_cfg.get(
-                            "v2_position_penalty", 14.0),
+                            "v2_position_penalty", 8.0),
                         position_boost=post_cfg.get(
-                            "v2_position_boost", 1.0),
+                            "v2_position_boost", 2.5),
                         boundary_fraction=post_cfg.get(
-                            "v2_boundary_fraction", 0.12),
+                            "v2_boundary_fraction", 0.10),
+                        min_boundary_sec=post_cfg.get(
+                            "v2_min_boundary_sec", 20.0),
+                        ensure_outro_tail=post_cfg.get(
+                            "v2_ensure_outro_tail", True),
+                        outro_tail_search_sec=post_cfg.get(
+                            "v2_outro_tail_search_sec", 30.0),
+                        outro_tail_prob_threshold=post_cfg.get(
+                            "v2_outro_tail_prob_threshold", 0.15),
+                        outro_tail_force_position_fraction=post_cfg.get(
+                            "v2_outro_tail_force_position_fraction", 0.93),
                         novelty_snap_radius_sec=post_cfg.get(
                             "v2_novelty_snap_radius_sec", 2.0),
                         window_seconds=cfg["windowing"]["window_seconds"],

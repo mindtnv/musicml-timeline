@@ -1,0 +1,194 @@
+\documentclass[border=10pt,tikz]{standalone}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc,backgrounds}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\definecolor{blockfill}{HTML}{F5F5F5}
+\definecolor{darkfill}{HTML}{2D2D2D}
+\definecolor{vecfill}{HTML}{E8E8E8}
+\definecolor{vecdim}{HTML}{C8C8C8}
+\definecolor{ink}{HTML}{1A1A1A}
+\definecolor{mid}{HTML}{555555}
+\definecolor{light}{HTML}{999999}
+
+\tikzset{
+  every node/.style={font=\sffamily},
+  flowstep/.style={rectangle, draw=ink, fill=blockfill, line width=.6pt,
+               minimum height=.8cm, minimum width=4cm, align=center,
+               font=\sffamily\small, inner sep=4pt},
+  dark/.style={rectangle, draw=ink, fill=darkfill, text=white, line width=.7pt,
+               minimum height=.9cm, minimum width=5cm, align=center,
+               font=\sffamily\small, inner sep=4pt},
+  cell/.style={rectangle, draw=mid, fill=vecfill, line width=.3pt,
+               minimum width=.22cm, minimum height=.4cm, inner sep=0pt},
+  offcell/.style={rectangle, draw=light, fill=white, line width=.3pt,
+               minimum width=.22cm, minimum height=.4cm, inner sep=0pt},
+  head/.style={rectangle, draw=ink, fill=white, line width=.6pt,
+               minimum height=1.0cm, text width=1.8cm, align=center,
+               font=\sffamily\footnotesize},
+  reghead/.style={rectangle, draw=light, fill=white, line width=.5pt, dashed,
+               minimum height=1.0cm, text width=1.3cm, align=center,
+               font=\sffamily\footnotesize, text=mid},
+  arr/.style={-{Stealth[length=5pt,width=4pt]}, line width=.6pt, color=ink},
+  note/.style={font=\sffamily\scriptsize, text=mid, align=left},
+  analogy/.style={font=\sffamily\footnotesize\itshape, text=mid, align=left,
+                   text width=7cm},
+  rowlbl/.style={font=\sffamily\footnotesize\itshape, text=mid, anchor=east,
+                 align=right, text width=2.2cm},
+  dimlbl/.style={font=\sffamily\scriptsize, text=light, align=center},
+}
+
+\begin{document}
+\begin{tikzpicture}[x=1cm, y=1cm]
+
+% ============================================================
+% CLS OUTPUT — the "fingerprint" of the fragment
+% ============================================================
+\node[flowstep, minimum width=5cm] at (0, 0) (cls) {CLS-выход \,\,$\mathbb{R}^{768}$};
+
+\foreach \i in {0,...,9}{
+  \node[cell] at (-1.98 + \i*0.22, -0.95) {};
+}
+\node[font=\small, text=mid] at (0.35, -0.95) {$\cdots$};
+\foreach \i in {0,...,9}{
+  \node[cell] at (0.72 + \i*0.22, -0.95) {};
+}
+\node[dimlbl] at (0, -1.45) {$768$ чисел};
+
+\node[analogy, anchor=west] at (4.2, -0.7) {
+  \textbf{Что это.} «Отпечаток» 10-секундного фрагмента: $768$ чисел,
+  в которые трансформер упаковал ВСЁ о звуке (тембр, ритм, гармонию, энергию).
+};
+
+\draw[arr] (0, -1.75) -- (0, -2.35);
+
+% ============================================================
+% STEP 1: Linear 768→256
+% ============================================================
+\node[flowstep] at (0, -2.8) (lin) {\textsf{Linear} \,\,\,$768 \to 256$};
+
+\node[analogy, anchor=west] at (4.2, -2.8) {
+  \textbf{Шаг 1: сжатие.} Из $768$ признаков оставляем $256$ самых
+  полезных — как ZIP-архивация.
+};
+
+\draw[arr] (lin.south) -- ++(0, -0.75);
+
+% ============================================================
+% STEP 2: BatchNorm
+% ============================================================
+\node[flowstep] at (0, -4.3) (bn) {\textsf{BatchNorm}};
+
+\node[analogy, anchor=west] at (4.2, -4.3) {
+  \textbf{Шаг 2: выравнивание.} Все $256$ признаков приводим
+  к одному диапазону — как перевод валют в единую.
+};
+
+\draw[arr] (bn.south) -- ++(0, -0.75);
+
+% ============================================================
+% STEP 3: ReLU
+% ============================================================
+\node[flowstep] at (0, -5.8) (relu) {\textsf{ReLU}};
+
+\node[analogy, anchor=west] at (4.2, -5.8) {
+  \textbf{Шаг 3: отсечение.} Всё отрицательное $\to 0$. Оставляем
+  «положительные сигналы» — это фильтр, дающий нелинейность.
+};
+
+\draw[arr] (relu.south) -- ++(0, -0.75);
+
+% ============================================================
+% STEP 4: Dropout
+% ============================================================
+\node[flowstep] at (0, -7.3) (drop) {\textsf{Dropout} \,\,\,$30\%$};
+
+\foreach \i/\on in {0/1, 1/1, 2/0, 3/1, 4/1, 5/0, 6/1, 7/1, 8/0, 9/1}{
+  \ifnum\on=1
+    \node[cell] at (-1.0 + \i*0.22, -8.05) {};
+  \else
+    \node[offcell] at (-1.0 + \i*0.22, -8.05) {};
+  \fi
+}
+
+\node[analogy, anchor=west] at (4.2, -7.6) {
+  \textbf{Шаг 4: регуляризация.} Во время обучения случайно
+  «выключаем» $30\%$ признаков (белые клетки). Модель учится
+  не полагаться на один признак.
+};
+
+\draw[arr] (0, -8.35) -- (0, -8.95);
+
+% ============================================================
+% FINAL: f vector (256)
+% ============================================================
+\node[dark] at (0, -9.45) (f) {$\mathbf{f}$: общее представление \,\,$\mathbb{R}^{256}$};
+
+\foreach \i in {0,...,7}{
+  \node[cell, fill=vecdim] at (-1.54 + \i*0.22, -10.35) {};
+}
+\node[font=\small, text=mid] at (0.35, -10.35) {$\cdots$};
+\foreach \i in {0,...,7}{
+  \node[cell, fill=vecdim] at (0.72 + \i*0.22, -10.35) {};
+}
+\node[dimlbl] at (0, -10.85) {$256$ чисел};
+
+\node[analogy, anchor=west] at (4.2, -9.7) {
+  \textbf{Результат.} $256$-мерное «краткое описание»
+  фрагмента. Его подают сразу ВСЕМ шести головам одновременно.
+};
+
+% ============================================================
+% FAN-OUT TO HEADS
+% ============================================================
+\coordinate (bus) at (0, -11.7);
+\draw[line width=.5pt, color=ink] (0, -11.15) -- (bus);
+
+\node[head] at (-5.4, -12.8) (h1) {\textbf{Сегмент}\\ \small $K=6$};
+\node[head] at (-3.25, -12.8) (h2) {\textbf{Возбужд.}\\ \small $K=3$};
+\node[head] at (-1.10, -12.8) (h3) {\textbf{Валентн.}\\ \small $K=3$};
+\node[head] at ( 1.05, -12.8) (h4) {\textbf{Жанр}\\ \small $K=10$};
+\node[reghead] at ( 2.95, -12.8) (h5) {$\hat a_{\text{reg}}$\\ число};
+\node[reghead] at ( 4.55, -12.8) (h6) {$\hat v_{\text{reg}}$\\ число};
+
+\draw[line width=.5pt, color=ink] (-5.4, -11.7) -- (4.55, -11.7);
+\draw[arr] (-5.4, -11.7) -- (h1.north);
+\draw[arr] (-3.25, -11.7) -- (h2.north);
+\draw[arr] (-1.10, -11.7) -- (h3.north);
+\draw[arr] ( 1.05, -11.7) -- (h4.north);
+\draw[arr, color=light, dashed] ( 2.95, -11.7) -- (h5.north);
+\draw[arr, color=light, dashed] ( 4.55, -11.7) -- (h6.north);
+
+\node[note, below=3pt of h1, align=center] {Intro, Verse,\\ Chorus, Bridge,\\ Instr., Outro};
+\node[note, below=3pt of h2, align=center] {Low\\ Mid\\ High};
+\node[note, below=3pt of h3, align=center] {Dark\\ Neutral\\ Bright};
+\node[note, below=3pt of h4, align=center] {blues, rock,\\ pop, jazz,\\ \ldots\ ($10$)};
+\node[note, below=3pt of h5, align=center, text=light] {$\in [-1,1]$\\ плавное};
+\node[note, below=3pt of h6, align=center, text=light] {$\in [-1,1]$\\ плавное};
+
+% Row labels: far left and far right with fixed text width to avoid overlap
+\node[rowlbl] at (-7.2, -12.8) {классификация\\ \scriptsize (argmax $\to$ ярлык)};
+\node[font=\sffamily\footnotesize\itshape, text=light, anchor=west,
+      align=left, text width=2.0cm]
+  at (5.6, -12.8) {регрессия\\ \scriptsize (прямое число)};
+
+% ============================================================
+% BOTTOM LEGEND
+% ============================================================
+\node[font=\sffamily\small\itshape, text=mid, text width=17cm, align=center,
+      anchor=north]
+  at (0, -14.9) {
+  \textbf{Главная идея:} $6$ «экспертов» смотрят на одно и то же $256$-мерное описание\\
+  и каждый отвечает на свой вопрос — структура, эмоции, жанр.\\
+  Поэтому модель называется \emph{мульти-задачной} (multi-task).
+};
+
+\end{tikzpicture}
+\end{document}

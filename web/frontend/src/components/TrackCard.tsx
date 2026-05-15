@@ -237,7 +237,7 @@ function TrackCard() {
                   <circle cx="12" cy="12" r="9" />
                   <path d="M12 3v18M3 12h18M5.64 5.64l12.72 12.72M5.64 18.36L18.36 5.64" />
                 </svg>
-                Вайб
+                Визуализация
               </button>
             )}
             {confirmDelete ? null : (

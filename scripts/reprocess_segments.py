@@ -70,7 +70,11 @@ def reprocess_track(path: Path) -> bool:
     path.write_text(json.dumps(raw, ensure_ascii=False, indent=2), encoding="utf-8")
 
     name = raw.get("originalName", path.stem)
-    print(f"  {name}: {old_count} → {len(new_segments)} segments")
+    try:
+        print(f"  {name}: {old_count} -> {len(new_segments)} segments")
+    except UnicodeEncodeError:
+        safe = name.encode("ascii", "replace").decode("ascii")
+        print(f"  {safe}: {old_count} -> {len(new_segments)} segments")
     return True
 
 

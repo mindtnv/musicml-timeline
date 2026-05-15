@@ -1,0 +1,619 @@
+/* ===== MusicML Timeline — Light Glass Theme =====
+ * Applied when <html data-theme="light">.  Keeps the frosted-glass panel
+ * aesthetic from glass-theme.css but flips the palette: pearl-pastel body
+ * gradient, denser white glass (0.55–0.70 instead of 0.04–0.14), dark text
+ * on light instead of white-on-dark.  Loaded after glass-theme.css so every
+ * rule here wins by source order + :where()-free specificity. */
+
+/* ---- 1. Palette ---- */
+:root[data-theme="light"] {
+  --bg:           #f4f5f9;
+  --bg-card:      rgba(255, 255, 255, 0.70);
+  --bg-subtle:    rgba(255, 255, 255, 0.50);
+  --bg-hover:     rgba(255, 255, 255, 0.85);
+  --bg-dark:      rgba(20, 22, 34, 0.06);
+
+  --text:           rgba(18, 22, 34, 0.92);
+  --text-secondary: rgba(18, 22, 34, 0.62);
+  --text-muted:     rgba(18, 22, 34, 0.48);
+  --text-inverse:   #ffffff;
+
+  --accent:        #2563eb;
+  --accent-light:  #3b82f6;
+  --accent-bg:     rgba(37, 99, 235, 0.08);
+  --accent-border: rgba(37, 99, 235, 0.25);
+
+  --success:    #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.10);
+  --warning:    #ca8a04;
+  --warning-bg: rgba(202, 138, 4, 0.10);
+  --danger:     #dc2626;
+  --danger-bg:  rgba(220, 38, 38, 0.08);
+
+  --border:        rgba(18, 22, 34, 0.08);
+  --border-strong: rgba(18, 22, 34, 0.16);
+
+  --shadow-sm: 0 1px 2px rgba(30, 35, 60, 0.06);
+  --shadow:    0 4px 18px rgba(30, 35, 60, 0.08), 0 1px 2px rgba(30, 35, 60, 0.04);
+  --shadow-lg: 0 12px 40px rgba(30, 35, 60, 0.12);
+
+  --dash-bg:            transparent;
+  --dash-surface:       rgba(255, 255, 255, 0.65);
+  --dash-border:        rgba(18, 22, 34, 0.08);
+  --dash-border-strong: rgba(18, 22, 34, 0.14);
+  --dash-text:          rgba(18, 22, 34, 0.92);
+  --dash-text-2:        rgba(18, 22, 34, 0.64);
+  --dash-text-3:        rgba(18, 22, 34, 0.45);
+  --dash-accent:        #2563eb;
+  --dash-accent-soft:   rgba(37, 99, 235, 0.12);
+  --dash-play:          #7c3aed;
+  --dash-shadow-xs:     0 1px 2px rgba(30, 35, 60, 0.06);
+  --dash-shadow-sm:     0 1px 6px rgba(30, 35, 60, 0.08), 0 1px 2px rgba(30, 35, 60, 0.04);
+}
+
+/* ---- 2. Body — pearl pastel gradient ---- */
+[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse at 20% 0%,   rgba(167, 139, 250, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(125, 211, 252, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 0%,  rgba(244, 114, 182, 0.14) 0%, transparent 50%),
+    linear-gradient(180deg, #f6f7fb 0%, #eceef5 100%);
+  background-attachment: fixed;
+  color: var(--text);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb       { background: rgba(18, 22, 34, 0.16); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(18, 22, 34, 0.28); }
+
+/* ---- 3. Glass surfaces — denser white tint on light ---- */
+[data-theme="light"] .dash-panel,
+[data-theme="light"] .track-preview-card,
+[data-theme="light"] .track-card,
+[data-theme="light"] .emotion-curves,
+[data-theme="light"] .upload-zone,
+[data-theme="light"] .player-v2,
+[data-theme="light"] .dashboard-header,
+[data-theme="light"] .tracks-section-header,
+[data-theme="light"] .tracks-toolbar,
+[data-theme="light"] .timeline-tooltip,
+[data-theme="light"] .dashboard-meta-pill,
+[data-theme="light"] .section-count,
+[data-theme="light"] .app-version,
+[data-theme="light"] .shortcuts-help-popover,
+[data-theme="light"] .delete-confirm,
+[data-theme="light"] .player-v2-progress,
+[data-theme="light"] .tracks-search-input,
+[data-theme="light"] .tracks-sort,
+[data-theme="light"] .dashboard-skeleton,
+[data-theme="light"] .skeleton-block {
+  background: rgba(255, 255, 255, 0.62) !important;
+  border-color: rgba(18, 22, 34, 0.08) !important;
+  color: var(--text);
+}
+
+/* Gradient glass panels (dashboard cards, marketing cards) */
+[data-theme="light"] .dash-panel,
+[data-theme="light"] .track-card,
+[data-theme="light"] .emotion-curves,
+[data-theme="light"] .upload-zone,
+[data-theme="light"] .dashboard-header,
+[data-theme="light"] .player-v2,
+[data-theme="light"] .shortcuts-help-popover,
+[data-theme="light"] .pipeline-step,
+[data-theme="light"] .feature-card,
+[data-theme="light"] .arch-card,
+[data-theme="light"] .pp-improvements,
+[data-theme="light"] .person-card,
+[data-theme="light"] .dataset-card,
+[data-theme="light"] .rq-item,
+[data-theme="light"] .stack-grid,
+[data-theme="light"] .metrics-table {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(255, 255, 255, 0.55) 100%) !important;
+  border-color: rgba(18, 22, 34, 0.08) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.90),
+    0 8px 32px rgba(30, 35, 60, 0.08) !important;
+}
+
+[data-theme="light"] .track-preview-card:hover {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border-color: rgba(18, 22, 34, 0.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 14px 38px rgba(30, 35, 60, 0.14) !important;
+}
+
+[data-theme="light"] .track-preview-icon {
+  background: rgba(18, 22, 34, 0.05);
+  color: var(--text-secondary);
+}
+
+/* ---- 4. Sticky header & time axis ---- */
+[data-theme="light"] .dashboard-header,
+[data-theme="light"] .tracks-section-header,
+[data-theme="light"] .dashboard-sticky,
+[data-theme="light"] .app-header {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-bottom: 1px solid rgba(18, 22, 34, 0.08);
+}
+
+[data-theme="light"] .app-header { border-bottom-color: rgba(18, 22, 34, 0.08); }
+
+[data-theme="light"] .time-axis {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-top: 1px solid rgba(18, 22, 34, 0.08);
+}
+
+[data-theme="light"] .time-axis-svg text { fill: rgba(18, 22, 34, 0.62) !important; }
+[data-theme="light"] .time-axis-tick     { stroke: rgba(18, 22, 34, 0.20) !important; }
+
+/* ---- 5. Buttons ---- */
+[data-theme="light"] .btn-secondary,
+[data-theme="light"] .btn-ghost,
+[data-theme="light"] .shortcuts-help-btn,
+[data-theme="light"] .share-export-btn {
+  background: rgba(18, 22, 34, 0.05) !important;
+  border-color: rgba(18, 22, 34, 0.10) !important;
+  color: var(--text) !important;
+}
+[data-theme="light"] .btn-secondary:hover:not(:disabled),
+[data-theme="light"] .btn-ghost:hover:not(:disabled),
+[data-theme="light"] .shortcuts-help-btn:hover,
+[data-theme="light"] .share-export-btn:hover {
+  background: rgba(18, 22, 34, 0.10) !important;
+  border-color: rgba(18, 22, 34, 0.18) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="light"] .btn-danger {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.32);
+  color: #b91c1c;
+}
+[data-theme="light"] .btn-danger:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.18);
+  border-color: rgba(220, 38, 38, 0.5);
+}
+
+[data-theme="light"] .btn-vibe {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.14), rgba(37, 99, 235, 0.14)) !important;
+  border-color: rgba(124, 58, 237, 0.32) !important;
+  color: #5b21b6 !important;
+}
+[data-theme="light"] .btn-vibe:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(37, 99, 235, 0.22)) !important;
+  border-color: rgba(124, 58, 237, 0.5) !important;
+}
+
+/* ---- 6. Inputs ---- */
+[data-theme="light"] .tracks-search-input,
+[data-theme="light"] .tracks-sort {
+  color: var(--text);
+  border: 1px solid rgba(18, 22, 34, 0.12) !important;
+}
+[data-theme="light"] .tracks-search-kbd {
+  background: rgba(18, 22, 34, 0.06);
+  border-color: rgba(18, 22, 34, 0.14);
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .upload-zone {
+  border-color: rgba(18, 22, 34, 0.18) !important;
+}
+[data-theme="light"] .upload-zone:hover {
+  background: rgba(37, 99, 235, 0.06) !important;
+  border-color: rgba(37, 99, 235, 0.32) !important;
+}
+
+/* ---- 7. Meta pills ---- */
+[data-theme="light"] .dashboard-meta-pill {
+  background: rgba(18, 22, 34, 0.05) !important;
+  border-color: rgba(18, 22, 34, 0.10) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ---- 8. Player — dark-tuned → light-tuned ---- */
+[data-theme="light"] .player-v2 {
+  background: rgba(255, 255, 255, 0.68) !important;
+  border: 1px solid rgba(18, 22, 34, 0.08) !important;
+}
+[data-theme="light"] .player-v2-play {
+  background: rgba(37, 99, 235, 0.12) !important;
+  border: 1px solid rgba(37, 99, 235, 0.30) !important;
+  color: #1d4ed8 !important;
+}
+[data-theme="light"] .player-v2-play:hover:not(:disabled) {
+  background: rgba(37, 99, 235, 0.22) !important;
+}
+[data-theme="light"] .player-v2-time-current { color: rgba(18, 22, 34, 0.92) !important; }
+[data-theme="light"] .player-v2-time-sep     { color: rgba(18, 22, 34, 0.32) !important; }
+[data-theme="light"] .player-v2-time-total   { color: rgba(18, 22, 34, 0.50) !important; }
+[data-theme="light"] .player-v2-mute         { color: var(--text-secondary); }
+
+[data-theme="light"] .player-v2-progress-track {
+  background: rgba(18, 22, 34, 0.10) !important;
+}
+[data-theme="light"] .player-v2-progress-played {
+  background: linear-gradient(
+    90deg,
+    rgba(37, 99, 235, 0.50),
+    rgba(37, 99, 235, 0.85)
+  ) !important;
+}
+[data-theme="light"] .player-v2-progress-head {
+  background: #1e3a8a !important;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.45),
+              0 0 0 1px rgba(255, 255, 255, 0.85) !important;
+}
+[data-theme="light"] .player-v2-progress-pin {
+  background: #7c3aed !important;
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.5) !important;
+}
+
+[data-theme="light"] .player-v2-volume-slider {
+  background: rgba(18, 22, 34, 0.16) !important;
+}
+[data-theme="light"] .player-v2-volume-slider::-webkit-slider-thumb {
+  background: #1e3a8a !important;
+  box-shadow: 0 0 6px rgba(30, 58, 138, 0.4) !important;
+}
+
+/* ---- 9. Panel titles / subtitles — mono uppercase on dark ink ---- */
+[data-theme="light"] .dash-panel-title {
+  color: rgba(18, 22, 34, 0.55) !important;
+}
+[data-theme="light"] .dash-panel-subtitle {
+  color: rgba(18, 22, 34, 0.66) !important;
+}
+
+/* ---- 10. Genre filter chips ---- */
+[data-theme="light"] .genre-filter-chip {
+  background: rgba(18, 22, 34, 0.04);
+  border-color: rgba(18, 22, 34, 0.10);
+  color: var(--text-secondary);
+}
+[data-theme="light"] .genre-filter-chip:hover {
+  background: rgba(18, 22, 34, 0.08);
+  color: var(--text);
+}
+[data-theme="light"] .genre-filter-chip--active {
+  background: rgba(37, 99, 235, 0.14);
+  border-color: rgba(37, 99, 235, 0.40);
+  color: #1d4ed8;
+}
+
+/* ---- 11. Dashboard ambient backdrop — softer tint on light ---- */
+[data-theme="light"] .dashboard-page::before {
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 50% -10%,
+      color-mix(in srgb, var(--track-mood, #2563eb) 14%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 60% at 110% 110%,
+      color-mix(in srgb, var(--track-genre, #a78bfa) 12%, transparent) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at -10% 90%,
+      color-mix(in srgb, var(--track-mood, #2563eb) 8%, transparent) 0%,
+      transparent 60%
+    );
+}
+
+/* Noise grain is fine on light but subtler */
+[data-theme="light"] .dashboard-page::after {
+  opacity: 0.30;
+  mix-blend-mode: multiply;
+}
+
+/* ---- 12. Marketing pages — light glass ---- */
+[data-theme="light"] .marketing-title   { color: rgba(18, 22, 34, 0.96) !important; }
+[data-theme="light"] .marketing-lead,
+[data-theme="light"] .marketing-section-lead {
+  color: rgba(18, 22, 34, 0.66) !important;
+}
+[data-theme="light"] .marketing-h2      { color: rgba(18, 22, 34, 0.92) !important; }
+[data-theme="light"] .marketing-hero    { border-bottom-color: rgba(18, 22, 34, 0.08) !important; }
+[data-theme="light"] .marketing-eyebrow { color: color-mix(in srgb, var(--track-mood, #2563eb) 75%, #000) !important; }
+
+[data-theme="light"] .pipeline-step-title,
+[data-theme="light"] .feature-card-title,
+[data-theme="light"] .pp-improvements-title,
+[data-theme="light"] .person-card-name,
+[data-theme="light"] .dataset-card-title,
+[data-theme="light"] .marketing-cta-title {
+  color: rgba(18, 22, 34, 0.94) !important;
+}
+[data-theme="light"] .pipeline-step-desc,
+[data-theme="light"] .feature-card-desc,
+[data-theme="light"] .person-card-meta,
+[data-theme="light"] .dataset-card-desc,
+[data-theme="light"] .rq-text,
+[data-theme="light"] .stack-list,
+[data-theme="light"] .marketing-cta-desc,
+[data-theme="light"] .arch-list,
+[data-theme="light"] .pp-improvements-list li {
+  color: rgba(18, 22, 34, 0.64) !important;
+}
+
+[data-theme="light"] .pipeline-step-num,
+[data-theme="light"] .dataset-card-stat,
+[data-theme="light"] .arch-stat-label,
+[data-theme="light"] .stack-col-title,
+[data-theme="light"] .person-card-role,
+[data-theme="light"] .feature-card-badge,
+[data-theme="light"] .rq-tag,
+[data-theme="light"] .arch-list li::before,
+[data-theme="light"] .pp-improvements-list li::before {
+  color: color-mix(in srgb, var(--track-mood, #2563eb) 70%, #000) !important;
+}
+
+[data-theme="light"] .arch-stat-value {
+  color: rgba(18, 22, 34, 0.96) !important;
+  text-shadow: none;
+}
+[data-theme="light"] .arch-card-stats   { border-bottom-color: rgba(18, 22, 34, 0.08) !important; }
+[data-theme="light"] .metrics-table-row { border-bottom-color: rgba(18, 22, 34, 0.06) !important; }
+[data-theme="light"] .metrics-table-head {
+  background: rgba(18, 22, 34, 0.03) !important;
+  color: rgba(18, 22, 34, 0.54) !important;
+}
+[data-theme="light"] .metrics-table .mono       { color: rgba(18, 22, 34, 0.70) !important; }
+[data-theme="light"] .metrics-table .mono-bold  { color: rgba(18, 22, 34, 0.95) !important; }
+[data-theme="light"] .pp-improvements-list strong { color: rgba(18, 22, 34, 0.94) !important; }
+
+[data-theme="light"] .rq-tag {
+  background: color-mix(in srgb, var(--track-mood, #2563eb) 14%, rgba(18, 22, 34, 0.04)) !important;
+}
+[data-theme="light"] .feature-card-badge {
+  background: color-mix(in srgb, var(--accent, #2563eb) 16%, transparent) !important;
+}
+
+[data-theme="light"] .marketing-cta {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--track-mood, #2563eb) 14%, rgba(255, 255, 255, 0.6)),
+    rgba(255, 255, 255, 0.55)) !important;
+  border-color: color-mix(in srgb, var(--track-mood, #2563eb) 24%, rgba(18, 22, 34, 0.08)) !important;
+}
+
+/* ---- 13. Similar-tracks panel ---- */
+[data-theme="light"] .emb-similar-card {
+  background: rgba(255, 255, 255, 0.70) !important;
+  border-color: rgba(18, 22, 34, 0.08) !important;
+}
+[data-theme="light"] .emb-similar-card:hover {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border-color: rgba(18, 22, 34, 0.14) !important;
+}
+[data-theme="light"] .emb-similar-name   { color: rgba(18, 22, 34, 0.92) !important; }
+[data-theme="light"] .emb-similar-score  { color: color-mix(in srgb, var(--track-mood, #2563eb) 70%, #000) !important; }
+[data-theme="light"] .emb-map-wrap       { background: rgba(255, 255, 255, 0.45) !important; border-color: rgba(18, 22, 34, 0.06) !important; }
+[data-theme="light"] .emb-map-section    { border-top-color: rgba(18, 22, 34, 0.06) !important; }
+[data-theme="light"] .emb-map-toggle     { color: rgba(18, 22, 34, 0.50) !important; }
+[data-theme="light"] .emb-map-toggle:hover { color: rgba(18, 22, 34, 0.88) !important; }
+
+/* ---- 14. Popovers & tooltips ---- */
+[data-theme="light"] .shortcuts-help-popover {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(18, 22, 34, 0.12) !important;
+}
+[data-theme="light"] .shortcuts-help-kbd {
+  background: rgba(18, 22, 34, 0.06) !important;
+  border: 1px solid rgba(18, 22, 34, 0.14) !important;
+  color: rgba(18, 22, 34, 0.78) !important;
+}
+
+[data-theme="light"] .share-export-popover {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(18, 22, 34, 0.14) !important;
+  box-shadow:
+    0 20px 48px rgba(30, 35, 60, 0.20),
+    0 2px 6px rgba(30, 35, 60, 0.10) !important;
+}
+[data-theme="light"] .share-input {
+  background: rgba(255, 255, 255, 0.70) !important;
+  border-color: rgba(18, 22, 34, 0.12) !important;
+  color: rgba(18, 22, 34, 0.92) !important;
+}
+[data-theme="light"] .share-export-item:hover { background: rgba(18, 22, 34, 0.06) !important; }
+[data-theme="light"] .share-export-divider    { background: rgba(18, 22, 34, 0.08) !important; }
+
+[data-theme="light"] .timeline-tooltip {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid rgba(18, 22, 34, 0.12) !important;
+  color: rgba(18, 22, 34, 0.92) !important;
+}
+[data-theme="light"] .timeline-tooltip strong { color: rgba(18, 22, 34, 0.98) !important; }
+[data-theme="light"] .timeline-tooltip span   { color: rgba(18, 22, 34, 0.6) !important; }
+
+/* ---- 15. Delete confirm ---- */
+[data-theme="light"] .delete-confirm {
+  background: rgba(220, 38, 38, 0.08) !important;
+  border-color: rgba(220, 38, 38, 0.30) !important;
+}
+[data-theme="light"] .delete-confirm-text { color: #991b1b !important; }
+
+/* ---- 16. Section count badge ---- */
+[data-theme="light"] .section-count {
+  background: rgba(18, 22, 34, 0.06) !important;
+  border: 1px solid rgba(18, 22, 34, 0.12) !important;
+  color: rgba(18, 22, 34, 0.72) !important;
+}
+
+/* ---- 17. App version badge ---- */
+[data-theme="light"] .app-version {
+  background: rgba(37, 99, 235, 0.10) !important;
+  border: 1px solid rgba(37, 99, 235, 0.28) !important;
+  color: #1d4ed8 !important;
+}
+
+/* ---- 18. Skeletons — shimmer over light glass ---- */
+[data-theme="light"] .skeleton-block,
+[data-theme="light"] .dashboard-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(18, 22, 34, 0.04) 0%,
+    rgba(18, 22, 34, 0.08) 50%,
+    rgba(18, 22, 34, 0.04) 100%
+  ) !important;
+}
+
+/* ---- 19. Header + landing text overrides ---- */
+[data-theme="light"] .app-logo-title   { color: rgba(18, 22, 34, 0.94) !important; }
+[data-theme="light"] .app-logo-sub     { color: rgba(18, 22, 34, 0.48) !important; }
+
+[data-theme="light"] .app-stack {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border: 1px solid rgba(18, 22, 34, 0.10) !important;
+  color: rgba(18, 22, 34, 0.62) !important;
+}
+[data-theme="light"] .app-stack-sep        { color: rgba(18, 22, 34, 0.22) !important; }
+[data-theme="light"] .app-stack-item--accent {
+  color: color-mix(in srgb, var(--track-mood, #2563eb) 70%, #000) !important;
+  text-shadow: none !important;
+}
+
+[data-theme="light"] .app-nav-link {
+  color: rgba(18, 22, 34, 0.62) !important;
+}
+[data-theme="light"] .app-nav-link:hover {
+  background: rgba(18, 22, 34, 0.05) !important;
+  color: rgba(18, 22, 34, 0.92) !important;
+}
+[data-theme="light"] .app-nav-link--active {
+  background: color-mix(in srgb, var(--track-mood, #2563eb) 14%, rgba(18, 22, 34, 0.04)) !important;
+  color: color-mix(in srgb, var(--track-mood, #2563eb) 75%, #000) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--track-mood, #2563eb) 26%, transparent);
+}
+[data-theme="light"] .app-nav-divider { background: rgba(18, 22, 34, 0.12) !important; }
+
+/* Landing hero */
+[data-theme="light"] .landing-hero-title {
+  color: rgba(18, 22, 34, 0.96) !important;
+  text-shadow: none !important;
+}
+[data-theme="light"] .landing-hero-title em {
+  color: color-mix(in srgb, var(--track-mood, #2563eb) 75%, #000) !important;
+}
+[data-theme="light"] .landing-hero-lede {
+  color: rgba(18, 22, 34, 0.66) !important;
+}
+[data-theme="light"] .landing-hero-eyebrow,
+[data-theme="light"] .landing-hero-eyebrow * {
+  color: color-mix(in srgb, var(--track-mood, #2563eb) 70%, #000) !important;
+}
+[data-theme="light"] .landing-hero-eyebrow-dot {
+  background: color-mix(in srgb, var(--track-mood, #2563eb) 70%, #000) !important;
+}
+[data-theme="light"] .landing-hero-task {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border: 1px solid rgba(18, 22, 34, 0.08) !important;
+  color: rgba(18, 22, 34, 0.72) !important;
+}
+
+/* System info cards (About-on-landing) */
+[data-theme="light"] .system-info-block {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(255, 255, 255, 0.55) 100%) !important;
+  border: 1px solid rgba(18, 22, 34, 0.08) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.90),
+    0 8px 24px -8px rgba(30, 35, 60, 0.10) !important;
+}
+[data-theme="light"] .system-info-title { color: rgba(18, 22, 34, 0.50) !important; }
+[data-theme="light"] .system-info-text  { color: rgba(18, 22, 34, 0.74) !important; }
+
+/* Dashboard title block */
+[data-theme="light"] .dashboard-title,
+[data-theme="light"] .dashboard-hero-title { color: rgba(18, 22, 34, 0.96) !important; text-shadow: none !important; }
+[data-theme="light"] .dashboard-subtitle   { color: rgba(18, 22, 34, 0.66) !important; }
+
+/* Search input placeholder */
+[data-theme="light"] .tracks-search-input::placeholder { color: rgba(18, 22, 34, 0.40) !important; }
+
+/* Generic text-fallback: anything still pinned to rgba(255,…) alphas
+   via inherited color will be reset here for common leaf elements. */
+[data-theme="light"] .tracks-empty,
+[data-theme="light"] .dashboard-empty,
+[data-theme="light"] .panel-empty,
+[data-theme="light"] .track-preview-meta,
+[data-theme="light"] .section-heading {
+  color: rgba(18, 22, 34, 0.60) !important;
+}
+
+/* ---- Track tiles in library grid ---- */
+[data-theme="light"] .track-tile-cover {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.50) 0%,
+    rgba(255, 255, 255, 0.30) 100%);
+  border: 1px solid rgba(18, 22, 34, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.80),
+    0 4px 16px rgba(30, 35, 60, 0.06);
+}
+[data-theme="light"] .track-tile:hover .track-tile-cover {
+  border-color: rgba(18, 22, 34, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.90),
+    0 14px 36px rgba(30, 35, 60, 0.12);
+}
+[data-theme="light"] .track-tile-cover-fallback {
+  color: rgba(18, 22, 34, 0.50);
+  background:
+    radial-gradient(ellipse at 30% 20%,
+      color-mix(in srgb, var(--track-mood, #2563eb) 14%, transparent) 0%,
+      transparent 60%),
+    radial-gradient(ellipse at 70% 80%,
+      color-mix(in srgb, var(--track-tint, #a78bfa) 12%, transparent) 0%,
+      transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.25));
+}
+[data-theme="light"] .track-tile-duration {
+  background: rgba(18, 22, 34, 0.70);
+  color: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-theme="light"] .track-tile-name   { color: rgba(18, 22, 34, 0.94); }
+[data-theme="light"] .track-tile-artist { color: rgba(18, 22, 34, 0.60); }
+[data-theme="light"] .track-tile-sep    { color: rgba(18, 22, 34, 0.28); }
+[data-theme="light"] .track-tile-genre  { color: rgba(18, 22, 34, 0.50); }
+
+/* ---- System info table (arch/stats block) ---- */
+[data-theme="light"] .system-info-table td               { color: rgba(18, 22, 34, 0.85) !important; }
+[data-theme="light"] .system-info-table td:first-child   { color: rgba(18, 22, 34, 0.50) !important; }
+
+/* ---- Metric bars (Best metrics card on landing) ---- */
+[data-theme="light"] .metric-bar-label    { color: rgba(18, 22, 34, 0.62) !important; }
+[data-theme="light"] .metric-bar-value    { color: rgba(18, 22, 34, 0.92) !important; }
+[data-theme="light"] .metric-bar-track    { background: rgba(18, 22, 34, 0.08) !important; }
+[data-theme="light"] .metric-bar-baseline { background: rgba(18, 22, 34, 0.20) !important; }
+
+/* ---- 20. Theme toggle button ---- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+}
+.theme-toggle:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
