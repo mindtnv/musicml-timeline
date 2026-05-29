@@ -1,0 +1,2953 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.16)  27 MAY 2026 13:14
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**main.tex
+(./main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+(./pmk-graduate.cls
+Document Class: pmk-graduate 2025/09/01 LaTeX class for graduate papers
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/extsizes/extreport.cls
+Document Class: extreport 1996/10/08 v1.0 Non Standard LaTeX document class
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/extsizes/size14.clo
+File: size14.clo 1999/11/11 v1.4a NON-Standard LaTeX file (size option)
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/base/exscale.sty
+Package: exscale 2025/06/05 v2.1i Standard LaTeX package exscale
+LaTeX Font Info:    Redeclaring symbol font `largesymbols' on input line 57.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/cmex/m/n on input line 57.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> OMX/cmex/m/n on input line 57.
+\big@size=\dimen148
+)
+\c@part=\count275
+\c@chapter=\count276
+\c@section=\count277
+\c@subsection=\count278
+\c@subsubsection=\count279
+\c@paragraph=\count280
+\c@subparagraph=\count281
+\c@figure=\count282
+\c@table=\count283
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen149
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks17
+\inpenc@posthook=\toks18
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+
+(/Users/mihailanonov/Library/texmf/tex/latex/cyrillic/t2aenc.def
+File: t2aenc.def 2023/11/07 v1.0k Cyrillic encoding definition file
+Now handling font encoding T2A ...
+... processing UTF-8 mapping file for font encoding T2A
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/base/t2aenc.dfu
+File: t2aenc.dfu 2022/06/07 v1.3c UTF-8 support
+   defining Unicode char U+00A4 (decimal 164)
+   defining Unicode char U+00A7 (decimal 167)
+   defining Unicode char U+00AB (decimal 171)
+   defining Unicode char U+00BB (decimal 187)
+   defining Unicode char U+0131 (decimal 305)
+   defining Unicode char U+0237 (decimal 567)
+   defining Unicode char U+0400 (decimal 1024)
+   defining Unicode char U+0401 (decimal 1025)
+   defining Unicode char U+0402 (decimal 1026)
+   defining Unicode char U+0403 (decimal 1027)
+   defining Unicode char U+0404 (decimal 1028)
+   defining Unicode char U+0405 (decimal 1029)
+   defining Unicode char U+0406 (decimal 1030)
+   defining Unicode char U+0407 (decimal 1031)
+   defining Unicode char U+0408 (decimal 1032)
+   defining Unicode char U+0409 (decimal 1033)
+   defining Unicode char U+040A (decimal 1034)
+   defining Unicode char U+040B (decimal 1035)
+   defining Unicode char U+040C (decimal 1036)
+   defining Unicode char U+040D (decimal 1037)
+   defining Unicode char U+040E (decimal 1038)
+   defining Unicode char U+040F (decimal 1039)
+   defining Unicode char U+0410 (decimal 1040)
+   defining Unicode char U+0411 (decimal 1041)
+   defining Unicode char U+0412 (decimal 1042)
+   defining Unicode char U+0413 (decimal 1043)
+   defining Unicode char U+0414 (decimal 1044)
+   defining Unicode char U+0415 (decimal 1045)
+   defining Unicode char U+0416 (decimal 1046)
+   defining Unicode char U+0417 (decimal 1047)
+   defining Unicode char U+0418 (decimal 1048)
+   defining Unicode char U+0419 (decimal 1049)
+   defining Unicode char U+041A (decimal 1050)
+   defining Unicode char U+041B (decimal 1051)
+   defining Unicode char U+041C (decimal 1052)
+   defining Unicode char U+041D (decimal 1053)
+   defining Unicode char U+041E (decimal 1054)
+   defining Unicode char U+041F (decimal 1055)
+   defining Unicode char U+0420 (decimal 1056)
+   defining Unicode char U+0421 (decimal 1057)
+   defining Unicode char U+0422 (decimal 1058)
+   defining Unicode char U+0423 (decimal 1059)
+   defining Unicode char U+0424 (decimal 1060)
+   defining Unicode char U+0425 (decimal 1061)
+   defining Unicode char U+0426 (decimal 1062)
+   defining Unicode char U+0427 (decimal 1063)
+   defining Unicode char U+0428 (decimal 1064)
+   defining Unicode char U+0429 (decimal 1065)
+   defining Unicode char U+042A (decimal 1066)
+   defining Unicode char U+042B (decimal 1067)
+   defining Unicode char U+042C (decimal 1068)
+   defining Unicode char U+042D (decimal 1069)
+   defining Unicode char U+042E (decimal 1070)
+   defining Unicode char U+042F (decimal 1071)
+   defining Unicode char U+0430 (decimal 1072)
+   defining Unicode char U+0431 (decimal 1073)
+   defining Unicode char U+0432 (decimal 1074)
+   defining Unicode char U+0433 (decimal 1075)
+   defining Unicode char U+0434 (decimal 1076)
+   defining Unicode char U+0435 (decimal 1077)
+   defining Unicode char U+0436 (decimal 1078)
+   defining Unicode char U+0437 (decimal 1079)
+   defining Unicode char U+0438 (decimal 1080)
+   defining Unicode char U+0439 (decimal 1081)
+   defining Unicode char U+043A (decimal 1082)
+   defining Unicode char U+043B (decimal 1083)
+   defining Unicode char U+043C (decimal 1084)
+   defining Unicode char U+043D (decimal 1085)
+   defining Unicode char U+043E (decimal 1086)
+   defining Unicode char U+043F (decimal 1087)
+   defining Unicode char U+0440 (decimal 1088)
+   defining Unicode char U+0441 (decimal 1089)
+   defining Unicode char U+0442 (decimal 1090)
+   defining Unicode char U+0443 (decimal 1091)
+   defining Unicode char U+0444 (decimal 1092)
+   defining Unicode char U+0445 (decimal 1093)
+   defining Unicode char U+0446 (decimal 1094)
+   defining Unicode char U+0447 (decimal 1095)
+   defining Unicode char U+0448 (decimal 1096)
+   defining Unicode char U+0449 (decimal 1097)
+   defining Unicode char U+044A (decimal 1098)
+   defining Unicode char U+044B (decimal 1099)
+   defining Unicode char U+044C (decimal 1100)
+   defining Unicode char U+044D (decimal 1101)
+   defining Unicode char U+044E (decimal 1102)
+   defining Unicode char U+044F (decimal 1103)
+   defining Unicode char U+0450 (decimal 1104)
+   defining Unicode char U+0451 (decimal 1105)
+   defining Unicode char U+0452 (decimal 1106)
+   defining Unicode char U+0453 (decimal 1107)
+   defining Unicode char U+0454 (decimal 1108)
+   defining Unicode char U+0455 (decimal 1109)
+   defining Unicode char U+0456 (decimal 1110)
+   defining Unicode char U+0457 (decimal 1111)
+   defining Unicode char U+0458 (decimal 1112)
+   defining Unicode char U+0459 (decimal 1113)
+   defining Unicode char U+045A (decimal 1114)
+   defining Unicode char U+045B (decimal 1115)
+   defining Unicode char U+045C (decimal 1116)
+   defining Unicode char U+045D (decimal 1117)
+   defining Unicode char U+045E (decimal 1118)
+   defining Unicode char U+045F (decimal 1119)
+   defining Unicode char U+0490 (decimal 1168)
+   defining Unicode char U+0491 (decimal 1169)
+   defining Unicode char U+0492 (decimal 1170)
+   defining Unicode char U+0493 (decimal 1171)
+   defining Unicode char U+0496 (decimal 1174)
+   defining Unicode char U+0497 (decimal 1175)
+   defining Unicode char U+0498 (decimal 1176)
+   defining Unicode char U+0499 (decimal 1177)
+   defining Unicode char U+049A (decimal 1178)
+   defining Unicode char U+049B (decimal 1179)
+   defining Unicode char U+049C (decimal 1180)
+   defining Unicode char U+049D (decimal 1181)
+   defining Unicode char U+04A0 (decimal 1184)
+   defining Unicode char U+04A1 (decimal 1185)
+   defining Unicode char U+04A2 (decimal 1186)
+   defining Unicode char U+04A3 (decimal 1187)
+   defining Unicode char U+04A4 (decimal 1188)
+   defining Unicode char U+04A5 (decimal 1189)
+   defining Unicode char U+04AA (decimal 1194)
+   defining Unicode char U+04AB (decimal 1195)
+   defining Unicode char U+04AE (decimal 1198)
+   defining Unicode char U+04AF (decimal 1199)
+   defining Unicode char U+04B0 (decimal 1200)
+   defining Unicode char U+04B1 (decimal 1201)
+   defining Unicode char U+04B2 (decimal 1202)
+   defining Unicode char U+04B3 (decimal 1203)
+   defining Unicode char U+04B6 (decimal 1206)
+   defining Unicode char U+04B7 (decimal 1207)
+   defining Unicode char U+04B8 (decimal 1208)
+   defining Unicode char U+04B9 (decimal 1209)
+   defining Unicode char U+04BA (decimal 1210)
+   defining Unicode char U+04BB (decimal 1211)
+   defining Unicode char U+04C0 (decimal 1216)
+   defining Unicode char U+04C1 (decimal 1217)
+   defining Unicode char U+04C2 (decimal 1218)
+   defining Unicode char U+04D0 (decimal 1232)
+   defining Unicode char U+04D1 (decimal 1233)
+   defining Unicode char U+04D2 (decimal 1234)
+   defining Unicode char U+04D3 (decimal 1235)
+   defining Unicode char U+04D4 (decimal 1236)
+   defining Unicode char U+04D5 (decimal 1237)
+   defining Unicode char U+04D6 (decimal 1238)
+   defining Unicode char U+04D7 (decimal 1239)
+   defining Unicode char U+04D8 (decimal 1240)
+   defining Unicode char U+04D9 (decimal 1241)
+   defining Unicode char U+04DA (decimal 1242)
+   defining Unicode char U+04DB (decimal 1243)
+   defining Unicode char U+04DC (decimal 1244)
+   defining Unicode char U+04DD (decimal 1245)
+   defining Unicode char U+04DE (decimal 1246)
+   defining Unicode char U+04DF (decimal 1247)
+   defining Unicode char U+04E2 (decimal 1250)
+   defining Unicode char U+04E3 (decimal 1251)
+   defining Unicode char U+04E4 (decimal 1252)
+   defining Unicode char U+04E5 (decimal 1253)
+   defining Unicode char U+04E6 (decimal 1254)
+   defining Unicode char U+04E7 (decimal 1255)
+   defining Unicode char U+04E8 (decimal 1256)
+   defining Unicode char U+04E9 (decimal 1257)
+   defining Unicode char U+04EC (decimal 1260)
+   defining Unicode char U+04ED (decimal 1261)
+   defining Unicode char U+04EE (decimal 1262)
+   defining Unicode char U+04EF (decimal 1263)
+   defining Unicode char U+04F0 (decimal 1264)
+   defining Unicode char U+04F1 (decimal 1265)
+   defining Unicode char U+04F2 (decimal 1266)
+   defining Unicode char U+04F3 (decimal 1267)
+   defining Unicode char U+04F4 (decimal 1268)
+   defining Unicode char U+04F5 (decimal 1269)
+   defining Unicode char U+04F8 (decimal 1272)
+   defining Unicode char U+04F9 (decimal 1273)
+   defining Unicode char U+200C (decimal 8204)
+   defining Unicode char U+2013 (decimal 8211)
+   defining Unicode char U+2014 (decimal 8212)
+   defining Unicode char U+2018 (decimal 8216)
+   defining Unicode char U+2019 (decimal 8217)
+   defining Unicode char U+201C (decimal 8220)
+   defining Unicode char U+201D (decimal 8221)
+   defining Unicode char U+201E (decimal 8222)
+   defining Unicode char U+2030 (decimal 8240)
+   defining Unicode char U+2031 (decimal 8241)
+   defining Unicode char U+2116 (decimal 8470)
+   defining Unicode char U+2329 (decimal 9001)
+   defining Unicode char U+3008 (decimal 12296)
+   defining Unicode char U+232A (decimal 9002)
+   defining Unicode char U+3009 (decimal 12297)
+   defining Unicode char U+2423 (decimal 9251)
+   defining Unicode char U+27E8 (decimal 10216)
+   defining Unicode char U+27E9 (decimal 10217)
+   defining Unicode char U+FB00 (decimal 64256)
+   defining Unicode char U+FB01 (decimal 64257)
+   defining Unicode char U+FB02 (decimal 64258)
+   defining Unicode char U+FB03 (decimal 64259)
+   defining Unicode char U+FB04 (decimal 64260)
+   defining Unicode char U+FB05 (decimal 64261)
+   defining Unicode char U+FB06 (decimal 64262)
+))
+LaTeX Font Info:    Trying to load font information for T2A+cmr on input line 1
+16.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/cyrillic/t2acmr.fd
+File: t2acmr.fd 2001/08/11 v1.0a Computer Modern Cyrillic font definitions
+))
+(/Users/mihailanonov/Library/texmf/tex/generic/babel/babel.sty
+Package: babel 2026/05/20 v26.8 The multilingual framework for LuaLaTeX, pdfLaT
+eX and XeLaTeX
+\babel@savecnt=\count284
+LaTeX Encoding Info:    Redeclaring text command \ij (encoding OT1) on input li
+ne 2084.
+LaTeX Encoding Info:    Redeclaring text command \IJ (encoding OT1) on input li
+ne 2086.
+LaTeX Encoding Info:    Redeclaring text command \ij (encoding T1) on input lin
+e 2088.
+LaTeX Encoding Info:    Redeclaring text command \IJ (encoding T1) on input lin
+e 2089.
+LaTeX Encoding Info:    Ignoring declaration for text command \ij (encoding ?) 
+on input line 2090.
+LaTeX Encoding Info:    Ignoring declaration for text command \IJ (encoding ?) 
+on input line 2092.
+LaTeX Encoding Info:    Ignoring declaration for text command \SS (encoding ?) 
+on input line 2117.
+\U@D=\dimen150
+\l@unhyphenated=\language23
+
+(/Users/mihailanonov/Library/texmf/tex/generic/babel/txtbabel.def)
+\bbl@readstream=\read2
+\bbl@dirlevel=\count285
+
+(/Users/mihailanonov/Library/texmf/tex/generic/babel/locale/en/babel-english.te
+x)
+(/Users/mihailanonov/Library/texmf/tex/generic/babel/locale/ru/babel-russian.te
+x)
+Package babel Info: Importing font and identification data for english
+(babel)             from babel-en.ini. Reported on input line 4356.
+ (/Users/mihailanonov/Library/texmf/tex/generic/babel-english/english.ldf
+Language: english 2017/06/06 v3.3r English support from the babel system
+Package babel Info: Hyphen rules for 'canadian' set to \l@english
+(babel)             (\language0). Reported on input line 102.
+Package babel Info: Hyphen rules for 'australian' set to \l@ukenglish
+(babel)             (\language7). Reported on input line 105.
+Package babel Info: Hyphen rules for 'newzealand' set to \l@ukenglish
+(babel)             (\language7). Reported on input line 108.
+)
+Package babel Info: Importing font and identification data for russian
+(babel)             from babel-ru.ini. Reported on input line 4356.
+
+(/Users/mihailanonov/Library/texmf/tex/generic/babel-russian/russianb.ldf
+File: russianb.ldf 2021/01/10 1.3m Russian support for the Babel system
+Language: russian 2020/09/09 1.3k Russian support for the Babel system
+
+
+Package babel Warning: No hyphenation patterns were preloaded for
+(babel)                the language 'Russian' into the format.
+(babel)                Please, configure your TeX system to add them and
+(babel)                rebuild the format. Now I will use the patterns
+(babel)                preloaded for \language=0 instead on input line 32.
+
+Package babel Info: Hyphen rules for 'russian' set to \l@english
+(babel)             (\language0). Reported on input line 33.
+Package babel Info: Making " an active character on input line 124.
+Package babel Info: Default for \cyrdash is provided on input line 163.
+)) (/Users/mihailanonov/Library/texmf/tex/latex/tocloft/tocloft.sty
+Package: tocloft 2017/08/31 v2.3i parameterised ToC, etc., typesetting
+Package tocloft Info: The document has chapter divisions on input line 51.
+\cftparskip=\skip51
+\cftbeforetoctitleskip=\skip52
+\cftaftertoctitleskip=\skip53
+\cftbeforepartskip=\skip54
+\cftpartnumwidth=\skip55
+\cftpartindent=\skip56
+\cftbeforechapskip=\skip57
+\cftchapindent=\skip58
+\cftchapnumwidth=\skip59
+\cftbeforesecskip=\skip60
+\cftsecindent=\skip61
+\cftsecnumwidth=\skip62
+\cftbeforesubsecskip=\skip63
+\cftsubsecindent=\skip64
+\cftsubsecnumwidth=\skip65
+\cftbeforesubsubsecskip=\skip66
+\cftsubsubsecindent=\skip67
+\cftsubsubsecnumwidth=\skip68
+\cftbeforeparaskip=\skip69
+\cftparaindent=\skip70
+\cftparanumwidth=\skip71
+\cftbeforesubparaskip=\skip72
+\cftsubparaindent=\skip73
+\cftsubparanumwidth=\skip74
+\cftbeforeloftitleskip=\skip75
+\cftafterloftitleskip=\skip76
+\cftbeforefigskip=\skip77
+\cftfigindent=\skip78
+\cftfignumwidth=\skip79
+\c@lofdepth=\count286
+\c@lotdepth=\count287
+\cftbeforelottitleskip=\skip80
+\cftafterlottitleskip=\skip81
+\cftbeforetabskip=\skip82
+\cfttabindent=\skip83
+\cfttabnumwidth=\skip84
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/tools/indentfirst.sty
+Package: indentfirst 2023/07/02 v1.03 Indent first paragraph (DPC)
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/graphics/graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/Users/mihailanonov/Library/texmf/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks19
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/graphics/graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+
+(/Users/mihailanonov/Library/texmf/tex/latex/graphics/trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen151
+\Gin@req@width=\dimen152
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/tools/longtable.sty
+Package: longtable 2025-10-13 v4.24 Multi-page Table package (DPC)
+\LTleft=\skip85
+\LTright=\skip86
+\LTpre=\skip87
+\LTpost=\skip88
+\LTchunksize=\count288
+\LTcapwidth=\dimen153
+\LT@head=\box53
+\LT@firsthead=\box54
+\LT@foot=\box55
+\LT@lastfoot=\box56
+\LT@gbox=\box57
+\LT@cols=\count289
+\LT@rows=\count290
+\c@LT@tables=\count291
+\c@LT@chunks=\count292
+\LT@p@ftn=\toks20
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/ragged2e/ragged2e.sty
+Package: ragged2e 2023/06/22 v3.6 ragged2e Package
+\CenteringLeftskip=\skip89
+\RaggedLeftLeftskip=\skip90
+\RaggedRightLeftskip=\skip91
+\CenteringRightskip=\skip92
+\RaggedLeftRightskip=\skip93
+\RaggedRightRightskip=\skip94
+\CenteringParfillskip=\skip95
+\RaggedLeftParfillskip=\skip96
+\RaggedRightParfillskip=\skip97
+\JustifyingParfillskip=\skip98
+\CenteringParindent=\skip99
+\RaggedLeftParindent=\skip100
+\RaggedRightParindent=\skip101
+\JustifyingParindent=\skip102
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/tabu/tabu.sty
+Package: tabu 2019/01/11 v2.9 - flexible LaTeX tabulars (FC+tabu-fixed)
+
+(/Users/mihailanonov/Library/texmf/tex/latex/tools/array.sty
+Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
+\col@sep=\dimen154
+\ar@mcellbox=\box58
+\extrarowheight=\dimen155
+\NC@list=\toks21
+\extratabsurround=\skip103
+\backup@length=\skip104
+\ar@cellbox=\box59
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/varwidth/varwidth.sty
+Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
+\@vwid@box=\box60
+\sift@deathcycles=\count293
+\@vwid@loff=\dimen156
+\@vwid@roff=\dimen157
+)
+==> First Aid for varwidth.sty applied!
+\c@taburow=\count294
+\tabu@nbcols=\count295
+\tabu@cnt=\count296
+\tabu@Xcol=\count297
+\tabu@alloc=\count298
+\tabu@nested=\count299
+\tabu@target=\dimen158
+\tabu@spreadtarget=\dimen159
+\tabu@naturalX=\dimen160
+\tabucolX=\dimen161
+\tabu@Xsum=\dimen162
+\extrarowdepth=\dimen163
+\abovetabulinesep=\dimen164
+\belowtabulinesep=\dimen165
+\tabustrutrule=\dimen166
+\tabu@thebody=\toks22
+\tabu@footnotes=\toks23
+\tabu@box=\box61
+\tabu@arstrutbox=\box62
+\tabu@hleads=\box63
+\tabu@vleads=\box64
+\tabu@cellskip=\skip105
+) (/Users/mihailanonov/Library/texmf/tex/latex/enumitem/enumitem.sty
+Package: enumitem 2025/02/06 v3.11 Customized lists
+\labelindent=\skip106
+\enit@outerparindent=\dimen167
+\enit@toks=\toks24
+\enit@inbox=\box65
+\enit@count@id=\count300
+\enitdp@description=\count301
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/environ/environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+
+(/Users/mihailanonov/Library/texmf/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+)
+\@envbody=\toks25
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/microtype/microtype.sty
+Package: microtype 2026/03/01 v3.2d Micro-typographical refinements (RS)
+
+(/Users/mihailanonov/Library/texmf/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count302
+)
+\MT@toks=\toks26
+\MT@tempbox=\box66
+\MT@count=\count303
+LaTeX Info: Redefining \noprotrusionifhmode on input line 1084.
+LaTeX Info: Redefining \leftprotrusion on input line 1085.
+\MT@prot@toks=\toks27
+LaTeX Info: Redefining \rightprotrusion on input line 1104.
+LaTeX Info: Redefining \textls on input line 1449.
+\MT@outer@kern=\dimen168
+LaTeX Info: Redefining \microtypecontext on input line 2053.
+LaTeX Info: Redefining \textmicrotypecontext on input line 2070.
+\MT@listname@count=\count304
+
+(/Users/mihailanonov/Library/texmf/tex/latex/microtype/microtype-pdftex.def
+File: microtype-pdftex.def 2026/03/01 v3.2d Definitions specific to pdftex (RS)
+
+LaTeX Info: Redefining \lsstyle on input line 944.
+LaTeX Info: Redefining \lslig on input line 944.
+\MT@outer@space=\skip107
+)
+Package microtype Info: Loading configuration file microtype.cfg.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/microtype/microtype.cfg
+File: microtype.cfg 2026/03/01 v3.2d microtype main configuration file (RS)
+)
+LaTeX Info: Redefining \microtypesetup on input line 3065.
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/xcolor/svgnam.def
+File: svgnam.def 2024/09/29 v3.02 Predefined colors according to SVG 1.1 (UK)
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/caption/caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+
+(/Users/mihailanonov/Library/texmf/tex/latex/caption/caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen169
+\captionmargin=\dimen170
+\caption@leftmargin=\dimen171
+\caption@rightmargin=\dimen172
+\caption@width=\dimen173
+\caption@indent=\dimen174
+\caption@parindent=\dimen175
+\caption@hangindent=\dimen176
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count305
+\c@continuedfloat=\count306
+Package caption Info: longtable package is loaded.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/caption/ltcaption.sty
+Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
+))
+(/Users/mihailanonov/Library/texmf/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
+
+\f@nch@headwidth=\skip108
+\f@nch@offset@elh=\skip109
+\f@nch@offset@erh=\skip110
+\f@nch@offset@olh=\skip111
+\f@nch@offset@orh=\skip112
+\f@nch@offset@elf=\skip113
+\f@nch@offset@erf=\skip114
+\f@nch@offset@olf=\skip115
+\f@nch@offset@orf=\skip116
+\f@nch@height=\skip117
+\f@nch@footalignment=\skip118
+\f@nch@widthL=\skip119
+\f@nch@widthC=\skip120
+\f@nch@widthR=\skip121
+\@temptokenb=\toks28
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/titlesec/titlesec.sty
+Package: titlesec 2025/01/04 v2.17 Sectioning titles
+\ttl@box=\box67
+\beforetitleunit=\skip122
+\aftertitleunit=\skip123
+\ttl@plus=\dimen177
+\ttl@minus=\dimen178
+\ttl@toksa=\toks29
+\titlewidth=\dimen179
+\titlewidthlast=\dimen180
+\titlewidthfirst=\dimen181
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/csquotes/csquotes.sty
+Package: csquotes 2026-05-19 v5.2p context-sensitive quotations (JAW)
+\csq@reset=\count307
+\csq@gtype=\count308
+\csq@glevel=\count309
+\csq@qlevel=\count310
+\csq@maxlvl=\count311
+\csq@tshold=\count312
+\csq@ltx@everypar=\toks30
+
+(/Users/mihailanonov/Library/texmf/tex/latex/csquotes/csquotes.def
+File: csquotes.def 2026-05-19 v5.2p csquotes generic definitions (JAW)
+)
+Package csquotes Info: Trying to load configuration file 'csquotes.cfg'...
+Package csquotes Info: ... configuration file loaded successfully.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/csquotes/csquotes.cfg
+File: csquotes.cfg 
+))
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/biblatex.sty
+Package: biblatex 2025/07/10 v3.21 programmable bibliographies (PK/MW)
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+))
+(/Users/mihailanonov/Library/texmf/tex/latex/logreq/logreq.sty
+Package: logreq 2010/08/04 v1.0 xml request logger
+\lrq@indent=\count313
+
+(/Users/mihailanonov/Library/texmf/tex/latex/logreq/logreq.def
+File: logreq.def 2010/08/04 v1.0 logreq spec v1.0
+))
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip17
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+\c@tabx@nest=\count314
+\c@listtotal=\count315
+\c@listcount=\count316
+\c@liststart=\count317
+\c@liststop=\count318
+\c@citecount=\count319
+\c@citetotal=\count320
+\c@multicitecount=\count321
+\c@multicitetotal=\count322
+\c@instcount=\count323
+\c@maxnames=\count324
+\c@minnames=\count325
+\c@maxitems=\count326
+\c@minitems=\count327
+\c@citecounter=\count328
+\c@maxcitecounter=\count329
+\c@savedcitecounter=\count330
+\c@uniquelist=\count331
+\c@uniquename=\count332
+\c@refsection=\count333
+\c@refsegment=\count334
+\c@maxextratitle=\count335
+\c@maxextratitleyear=\count336
+\c@maxextraname=\count337
+\c@maxextradate=\count338
+\c@maxextraalpha=\count339
+\c@abbrvpenalty=\count340
+\c@highnamepenalty=\count341
+\c@lownamepenalty=\count342
+\c@maxparens=\count343
+\c@parenlevel=\count344
+\blx@tempcnta=\count345
+\blx@tempcntb=\count346
+\blx@tempcntc=\count347
+\c@blx@maxsection=\count348
+\blx@maxsegment@0=\count349
+\blx@notetype=\count350
+\blx@parenlevel@text=\count351
+\blx@parenlevel@foot=\count352
+\blx@sectionciteorder@0=\count353
+\blx@sectionciteorderinternal@0=\count354
+\blx@entrysetcounter=\count355
+\blx@biblioinstance=\count356
+\labelnumberwidth=\skip124
+\labelalphawidth=\skip125
+\biblabelsep=\skip126
+\bibitemsep=\skip127
+\bibnamesep=\skip128
+\bibinitsep=\skip129
+\bibparsep=\skip130
+\bibhang=\skip131
+\blx@bcfin=\read3
+\blx@bcfout=\write3
+\blx@langwohyphens=\language24
+\c@mincomprange=\count357
+\c@maxcomprange=\count358
+\c@mincompwidth=\count359
+Package biblatex Info: Trying to load biblatex default data model...
+Package biblatex Info: ... file 'blx-dm.def' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/blx-dm.def
+File: blx-dm.def 2025/07/10 v3.21 biblatex datamodel (PK/MW)
+)
+Package biblatex Info: Trying to load biblatex style data model...
+Package biblatex Info: ... file 'gost-numeric.dbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex-gost/gost-numeric.dbx
+File: gost-numeric.dbx 2023/04/25 v1.24 biblatex-gost data model
+Package biblatex Info: Trying to load biblatex-gost data model...
+Package biblatex Info: ... file 'biblatex-gost.dbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex-gost/biblatex-gost.dbx
+File: biblatex-gost.dbx 2023/04/25 v1.24 biblatex-gost data model
+))
+Package biblatex Info: Trying to load biblatex custom data model...
+Package biblatex Info: ... file 'biblatex-dm.cfg' not found.
+\c@afterword=\count360
+\c@savedafterword=\count361
+\c@annotator=\count362
+\c@savedannotator=\count363
+\c@author=\count364
+\c@savedauthor=\count365
+\c@bookauthor=\count366
+\c@savedbookauthor=\count367
+\c@commentator=\count368
+\c@savedcommentator=\count369
+\c@editor=\count370
+\c@savededitor=\count371
+\c@editora=\count372
+\c@savededitora=\count373
+\c@editorb=\count374
+\c@savededitorb=\count375
+\c@editorc=\count376
+\c@savededitorc=\count377
+\c@foreword=\count378
+\c@savedforeword=\count379
+\c@holder=\count380
+\c@savedholder=\count381
+\c@introduction=\count382
+\c@savedintroduction=\count383
+\c@namea=\count384
+\c@savednamea=\count385
+\c@nameb=\count386
+\c@savednameb=\count387
+\c@namec=\count388
+\c@savednamec=\count389
+\c@translator=\count390
+\c@savedtranslator=\count391
+\c@shortauthor=\count392
+\c@savedshortauthor=\count393
+\c@shorteditor=\count394
+\c@savedshorteditor=\count395
+\c@booktranslator=\count396
+\c@savedbooktranslator=\count397
+\c@bookcommentator=\count398
+\c@savedbookcommentator=\count399
+\c@bookannotator=\count400
+\c@savedbookannotator=\count401
+\c@bookintroduction=\count402
+\c@savedbookintroduction=\count403
+\c@bookforeword=\count404
+\c@savedbookforeword=\count405
+\c@bookafterword=\count406
+\c@savedbookafterword=\count407
+\c@labelname=\count408
+\c@savedlabelname=\count409
+\c@institution=\count410
+\c@savedinstitution=\count411
+\c@lista=\count412
+\c@savedlista=\count413
+\c@listb=\count414
+\c@savedlistb=\count415
+\c@listc=\count416
+\c@savedlistc=\count417
+\c@listd=\count418
+\c@savedlistd=\count419
+\c@liste=\count420
+\c@savedliste=\count421
+\c@listf=\count422
+\c@savedlistf=\count423
+\c@location=\count424
+\c@savedlocation=\count425
+\c@organization=\count426
+\c@savedorganization=\count427
+\c@origlocation=\count428
+\c@savedoriglocation=\count429
+\c@origpublisher=\count430
+\c@savedorigpublisher=\count431
+\c@publisher=\count432
+\c@savedpublisher=\count433
+\c@language=\count434
+\c@savedlanguage=\count435
+\c@origlanguage=\count436
+\c@savedoriglanguage=\count437
+\c@bookoriglanguage=\count438
+\c@savedbookoriglanguage=\count439
+\c@specdata=\count440
+\c@savedspecdata=\count441
+\c@credits=\count442
+\c@savedcredits=\count443
+\c@bookcredits=\count444
+\c@savedbookcredits=\count445
+\c@editioncredits=\count446
+\c@savededitioncredits=\count447
+\c@pageref=\count448
+\c@savedpageref=\count449
+\shorthandwidth=\skip132
+\shortjournalwidth=\skip133
+\shortserieswidth=\skip134
+\shorttitlewidth=\skip135
+\shortauthorwidth=\skip136
+\shorteditorwidth=\skip137
+\locallabelnumberwidth=\skip138
+\locallabelalphawidth=\skip139
+\localshorthandwidth=\skip140
+\localshortjournalwidth=\skip141
+\localshortserieswidth=\skip142
+\localshorttitlewidth=\skip143
+\localshortauthorwidth=\skip144
+\localshorteditorwidth=\skip145
+Package biblatex Info: Trying to load compatibility code...
+Package biblatex Info: ... file 'blx-compat.def' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/blx-compat.def
+File: blx-compat.def 2025/07/10 v3.21 biblatex compatibility (PK/MW)
+)
+Package biblatex Info: Trying to load generic definitions...
+Package biblatex Info: ... file 'biblatex.def' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/biblatex.def
+File: biblatex.def 2025/07/10 v3.21 biblatex compatibility (PK/MW)
+\c@textcitecount=\count450
+\c@textcitetotal=\count451
+\c@textcitemaxnames=\count452
+\c@biburlbigbreakpenalty=\count453
+\c@biburlbreakpenalty=\count454
+\c@biburlnumpenalty=\count455
+\c@biburlucpenalty=\count456
+\c@biburllcpenalty=\count457
+\biburlbigskip=\muskip18
+\biburlnumskip=\muskip19
+\biburlucskip=\muskip20
+\biburllcskip=\muskip21
+\c@smartand=\count458
+)
+Package biblatex Info: Trying to load bibliography style 'gost-numeric'...
+Package biblatex Info: ... file 'gost-numeric.bbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex-gost/gost-numeric.bbx
+File: gost-numeric.bbx 2023/04/25 v1.24 biblatex-gost styles
+Package biblatex Info: Trying to load bibliography style 'gost-standard'...
+Package biblatex Info: ... file 'gost-standard.bbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex-gost/gost-standard.bbx
+File: gost-standard.bbx 2023/04/25 v1.24 biblatex-gost styles
+Package biblatex Info: Trying to load biblatex-gost generic definitions...
+Package biblatex Info: ... file 'biblatex-gost.def' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex-gost/biblatex-gost.def
+File: biblatex-gost.def 2023/04/25 v1.24 biblatex-gost styles
+)
+\c@blx@gost@pointer=\count459
+\c@bbx:relatedcount=\count460
+\c@bbx:relatedtotal=\count461
+Package biblatex Info: Redefining autocite command 'footnote'.
+Package biblatex Info: Redefining autocite command 'superscript'.
+))
+Package biblatex Info: Trying to load citation style 'gost-numeric'...
+Package biblatex Info: ... file 'gost-numeric.cbx' found.
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex-gost/gost-numeric.cbx
+File: gost-numeric.cbx 2023/04/25 v1.24 biblatex-gost styles
+Package biblatex Info: Trying to load citation style 'numeric-comp'...
+Package biblatex Info: ... file 'numeric-comp.cbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/cbx/numeric-comp.cbx
+File: numeric-comp.cbx 2025/07/10 v3.21 biblatex citation style (PK/MW)
+\c@cbx@tempcnta=\count462
+\c@cbx@tempcntb=\count463
+\c@cbx@tempcntc=\count464
+\c@cbx@tempcntd=\count465
+Package biblatex Info: Redefining '\cite'.
+Package biblatex Info: Redefining '\parencite'.
+Package biblatex Info: Redefining '\footcite'.
+Package biblatex Info: Redefining '\footcitetext'.
+Package biblatex Info: Redefining '\smartcite'.
+Package biblatex Info: Redefining '\supercite'.
+Package biblatex Info: Redefining '\textcite'.
+Package biblatex Info: Redefining '\textcites'.
+Package biblatex Info: Redefining '\cites'.
+Package biblatex Info: Redefining '\parencites'.
+Package biblatex Info: Redefining '\smartcites'.
+))
+Package biblatex Info: Trying to load configuration file...
+Package biblatex Info: ... file 'biblatex.cfg' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/biblatex.cfg
+File: biblatex.cfg 
+)
+Package biblatex Info: Input encoding 'utf8' detected.
+Package biblatex Info: Document encoding is UTF8 ....
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2026-01-19 L3 programming layer (loader) 
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/l3backend/l3backend-pdftex.d
+ef
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count466
+))
+Package biblatex Info: ... and expl3
+(biblatex)             2026-01-19 L3 programming layer (loader) 
+(biblatex)             is new enough (at least 2020/04/06),
+(biblatex)             setting 'casechanger=expl3'.
+ (/Users/mihailanonov/Library/texmf/tex/latex/biblatex/blx-case-expl3.sty
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
+Package: xparse 2025-10-09 L3 Experimental document command parser
+)
+Package: blx-case-expl3 2025/07/10 v3.21 expl3 case changing code for biblatex
+)) (/Users/mihailanonov/Library/texmf/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2026-04-24 v7.01q Hypertext links for LaTeX
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.
+sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/hyperref/nameref.sty
+Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/gettitlestring/gettitlestr
+ing.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+)
+\c@section@level=\count467
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/stringenc/stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\@linkdim=\dimen182
+\Hy@linkcounter=\count468
+\Hy@pagecounter=\count469
+
+(/Users/mihailanonov/Library/texmf/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2026-04-24 v7.01q Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count470
+
+(/Users/mihailanonov/Library/texmf/tex/latex/hyperref/puenc.def
+File: puenc.def 2026-04-24 v7.01q Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Option `unicode' set `true' on input line 3164.
+Package hyperref Info: Option `unicode' set `true' on input line 4070.
+Package hyperref Info: Option `colorlinks' set `true' on input line 4070.
+Package hyperref Info: Option `draft' set `false' on input line 4070.
+Package hyperref Info: Option `breaklinks' set `true' on input line 4070.
+Package hyperref Info: Option `bookmarksopen' set `true' on input line 4070.
+Package hyperref Info: Hyper figures OFF on input line 4199.
+Package hyperref Info: Link nesting OFF on input line 4204.
+Package hyperref Info: Hyper index ON on input line 4207.
+Package hyperref Info: Plain pages OFF on input line 4214.
+Package hyperref Info: Backreferencing OFF on input line 4219.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4466.
+\c@Hy@tempcnt=\count471
+LaTeX Info: Redefining \url on input line 4805.
+\XeTeXLinkMargin=\dimen183
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count472
+\Field@Width=\dimen184
+\Fld@charsize=\dimen185
+Package hyperref Info: Hyper figures OFF on input line 6091.
+Package hyperref Info: Link nesting OFF on input line 6096.
+Package hyperref Info: Hyper index ON on input line 6099.
+Package hyperref Info: backreferencing OFF on input line 6106.
+Package hyperref Info: Link coloring ON on input line 6109.
+Package hyperref Info: Link coloring with OCG OFF on input line 6116.
+Package hyperref Info: PDF/A mode OFF on input line 6121.
+\Hy@abspage=\count473
+\c@Item=\count474
+\c@Hfootnote=\count475
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+ (/Users/mihailanonov/Library/texmf/tex/latex/hyperref/hpdftex.def
+File: hpdftex.def 2026-04-24 v7.01q Hyperref driver for pdfTeX
+\Fld@listcount=\count476
+\c@bookmark@seq@number=\count477
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/rerunfilecheck/rerunfilechec
+k.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/generic/uniquecounter/uniquecounte
+r.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+84.
+)
+\Hy@SectionHShift=\skip146
+) (/Users/mihailanonov/Library/texmf/tex/latex/tools/varioref.sty
+Package: varioref 2025/01/14 v1.6g package for extended references (FMi)
+\c@vrcnt=\count478
+))
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/lm/lmodern.sty
+Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
+(Font)                  OML/cmm/m/it --> OML/lmm/m/it on input line 23.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/cmsy/m/n --> OMS/lmsy/m/n on input line 24.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 25.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 26.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/cmm/b/it --> OML/lmm/b/it on input line 27.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/cmsy/b/n --> OMS/lmsy/b/n on input line 28.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 29.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 31.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> OT1/lmss/m/n on input line 32.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
+(Font)                  OT1/cmr/m/it --> OT1/lmr/m/it on input line 33.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 34.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 35.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  OT1/cmss/bx/n --> OT1/lmss/bx/n on input line 36.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 37.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen186
+\lightrulewidth=\dimen187
+\cmidrulewidth=\dimen188
+\belowrulesep=\dimen189
+\belowbottomsep=\dimen190
+\aboverulesep=\dimen191
+\abovetopsep=\dimen192
+\cmidrulesep=\dimen193
+\cmidrulekern=\dimen194
+\defaultaddspace=\dimen195
+\@cmidla=\count479
+\@cmidlb=\count480
+\@aboverulesep=\dimen196
+\@belowrulesep=\dimen197
+\@thisruleclass=\count481
+\@lastruleclass=\count482
+\@thisrulewidth=\dimen198
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/multirow/multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip147
+\multirow@cntb=\count483
+\multirow@dima=\skip148
+\bigstrutjot=\dimen199
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip149
+
+For additional information on amsmath, use the `?' option.
+(/Users/mihailanonov/Library/texmf/tex/latex/amsmath/amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+
+(/Users/mihailanonov/Library/texmf/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks31
+\ex@=\dimen256
+))
+(/Users/mihailanonov/Library/texmf/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen257
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count484
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count485
+\leftroot@=\count486
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count487
+\DOTSCASE@=\count488
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box68
+\strutbox@=\box69
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen258
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count489
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count490
+\dotsspace@=\muskip22
+\c@parentequation=\count491
+\dspbrk@lvl=\count492
+\tag@help=\toks32
+\row@=\count493
+\column@=\count494
+\maxfields@=\count495
+\andhelp@=\toks33
+\eqnshift@=\dimen259
+\alignsep@=\dimen260
+\tagshift@=\dimen261
+\tagwidth@=\dimen262
+\totwidth@=\dimen263
+\lineht@=\dimen264
+\@envbody=\toks34
+\multlinegap=\skip150
+\multlinetaggap=\skip151
+\mathdisplay@stack=\toks35
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+(/Users/mihailanonov/Library/texmf/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+))
+   defining Unicode char U+2212 (decimal 8722)
+   defining Unicode char U+00B1 (decimal 177)
+   defining Unicode char U+2248 (decimal 8776)
+   defining Unicode char U+2264 (decimal 8804)
+   defining Unicode char U+2265 (decimal 8805)
+   defining Unicode char U+00D7 (decimal 215)
+   defining Unicode char U+2192 (decimal 8594)
+   defining Unicode char U+2190 (decimal 8592)
+   defining Unicode char U+2194 (decimal 8596)
+   defining Unicode char U+2013 (decimal 8211)
+   defining Unicode char U+2014 (decimal 8212)
+   defining Unicode char U+2026 (decimal 8230)
+   defining Unicode char U+00B2 (decimal 178)
+   defining Unicode char U+00B3 (decimal 179)
+   defining Unicode char U+00B0 (decimal 176)
+   defining Unicode char U+03B1 (decimal 945)
+   defining Unicode char U+03B2 (decimal 946)
+   defining Unicode char U+03B3 (decimal 947)
+   defining Unicode char U+03B4 (decimal 948)
+   defining Unicode char U+03B5 (decimal 949)
+   defining Unicode char U+03BB (decimal 955)
+   defining Unicode char U+03BC (decimal 956)
+   defining Unicode char U+03C0 (decimal 960)
+   defining Unicode char U+03C3 (decimal 963)
+   defining Unicode char U+03C6 (decimal 966)
+   defining Unicode char U+03C9 (decimal 969)
+   defining Unicode char U+00A0 (decimal 160)
+   defining Unicode char U+00A9 (decimal 169)
+   defining Unicode char U+00AE (decimal 174)
+   defining Unicode char U+2122 (decimal 8482)
+
+(/Users/mihailanonov/Library/texmf/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count496
+\float@exts=\toks36
+\float@box=\box70
+\@float@everytoks=\toks37
+\@floatcapt=\box71
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/listings/listings.sty
+\lst@mode=\count497
+\lst@gtempboxa=\box72
+\lst@token=\toks38
+\lst@length=\count498
+\lst@currlwidth=\dimen265
+\lst@column=\count499
+\lst@pos=\count500
+\lst@lostspace=\dimen266
+\lst@width=\dimen267
+\lst@newlines=\count501
+\lst@lineno=\count502
+\lst@maxwidth=\dimen268
+
+(/Users/mihailanonov/Library/texmf/tex/latex/listings/lstpatch.sty
+File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
+\c@lstnumber=\count503
+\lst@skipnumbers=\count504
+\lst@framebox=\box73
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/listings/listings.cfg
+File: listings.cfg 2025/11/14 1.11b listings configuration
+))
+Package: listings 2025/11/14 1.11b (Carsten Heinz)
+
+==> First Aid for listings.sty no longer applied!
+    Expected:
+        2024/09/23 1.10c (Carsten Heinz)
+    but found:
+        2025/11/14 1.11b (Carsten Heinz)
+    so I'm assuming it got fixed.
+Package csquotes Info: Checking for multilingual support...
+Package csquotes Info: ... found 'babel' package.
+Package csquotes Info: Adjusting default style.
+Package csquotes Info: Redefining alias 'default' -> 'russian'.
+LaTeX Font Info:    Trying to load font information for T2A+lmr on input line 3
+20.
+LaTeX Font Info:    No file T2Almr.fd. on input line 320.
+
+LaTeX Font Warning: Font shape `T2A/lmr/m/n' undefined
+(Font)              using `T2A/cmr/m/n' instead on input line 320.
+
+(./main.aux
+Package babel Info: 'russian' activates 'russian' shorthands.
+(babel)             Reported on input line 9.
+)
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Font Info:    Checking defaults for T2A/cmr/m/n on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 320.
+LaTeX Font Info:    ... okay on input line 320.
+LaTeX Info: Redefining \th on input line 320.
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count505
+\scratchdimen=\dimen269
+\scratchbox=\box74
+\nofMPsegments=\count506
+\nofMParguments=\count507
+\everyMPshowfont=\toks39
+\MPscratchCnt=\count508
+\MPscratchDim=\dimen270
+\MPnumerator=\count509
+\makeMPintoPDFobject=\count510
+\everyMPtoPDFconversion=\toks40
+)
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.s
+ty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+Package microtype Info: Patching varwidth to enable character protrusion.
+\MT@vwid@leftmargin=\dimen271
+\MT@vwid@rightmargin=\dimen272
+LaTeX Info: Redefining \microtypecontext on input line 320.
+Package microtype Info: Applying patch `item' on input line 320.
+Package microtype Info: Applying patch `toc' on input line 320.
+Package microtype Info: Applying patch `eqnum' on input line 320.
+Package microtype Info: Applying patch `footnote' on input line 320.
+Package microtype Info: Applying patch `verbatim' on input line 320.
+LaTeX Info: Redefining \microtypesetup on input line 320.
+Package microtype Info: Generating PDF output.
+Package microtype Info: Character protrusion enabled (level 2).
+Package microtype Info: Using default protrusion set `alltext'.
+Package microtype Info: Automatic font expansion enabled (level 2),
+(microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
+Package microtype Info: Using default expansion set `alltext-nott'.
+Package microtype Info: Patching command `\showhyphens'.
+Package microtype Info: No adjustment of tracking.
+Package microtype Info: No adjustment of interword spacing.
+Package microtype Info: No adjustment of character kerning.
+ (/Users/mihailanonov/Library/texmf/tex/latex/microtype/mt-cmr.cfg
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
+(RS)
+)
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+Package caption Info: listings package is loaded.
+Package caption Info: End \AtBeginDocument code.
+Package biblatex Info: Trying to load language 'russian' -> 'russian-gost'...
+Package biblatex Info: ... file 'russian-gost.lbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex-gost/russian-gost.lbx
+File: russian-gost.lbx 2023/04/25 v1.24 biblatex-gost styles
+Package biblatex Info: Trying to load language 'russian'...
+Package biblatex Info: ... file 'russian.lbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/lbx/russian.lbx
+File: russian.lbx 2025/07/10 v3.21 biblatex localization (PK/MW)
+)
+Package biblatex Info: Trying to load language 'russian'...
+Package biblatex Info: ... file 'russian.lbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/lbx/russian.lbx
+File: russian.lbx 2025/07/10 v3.21 biblatex localization (PK/MW)
+))
+Package biblatex Info: Trying to load language 'english' -> 'english-gost'...
+Package biblatex Info: ... file 'english-gost.lbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex-gost/english-gost.lbx
+File: english-gost.lbx 2023/04/25 v1.24 biblatex-gost styles
+Package biblatex Info: Trying to load language 'english'...
+Package biblatex Info: ... file 'english.lbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/lbx/english.lbx
+File: english.lbx 2025/07/10 v3.21 biblatex localization (PK/MW)
+)
+Package biblatex Info: Trying to load language 'english'...
+Package biblatex Info: ... file 'english.lbx' found.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/biblatex/lbx/english.lbx
+File: english.lbx 2025/07/10 v3.21 biblatex localization (PK/MW)
+))
+Package biblatex Info: Input encoding 'utf8' detected.
+Package biblatex Info: Automatic encoding selection.
+(biblatex)             Assuming data encoding 'utf8'.
+\openout3 = `main.bcf'.
+
+Package biblatex Info: Trying to load bibliographic data...
+Package biblatex Info: ... file 'main.bbl' found.
+
+(./main.bbl)
+Package biblatex Info: Reference section=0 on input line 320.
+Package biblatex Info: Reference segment=0 on input line 320.
+Package hyperref Info: Link coloring ON on input line 320.
+ (./main.out) (./main.out)
+\@outlinefile=\write4
+\openout4 = `main.out'.
+
+\c@lstlisting=\count511
+
+
+LaTeX Font Warning: Font shape `T2A/lmr/bx/n' undefined
+(Font)              using `T2A/lmr/m/n' instead on input line 322.
+
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 3
+22.
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/lm/ot1lmr.fd
+File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 3
+22.
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/lm/omllmm.fd
+File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
+322.
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/lm/omslmsy.fd
+File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
+322.
+
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/lm/omxlmex.fd
+File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <12> on input line 322.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <8> on input line 322.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <6> on input line 322.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 322
+.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/microtype/mt-msa.cfg
+File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 322
+.
+
+(/Users/mihailanonov/Library/texmf/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+(/Users/mihailanonov/Library/texmf/tex/latex/microtype/mt-msb.cfg
+File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
+)
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <14.4> on input line 322.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 322.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 322.
+ [1
+
+{/Users/mihailanonov/Library/texlive/2026basic/texmf-var/fonts/map/pdftex/updma
+p/pdftex.map}{/Users/mihailanonov/Library/texmf/fonts/enc/dvips/cm-super/cm-sup
+er-t2a.enc}] [2{/usr/local/texlive/2026basic/texmf-dist/fonts/enc/dvips/lm/lm-r
+m.enc}]
+(./main.toc
+Overfull \hbox (1.23366pt too wide) in paragraph at lines 23--23
+ [][] [][][]\T2A/lmr/bx/n/14.4 (-20) Стратегия разбиения на обучающую, валидаци
+онную и тестовую 
+ []
+
+[3])
+\tf@toc=\write5
+\openout5 = `main.toc'.
+
+ (./chapters/00_introduction.tex [4{/usr/local/texlive/2026basic/texmf-dist/fon
+ts/enc/dvips/lm/lm-mathsy.enc}]
+Overfull \hbox (9.03967pt too wide) in paragraph at lines 10--11
+\T2A/lmr/bx/n/14.4 (-20) таких условиях возрастает спрос на автоматические инст
+рументы семантической
+ []
+
+
+Overfull \hbox (4.26674pt too wide) in paragraph at lines 15--16
+[]\T2A/lmr/bx/n/14.4 (-20) Предметная область опирается на обзорные работы по M
+IR [[][]8[][]] и применению
+ []
+
+
+Overfull \hbox (10.20735pt too wide) in paragraph at lines 15--16
+\T2A/lmr/bx/n/14.4 (-20) эмоций (модель Расселла, датасет DEAM) и жанровой клас
+сификации (бенчмарк
+ []
+
+
+Overfull \hbox (34.38077pt too wide) in paragraph at lines 18--18
+\T2A/lmr/bx/n/14.4 (-20) модуля автоматического анализа музыкальных композиций,
+ который по аудиозаписи
+ []
+
+
+Overfull \hbox (4.7028pt too wide) in paragraph at lines 18--18
+\T2A/lmr/bx/n/14.4 (-20) восстанавливает структурную разметку во времени (вступ
+ление, куплет, припев,
+ []
+
+
+Overfull \hbox (6.24pt too wide) in paragraph at lines 18--18
+\T2A/lmr/bx/n/14.4 (-20) проигрыш, концовка), эмоциональную характеристику (va-
+lence/arousal в модели
+ []
+
+[5
+
+]
+Overfull \hbox (21.55652pt too wide) in paragraph at lines 18--18
+\T2A/lmr/bx/n/14.4 (-20) (DEAM, Har-monix Set, GTZAN) с унифицированным пайплай
+ном извлечения
+ []
+
+
+Overfull \hbox (12.00346pt too wide) in paragraph at lines 18--18
+\T2A/lmr/bx/n/14.4 (-20) оценки вклада tem-po-ral mod-el-ing, pre-train-ing и т
+рансформерной парадигмы. 
+ []
+
+
+Overfull \hbox (5.572pt too wide) in paragraph at lines 18--18
+[]\T2A/lmr/bx/n/14.4 (-20) Сформулировать ограничения подхода и направления дал
+ьнейшей работы. 
+ []
+
+[6]
+Overfull \hbox (9.20445pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) аудио-архитектур (Глава 1). По итогам обзора в качеств
+е методологической
+ []
+
+LaTeX Font Info:    Trying to load font information for T2A+lmtt on input line 
+26.
+LaTeX Font Info:    No file T2Almtt.fd. on input line 26.
+
+LaTeX Font Warning: Font shape `T2A/lmtt/m/n' undefined
+(Font)              using `T2A/cmr/m/n' instead on input line 26.
+
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `lmtt' (encoding: T2A).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+
+Overfull \hbox (10.71756pt too wide) in paragraph at lines 26--26
+[]\T2A/lmr/bx/n/14.4 (-20) Собран объединјнный корпус из 3545 композиций на осн
+ове трјх открытых
+ []
+
+
+Overfull \hbox (57.5579pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) неудачный CNN v3 с агрессивным перевзвешиванием классо
+в (документированный
+ []
+
+
+Overfull \hbox (28.768pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) жанровой классификации. Победители по отдельным задача
+м распределились
+ []
+
+
+Overfull \hbox (19.07198pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) между AST v2 (сегментация), PANNs+BiLSTM (возбуждение 
+и валентность)
+ []
+
+[7]
+Overfull \hbox (8.18948pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) концовки, поклассовые ограничения минимальной длительн
+ости, привязка
+ []
+
+
+Overfull \hbox (25.51328pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) границ к локальным максимумам кривой новизны и проверк
+а повторяющихся
+ []
+
+
+Overfull \hbox (26.98936pt too wide) in paragraph at lines 26--26
+[]\T2A/lmr/bx/n/14.4 (-20) Реализован полнофункциональный веб-прототип с трјхзв
+енной архитектурой:
+ []
+
+
+Overfull \hbox (7.32518pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) фронтенд на Re-act19 с Vite, бэкенд на Elysia поверх B
+un, сервис инференса
+ []
+
+
+Overfull \hbox (30.70143pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) временным курсором, в который сведены разметка структу
+ры, эмоциональные
+ []
+
+
+Overfull \hbox (0.84372pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) музыке из-за устаревшей таксономии GTZAN, фундаменталь
+ный потолок
+ []
+
+
+Overfull \hbox (36.2889pt too wide) in paragraph at lines 26--26
+\T2A/lmr/bx/n/14.4 (-20) дообучение на современных датасетах FMA-medium или SAL
+A-MI, дистилляция
+ []
+
+[8]
+Overfull \hbox (36.70723pt too wide) in paragraph at lines 31--32
+[]\T2A/lmr/bx/n/14.4 (-20) Научная новизна работы заключается в следующем. Разр
+аботана мультизадачная
+ []
+
+
+Overfull \hbox (19.29517pt too wide) in paragraph at lines 31--32
+\T2A/lmr/bx/n/14.4 (-20) нейросетевая модель с единым аудио-энкодером и четырьм
+я классификационными
+ []
+
+
+Overfull \hbox (12.34113pt too wide) in paragraph at lines 31--32
+\T2A/lmr/bx/n/14.4 (-20) автору, выполнено систематическое сравнение применимос
+ти пяти конфигураций
+ []
+
+
+Overfull \hbox (19.29485pt too wide) in paragraph at lines 31--32
+\T2A/lmr/bx/n/14.4 (-20) этой задаче в едином экспериментальном протоколе. Пред
+ложен воспроизводимый
+ []
+
+
+Overfull \hbox (18.14113pt too wide) in paragraph at lines 31--32
+\T2A/lmr/bx/n/14.4 (-20) пайплайн кросс-датасетного обучения через RoundRobin-L
+oad-er с покомпонентным
+ []
+
+
+Overfull \hbox (16.83488pt too wide) in paragraph at lines 31--32
+\T2A/lmr/bx/n/14.4 (-20) (декодер Витерби с матрицей переходов, позиционными пр
+иорами и поклассовыми
+ []
+
+
+Overfull \hbox (41.595pt too wide) in paragraph at lines 31--32
+\T2A/lmr/bx/n/14.4 (-20) визуализатором, обеспечивающий академически честную ко
+ммуникацию ограничений
+ []
+
+
+Overfull \hbox (9.30563pt too wide) in paragraph at lines 31--32
+\T2A/lmr/bx/n/14.4 (-20) модели (топ-3 жанров с предупреждением об уверенности 
+при out-of-distribution). 
+ []
+
+
+Overfull \hbox (11.00664pt too wide) in paragraph at lines 36--37
+\T2A/lmr/bx/n/14.4 (-20) государственного университета (2026 год). По теме рабо
+ты принята к публикации
+ []
+
+
+Overfull \hbox (48.59285pt too wide) in paragraph at lines 36--37
+\T2A/lmr/bx/n/14.4 (-20) статья ѕМультизадачный анализ музыкальных композиций с
+ помощью предобученного
+ []
+
+[9]
+Overfull \hbox (0.47937pt too wide) in paragraph at lines 43--44
+\T2A/lmr/bx/n/14.4 (-20) свјрточные сети с блоками канального внимания, надстро
+йки двунаправленной
+ []
+
+
+Overfull \hbox (33.97733pt too wide) in paragraph at lines 43--44
+\T2A/lmr/bx/n/14.4 (-20) former с трансфером с Au-dioSet. Отдельные параграфы п
+освящены мультизадачному
+ []
+
+
+Overfull \hbox (6.56064pt too wide) in paragraph at lines 45--46
+\T2A/lmr/bx/n/14.4 (-20) класса выходных предсказаний модели формализованы мате
+матически: входной
+ []
+
+
+Overfull \hbox (28.18303pt too wide) in paragraph at lines 45--46
+\T2A/lmr/bx/n/14.4 (-20) аудиосигнал, последовательность лог-мел окон, четыре р
+аспределения вероятностей
+ []
+
+
+Overfull \hbox (31.39047pt too wide) in paragraph at lines 45--46
+\T2A/lmr/bx/n/14.4 (-20) выбора мультизадачного подхода по трјм линиям: семанти
+ческой, методологической
+ []
+
+
+Overfull \hbox (44.34398pt too wide) in paragraph at lines 47--48
+\T2A/lmr/bx/n/14.4 (-20) скачивания недостающего аудио для Har-monix через \T2A
+/lmtt/m/n/14.4 yt-dlp\T2A/lmr/bx/n/14.4 (-20) . Описан унифицированный
+ []
+
+
+Overfull \hbox (37.2061pt too wide) in paragraph at lines 49--50
+[]\T2A/lmr/bx/n/14.4 (-20) Глава 4 содержит описание методов. Подробно разобран
+ы все пять архитектурных
+ []
+
+
+Overfull \hbox (9.45212pt too wide) in paragraph at lines 49--50
+\T2A/lmr/bx/n/14.4 (-20) конфигураций (CNN, CNN+BiLSTM, PANNs+Linear, PANNs+BiL
+STM, AST v2),
+ []
+
+
+Overfull \hbox (29.79753pt too wide) in paragraph at lines 49--50
+\T2A/lmr/bx/n/14.4 (-20) механизмами. Завершает главу описание пайплайна инфере
+нса на пользовательских
+ []
+
+[10]
+Overfull \hbox (18.35902pt too wide) in paragraph at lines 51--52
+\T2A/lmr/bx/n/14.4 (-20) архитектурой AST v2 и неудачный CNN v3. Сводное сравне
+ние всех конфигураций
+ []
+
+
+Overfull \hbox (29.97433pt too wide) in paragraph at lines 53--54
+\T2A/lmr/bx/n/14.4 (-20) визуального редизайна в стилистике glass-mor-phism и п
+олноэкранного визуализатора
+ []
+
+
+Overfull \hbox (19.54216pt too wide) in paragraph at lines 55--56
+\T2A/lmr/bx/n/14.4 (-20) исследовательских вопросов, зафиксирована финальная ко
+нфигурация прототипа,
+ []
+
+
+Overfull \hbox (24.72725pt too wide) in paragraph at lines 55--56
+\T2A/lmr/bx/n/14.4 (-20) систематически проанализированы пять групп ограничений
+ подхода с возможными
+ []
+
+
+Overfull \hbox (2.58128pt too wide) in paragraph at lines 55--56
+\T2A/lmr/bx/n/14.4 (-20) направлениями развития, проведено сопоставление со sta
+te-of-the-art по каждой
+ []
+
+)
+Overfull \hbox (32.34288pt too wide) in paragraph at lines 57--326
+\T2A/lmr/bx/n/14.4 (-20) дальнейшей работы. Список использованных источников со
+держит 40 наименований.
+ []
+
+
+Overfull \hbox (35.7272pt too wide) in paragraph at lines 57--326
+\T2A/lmr/bx/n/14.4 (-20) Пять приложений (А--Д) собирают подробные технические 
+сведения: характеристики
+ []
+
+
+Overfull \hbox (32.25569pt too wide) in paragraph at lines 57--326
+\T2A/lmr/bx/n/14.4 (-20) результатам, JSON-схему выхода модели и команды воспро
+изведения экспериментов.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 57--326
+
+ []
+
+(./chapters/01_literature_review.tex [11]
+{\cyrillictext \CYRG \cyrl \cyra \cyrv \cyra } 1.
+
+Overfull \hbox (63.62923pt too wide) in paragraph at lines 5--6
+[]\T2A/lmr/bx/n/14.4 (-20) Music In-for-ma-tion Re-trieval (MIR) сложился как с
+амостоятельная междисциплинарная
+ []
+
+
+Overfull \hbox (12.22435pt too wide) in paragraph at lines 5--6
+\T2A/lmr/bx/n/14.4 (-20) целиком (жанр, настроение), покадровую разметку отдель
+ных событий (моменты
+ []
+
+
+Overfull \hbox (5.28957pt too wide) in paragraph at lines 5--6
+\T2A/lmr/bx/n/14.4 (-20) эмоциям и регрессию непрерывных характеристик (возбужд
+ение и валентность).
+ []
+
+
+Overfull \hbox (4.85875pt too wide) in paragraph at lines 11--12
+\T2A/lmr/bx/n/14.4 (-20) Первая, детекция границ, требует найти моменты переход
+а от одного фрагмента
+ []
+
+[12
+
+]
+Overfull \hbox (7.39565pt too wide) in paragraph at lines 15--16
+\T2A/lmr/bx/n/14.4 (-20) получили F1 около 0.46 на SALA-MI с допуском $\OMS/lms
+y/m/n/14.4 ^^F\OT1/lmr/m/n/14.4 (-20) 3$ \T2A/lmr/bx/n/14.4 (-20) секунды. Serr
+^^@a и соавторы [[][]26[][]]
+ []
+
+[13]
+Overfull \hbox (5.5736pt too wide) in paragraph at lines 21--22
+\T2A/lmr/bx/n/14.4 (-20) формализуется одним из двух способов. Первый, классифи
+кация по дискретным
+ []
+
+
+Overfull \hbox (4.69171pt too wide) in paragraph at lines 21--22
+\T2A/lmr/bx/n/14.4 (-20) 1930-х годов. Второй, более распространјнный сегодня, 
+опирается на двумерную
+ []
+
+
+Overfull \hbox (29.7549pt too wide) in paragraph at lines 41--42
+\T2A/lmr/bx/n/14.4 (-20) свјрточные сети [[][]6[][]], гибриды свјртки и рекурре
+нтного слоя [[][]35[][]] и трансформеры [[][]40[][]].
+ []
+
+
+Overfull \hbox (15.67601pt too wide) in paragraph at lines 41--42
+\T2A/lmr/bx/n/14.4 (-20) активность), тогда как валентность требует понимания г
+армонического контекста,
+ []
+
+[14{/usr/local/texlive/2026basic/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}]
+Overfull \hbox (4.90521pt too wide) in paragraph at lines 45--46
+\T2A/lmr/bx/n/14.4 (-20) постановкой был предложен и датасет GTZAN: 1000 фрагме
+нтов длительностью
+ []
+
+
+Overfull \hbox (17.64717pt too wide) in paragraph at lines 47--48
+\T2A/lmr/bx/n/14.4 (-20) цифры находятся внутри коридора однозадачных систем, ч
+то для мультизадачной
+ []
+
+
+Overfull \hbox (15.06718pt too wide) in paragraph at lines 69--70
+\T2A/lmr/bx/n/14.4 (-20) длины. Модели подобного класса обычно содержат порядка
+ миллиона параметров
+ []
+
+[15]
+Overfull \hbox (13.32378pt too wide) in paragraph at lines 71--72
+\T2A/lmr/bx/n/14.4 (-20) активации, сворачивает их по пространству глобальным у
+среднением, пропускает
+ []
+
+
+Overfull \hbox (37.0754pt too wide) in paragraph at lines 73--74
+[]\T2A/lmr/bx/n/14.4 (-20) Чтобы учесть долгосрочный временной контекст, поверх
+ покадровых эмбеддингов
+ []
+
+
+Overfull \hbox (18.52063pt too wide) in paragraph at lines 75--76
+[]\T2A/lmr/bx/n/14.4 (-20) Другой возможный путь, который мы рассматривали, сос
+тоит в использовании
+ []
+
+[16]
+Overfull \hbox (3.20941pt too wide) in paragraph at lines 77--78
+\T2A/lmr/bx/n/14.4 (-20) требующих глобального восприятия трека. Идея AST состо
+ит в чистом переносе
+ []
+
+
+Overfull \hbox (21.0036pt too wide) in paragraph at lines 77--78
+\T2A/lmr/bx/n/14.4 (-20) последовательности добавляются обучаемый служебный ток
+ен CLS и позиционные
+ []
+
+[17]
+Overfull \hbox (10.38899pt too wide) in paragraph at lines 87--88
+\T2A/lmr/bx/n/14.4 (-20) небольшой целевой датасет, либо потерять знания, накоп
+ленные на предобучении
+ []
+
+
+Overfull \hbox (50.4917pt too wide) in paragraph at lines 87--88
+\T2A/lmr/bx/n/14.4 (-20) (catas-troph-ic for-get-ting). На практике хорошо рабо
+тают три пријма. Дифференциальная
+ []
+
+
+Overfull \hbox (11.1657pt too wide) in paragraph at lines 87--88
+\T2A/lmr/bx/n/14.4 (-20) слојв, в которых обычно закодированы наиболее общие пр
+изнаки, дополнительно
+ []
+
+) (./chapters/02_problem_statement.tex [18{/usr/local/texlive/2026basic/texmf-d
+ist/fonts/enc/dvips/lm/lm-mathex.enc}]
+{\cyrillictext \CYRG \cyrl \cyra \cyrv \cyra } 2.
+
+Overfull \hbox (16.08969pt too wide) in paragraph at lines 7--8
+\T2A/lmr/bx/n/14.4 (-20) один проход модели мы получаем все четыре разметки сра
+зу, без четырјхкратного
+ []
+
+
+LaTeX Font Warning: Font shape `T2A/lmr/m/sl' undefined
+(Font)              using `T2A/lmr/m/n' instead on input line 9.
+
+
+LaTeX Font Warning: Font shape `T2A/lmr/bx/sl' undefined
+(Font)              using `T2A/lmr/bx/n' instead on input line 9.
+
+[19
+
+]
+Overfull \hbox (39.22592pt too wide) in paragraph at lines 25--26
+\T2A/lmr/bx/n/14.4 (-20) подхода: насколько эффективна мультизадачная свјрточна
+я сеть для одновременного
+ []
+
+
+Overfull \hbox (0.89737pt too wide) in paragraph at lines 27--28
+\T2A/lmr/bx/n/14.4 (-20) входных признаков: дајт ли использование предобученных
+ эмбеддингов PANNs
+ []
+
+
+Overfull \hbox (9.53354pt too wide) in paragraph at lines 29--30
+\T2A/lmr/bx/n/14.4 (-20) факторов важнее и являются ли их эффекты аддитивными и
+ли интерактивными. 
+ []
+
+
+Overfull \hbox (37.10608pt too wide) in paragraph at lines 31--32
+[]\T2A/lmr/bx/n/14.4 (-20) Наконец, отдельный вопрос был сформулирован уже посл
+е первых экспериментов:
+ []
+
+
+Overfull \hbox (14.10657pt too wide) in paragraph at lines 31--32
+\T2A/lmr/bx/n/14.4 (-20) принципиально иначе (трансформер с самовниманием вмест
+о свјрток), превзойти
+ []
+
+[20]
+Overfull \hbox (22.97296pt too wide) in paragraph at lines 33--34
+[]\T2A/lmr/bx/n/14.4 (-20) Первые четыре вопроса формируют классический $\OT1/l
+mr/m/n/14.4 (-20) 2 \OMS/lmsy/m/n/14.4 ^^B \OT1/lmr/m/n/14.4 (-20) 2$ \T2A/lmr/
+bx/n/14.4 (-20) факторный эксперимент
+ []
+
+
+Overfull \hbox (3.52403pt too wide) in paragraph at lines 33--34
+\T2A/lmr/bx/n/14.4 (-20) (AST). Дополнительно в работу включјн ablation-экспери
+мент по постобработке
+ []
+
+
+Overfull \hbox (14.95724pt too wide) in paragraph at lines 39--40
+[]\T2A/lmr/bx/n/14.4 (-20) Прежде всего, выбранные нами задачи в музыке тесно с
+вязаны содержательно.
+ []
+
+
+Overfull \hbox (9.57996pt too wide) in paragraph at lines 41--42
+\T2A/lmr/bx/n/14.4 (-20) ритм, гармония), полезные сразу для всех голов. Это ра
+ботает как регуляризатор
+ []
+
+) (./chapters/03_data.tex [21] [22]
+{\cyrillictext \CYRG \cyrl \cyra \cyrv \cyra } 3.
+
+Overfull \hbox (11.65652pt too wide) in paragraph at lines 3--4
+\T2A/lmr/bx/n/14.4 (-20) Har-monix Set для структурной разметки и GTZAN для жан
+ровой классификации.
+ []
+
+
+Overfull \hbox (8.39299pt too wide) in paragraph at lines 18--18
+\T2A/lmr/bx/n/14.4 (-20) длительность)|  
+ []
+
+
+Overfull \hbox (25.11496pt too wide) in paragraph at lines 18--18
+\T2A/lmr/bx/n/14.4 (-20) (загружено 
+ []
+
+
+Overfull \hbox (28.07408pt too wide) in paragraph at lines 18--18
+[]|\T2A/lmr/bx/n/14.4 (-20) Сегментация|  
+ []
+
+
+Overfull \hbox (62.47063pt too wide) in paragraph at lines 13--23
+ [][] 
+ []
+
+[23
+
+]
+Overfull \hbox (15.58353pt too wide) in paragraph at lines 27--28
+[]\T2A/lmr/bx/n/14.4 (-20) Harmonix Set [[][]33[][]] это единственный крупный о
+ткрытый корпус со структурной
+ []
+
+
+Overfull \hbox (23.12444pt too wide) in paragraph at lines 27--28
+\T2A/lmr/bx/n/14.4 (-20) Авторская таксономия включает 17 категорий, что для ше
+стиклассовой постановки
+ []
+
+
+Overfull \hbox (28.7878pt too wide) in paragraph at lines 27--28
+\T2A/lmr/bx/n/14.4 (-20) скачивания мы написали отдельный скрипт (\T2A/lmtt/m/n
+/14.4 scripts/download_harmonix_audio.py\T2A/lmr/bx/n/14.4 (-20) ),
+ []
+
+[24]
+Overfull \hbox (0.60577pt too wide) in paragraph at lines 29--30
+\T2A/lmr/bx/n/14.4 (-20) по теме. Поведение модели на современной музыке мы доп
+олнительно смягчаем
+ []
+
+
+Overfull \hbox (20.0102pt too wide) in paragraph at lines 33--34
+\T2A/lmtt/m/n/14.4 brosa.power_to_db(ref=np.max)\T2A/lmr/bx/n/14.4 (-20) , что 
+переводит спектрограмму в шкалу примерно
+ []
+
+[25]
+Overfull \hbox (23.84761pt too wide) in paragraph at lines 57--58
+[]\T2A/lmr/bx/n/14.4 (-20) Затем спектрограмма каждого трека режется на окна од
+инаковой длительности.
+ []
+
+
+Overfull \hbox (21.4898pt too wide) in paragraph at lines 57--58
+\T2A/lmr/bx/n/14.4 (-20) музыкальный период (куплет или припев целиком), что кр
+итично для структурной
+ []
+
+
+Overfull \hbox (7.35709pt too wide) in paragraph at lines 57--58
+\T2A/lmr/bx/n/14.4 (-20) пятидесяти окон на минуту записи, чего более чем доста
+точно для последующего
+ []
+
+
+Overfull \hbox (10.12839pt too wide) in paragraph at lines 59--60
+[]\T2A/lmr/bx/n/14.4 (-20) Сразу после нарезки выполняется глобальная нормализа
+ция. По обучающему
+ []
+
+
+Overfull \hbox (4.24773pt too wide) in paragraph at lines 59--60
+\T2A/lmr/bx/n/14.4 (-20) сплитам: на каждом окне из каждого мел-фильтра вычитае
+тся соответствующее
+ []
+
+
+Overfull \hbox (4.68701pt too wide) in paragraph at lines 59--60
+\T2A/lmr/bx/n/14.4 (-20) когда блюзовая запись с высокой долей низких частот ош
+ибочно распознавалась
+ []
+
+[26]
+Overfull \hbox (9.73419pt too wide) in paragraph at lines 63--64
+\T2A/lmr/bx/n/14.4 (-20) которого пришлось аккуратно реализовать сплитер, состо
+ит в том, что разбиение
+ []
+
+
+Overfull \hbox (4.53911pt too wide) in paragraph at lines 63--64
+\T2A/lmr/bx/n/14.4 (-20) делается на уровне треков, а не на уровне окон. Если р
+езать окна и распределять
+ []
+
+
+Overfull \hbox (29.05879pt too wide) in paragraph at lines 65--66
+\T2A/lmr/bx/n/14.4 (-20) эмоциональным классам невозможна в принципе: метки пок
+адровые и непрерывные,
+ []
+
+
+Overfull \hbox (2.16766pt too wide) in paragraph at lines 65--66
+\T2A/lmr/bx/n/14.4 (-20) стратифицировать по структуре бессмысленно, поскольку 
+все треки покрывают
+ []
+
+
+Overfull \hbox (26.7243pt too wide) in paragraph at lines 69--70
+[]\T2A/lmr/bx/n/14.4 (-20) Из четырјх наших задач три (возбуждение, валентность
+, жанр) сбалансированы
+ []
+
+[27]
+Overfull \hbox (15.60007pt too wide) in paragraph at lines 92--93
+\T2A/lmr/bx/n/14.4 (-20) проблему. Наконец, на уровне общей мультизадачной поте
+ри головам сегментации
+ []
+
+) (./chapters/04_architecture.tex [28]
+{\cyrillictext \CYRG \cyrl \cyra \cyrv \cyra } 4.
+
+Overfull \hbox (20.8548pt too wide) in paragraph at lines 15--15
+[]|\T2A/lmr/bx/n/14.4 (-20) Конфигурация|  
+ []
+
+
+Overfull \hbox (22.66989pt too wide) in paragraph at lines 15--15
+[]|\T2A/lmr/bx/n/14.4 (-20) Параметров|  
+ []
+
+
+Overfull \hbox (20.29993pt too wide) in paragraph at lines 18--18
+[]|\T2A/lmr/bx/n/14.4 (-20) CNN+BiLSTM|  
+ []
+
+
+Overfull \hbox (20.33827pt too wide) in paragraph at lines 19--19
+[]|\T2A/lmr/bx/n/14.4 (-20) PANNs+Linear|  
+ []
+
+
+Overfull \hbox (33.96738pt too wide) in paragraph at lines 20--20
+[]|\T2A/lmr/bx/n/14.4 (-20) PANNs+BiLSTM|  
+ []
+
+
+Overfull \hbox (41.32082pt too wide) in paragraph at lines 13--24
+ [][] 
+ []
+
+[29
+
+]
+Overfull \hbox (8.53294pt too wide) in paragraph at lines 30--31
+\T2A/lmr/bx/n/14.4 (-20) числом каналов 32, 64, 128, 256, 512. Каждый блок устр
+оен одинаково: двумерная
+ []
+
+
+Overfull \hbox (43.21208pt too wide) in paragraph at lines 30--31
+\T2A/lmr/bx/n/14.4 (-20) пространственным размерностям, дающее 512-мерный векто
+р. На него надстраивается
+ []
+
+
+Overfull \hbox (6.37665pt too wide) in paragraph at lines 30--31
+\T2A/lmr/bx/n/14.4 (-20) Re-LU и дропаутом 0.4, после чего идут четыре независи
+мые классификационные
+ []
+
+[30]
+Overfull \hbox (26.41876pt too wide) in paragraph at lines 38--39
+[]\T2A/lmr/bx/n/14.4 (-20) Над покадровыми эмбеддингами свјрточной сети надстра
+ивается рекуррентный
+ []
+
+
+Overfull \hbox (22.63792pt too wide) in paragraph at lines 40--41
+[]\T2A/lmr/bx/n/14.4 (-20) Выбор именно BiL-STM, а не трансформера, объясняется
+ размерами обучающей
+ []
+
+
+Overfull \hbox (10.0988pt too wide) in paragraph at lines 40--41
+\T2A/lmr/bx/n/14.4 (-20) выборки: после агрегации по трекам Har-monix дајт всег
+о 522 последовательности
+ []
+
+[31]
+Overfull \hbox (11.32265pt too wide) in paragraph at lines 48--49
+[]\T2A/lmr/bx/n/14.4 (-20) Заморозка свјрточного ствола выбрана сознательно. По
+лное размораживание
+ []
+
+
+Overfull \hbox (17.64877pt too wide) in paragraph at lines 54--55
+\T2A/lmr/bx/n/14.4 (-20) добавляется обучаемый классификационный токен CLS и об
+учаемые позиционные
+ []
+
+[32]
+Overfull \hbox (17.55373pt too wide) in paragraph at lines 58--59
+\T2A/lmr/bx/n/14.4 (-20) патчей, позиционные эмбеддинги и первые восемь из двен
+адцати трансформерных
+ []
+
+
+Overfull \hbox (30.99657pt too wide) in paragraph at lines 66--67
+\T2A/lmr/bx/n/14.4 (-20) вида $[]\OT1/lmr/m/n/14.4 (-20) (\OML/lmm/m/it/14.4 D 
+\OMS/lmsy/m/n/14.4 ! \OT1/lmr/m/n/14.4 (-20) 1) \OMS/lmsy/m/n/14.4 ! []$\T2A/lm
+r/bx/n/14.4 (-20) , дающие непрерывную оценку в $\OT1/lmr/m/n/14.4 (-20) [0\OML
+/lmm/m/it/14.4 ; \OT1/lmr/m/n/14.4 (-20) 1]$\T2A/lmr/bx/n/14.4 (-20) . Регресси
+онные
+ []
+
+[33]
+Overfull \hbox (13.01569pt too wide) in paragraph at lines 71--73
+\T2A/lmr/bx/n/14.4 (-20) где $\OML/lmm/m/it/14.4 p[]$ \T2A/lmr/bx/n/14.4 (-20) 
+предсказанная вероятность правильного класса, $\OML/lmm/m/it/14.4 []$ \T2A/lmr
+/bx/n/14.4 (-20) вес класса, $\OML/lmm/m/it/14.4 ^^M$ \T2A/lmr/bx/n/14.4 (-20) 
+показатель
+ []
+
+
+Overfull \hbox (9.13812pt too wide) in paragraph at lines 84--85
+[]\T2A/lmr/bx/n/14.4 (-20) Для регуляризации в обучение добавлены две стандартн
+ые техники. SpecAug-
+ []
+
+[34]
+Overfull \hbox (1.23918pt too wide) in paragraph at lines 96--97
+[]\T2A/lmr/bx/n/14.4 (-20) Позиционные приоры устроены просто. Мы знаем, что по
+чти все вступления
+ []
+
+
+Overfull \hbox (3.64183pt too wide) in paragraph at lines 96--97
+\T2A/lmr/bx/n/14.4 (-20) зонах. Граница 22% и величина штрафа 10 находятся в ли
+тературном диапазоне
+ []
+
+[35]
+Overfull \hbox (8.77164pt too wide) in paragraph at lines 108--108
+ []|\T2A/lmr/bx/n/14.4 (-20) Стоимость| 
+ []
+
+
+Overfull \hbox (12.04317pt too wide) in paragraph at lines 120--121
+\T2A/lmr/bx/n/14.4 (-20) могут быть короче 12-15 секунд (минимальная длительнос
+ть двенадцатитактного
+ []
+
+
+Overfull \hbox (18.32756pt too wide) in paragraph at lines 120--121
+\T2A/lmr/bx/n/14.4 (-20) После окончания основной декодирующей процедуры дополн
+ительно выполняется
+ []
+
+
+Overfull \hbox (22.44095pt too wide) in paragraph at lines 120--121
+\T2A/lmr/bx/n/14.4 (-20) nov-el-ty snap-ping: каждая найденная граница сдвигает
+ся к ближайшему локальному
+ []
+
+[36]
+Overfull \hbox (7.27756pt too wide) in paragraph at lines 148--148
+[]|\T2A/lmr/bx/n/14.4 (-20) Сегментов|  
+ []
+
+[37]
+Overfull \hbox (3.02391pt too wide) in paragraph at lines 161--162
+\T2A/lmr/bx/n/14.4 (-20) дискретизации 22050 Гц. Затем считается логарифмическа
+я мел-спектрограмма
+ []
+
+
+Overfull \hbox (19.40623pt too wide) in paragraph at lines 161--162
+\T2A/lmr/bx/n/14.4 (-20) отклонениями, и спектрограмма нормализуется. Нормализо
+ванная спектрограмма
+ []
+
+
+Overfull \hbox (27.17165pt too wide) in paragraph at lines 161--162
+\T2A/lmr/bx/n/14.4 (-20) модель выдајт четыре распределения, и пакет всех окон 
+передајтся в постобработку
+ []
+
+) (./chapters/05_experiments.tex
+Overfull \hbox (108.67654pt too wide) in paragraph at lines 163--1
+\T2A/lmr/bx/n/14.4 (-20) оказалась в нормализации: \T2A/lmtt/m/n/14.4 stats.npz
+ \T2A/lmr/bx/n/14.4 (-20) забывал подгружаться в \T2A/lmtt/m/n/14.4 mu-sicml/in
+fer.py:extract_features()\T2A/lmr/bx/n/14.4 (-20) ,
+ []
+
+[38] [39]
+{\cyrillictext \CYRG \cyrl \cyra \cyrv \cyra } 5.
+
+Overfull \hbox (4.15453pt too wide) in paragraph at lines 7--8
+[]\T2A/lmr/bx/n/14.4 (-20) Качество модели оценивается стандартными для классиф
+икации метриками:
+ []
+
+
+Overfull \hbox (25.62456pt too wide) in paragraph at lines 7--8
+\T2A/lmr/bx/n/14.4 (-20) ac-cu-ra-cy, macro-F1 и поклассовые pre-ci-sion, re-ca
+ll, F1. Для структурной сегментации
+ []
+
+
+Overfull \hbox (3.57155pt too wide) in paragraph at lines 7--8
+\T2A/lmr/bx/n/14.4 (-20) дополнительно считается Bound-ary F1 с допуском $\OMS/
+lmsy/m/n/14.4 ^^F\OT1/lmr/m/n/14.4 (-20) 3$ \T2A/lmr/bx/n/14.4 (-20) секунды. Э
+то стандартная
+ []
+
+
+Overfull \hbox (11.8357pt too wide) in paragraph at lines 7--8
+\T2A/lmr/bx/n/14.4 (-20) MIR-метрика, оценивающая, насколько правильно модель н
+аходит сами моменты
+ []
+
+[40
+
+]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <24.88> on input line 38.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <20.74> on input line 38.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <17.28> on input line 38.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 38.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\times' on input line 38.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 38.
+
+
+Overfull \hbox (5.51462pt too wide) in paragraph at lines 53--53
+[]|\T2A/lmr/bx/n/14.4 (-20) PANNs+BiLSTM|  
+ []
+
+[41]
+<figures/fig_factorial_heatmap.png, id=633, 1149.093pt x 297.7524pt>
+File: figures/fig_factorial_heatmap.png Graphic file (type png)
+<use figures/fig_factorial_heatmap.png>
+Package pdftex.def Info: figures/fig_factorial_heatmap.png  used on input line 
+66.
+(pdftex.def)             Requested size: 299.88966pt x 77.7091pt.
+ [42]
+Overfull \hbox (5.51462pt too wide) in paragraph at lines 86--86
+[]|\T2A/lmr/bx/n/14.4 (-20) PANNs+BiLSTM|  
+ []
+
+[43 <./figures/fig_factorial_heatmap.png>]
+Overfull \hbox (1.02908pt too wide) in paragraph at lines 93--94
+\T2A/lmr/bx/n/14.4 (-20) схемы взвешивания классов. Цена за приоритизацию сегме
+нта просматривается
+ []
+
+
+Overfull \hbox (4.30061pt too wide) in paragraph at lines 109--109
+[]|\T2A/lmr/bx/n/14.4 (-20) Instrumental|  
+ []
+
+
+Overfull \hbox (20.60675pt too wide) in paragraph at lines 115--116
+\T2A/lmr/bx/n/14.4 (-20) четырьмя задачами одновременно: жанр у CNN v2 достиг 8
+3.9%, что укладывается
+ []
+
+
+Overfull \hbox (2.3559pt too wide) in paragraph at lines 115--116
+\T2A/lmr/bx/n/14.4 (-20) Замороженные PANNs не дают принципиального преимуществ
+а перед свјрткой,
+ []
+
+[44]
+Overfull \hbox (38.67728pt too wide) in paragraph at lines 119--120
+\T2A/lmr/bx/n/14.4 (-20) дальнейшие улучшения ограничены, мы расширили эксперим
+ент пятой архитектурой.
+ []
+
+
+Overfull \hbox (3.15317pt too wide) in paragraph at lines 119--120
+\T2A/lmr/bx/n/14.4 (-20) (верхние 4 трансформерных слоя, Lay-er-Norm, CLS, голо
+вы), дифференциальная
+ []
+
+[45]
+Overfull \hbox (37.33693pt too wide) in paragraph at lines 158--159
+\T2A/lmr/bx/n/14.4 (-20) целиком, а предобучение на Au-dioSet дајт стартовое пр
+едставление о низкоуровневых
+ []
+
+[46]
+Overfull \hbox (34.12901pt too wide) in paragraph at lines 164--165
+[]\T2A/lmr/bx/n/14.4 (-20) Разбор поведения модели показал быстрое переобучение
+: лучший валидационный
+ []
+
+
+Overfull \hbox (8.84656pt too wide) in paragraph at lines 164--165
+\T2A/lmr/bx/n/14.4 (-20) лосс достигнут уже на четвјртой эпохе, ear-ly stop-pin
+g сработал на девятнадцатой.
+ []
+
+
+Overfull \hbox (1.8225pt too wide) in paragraph at lines 164--165
+\T2A/lmr/bx/n/14.4 (-20) относительно v1: теперь она переусердствовала с предск
+азанием редких классов
+ []
+
+
+Overfull \hbox (6.9335pt too wide) in paragraph at lines 166--167
+\T2A/lmr/bx/n/14.4 (-20) поставленный neg-a-tive re-sult, который показывает ва
+жную вещь: для свјрточной
+ []
+
+
+Overfull \hbox (6.3651pt too wide) in paragraph at lines 166--167
+\T2A/lmr/bx/n/14.4 (-20) архитектуры наших размеров на наших данных конфигураци
+я v2 уже находится
+ []
+
+
+Overfull \hbox (7.42809pt too wide) in paragraph at lines 166--167
+\T2A/lmr/bx/n/14.4 (-20) близко к локальному оптимуму компенсаций дисбаланса, и
+ дальнейшее усиление
+ []
+
+
+Overfull \hbox (15.03825pt too wide) in paragraph at lines 166--167
+\T2A/lmr/bx/n/14.4 (-20) вредит. Принципиальное улучшение сегментной задачи на 
+этом этапе оказывается
+ []
+
+
+Overfull \hbox (0.57439pt too wide) in paragraph at lines 170--171
+\T2A/lmr/bx/n/14.4 (-20) в табл. [][]5.7[][]. Колонка ѕПараметровї для предобуч
+енных моделей (3-6) указывает
+ []
+
+
+Overfull \hbox (16.97943pt too wide) in paragraph at lines 178--178
+[]|\T2A/lmr/bx/n/14.4 (-20) Параметров|  
+ []
+
+
+Overfull \hbox (6.9429pt too wide) in paragraph at lines 178--178
+[]|\T2A/lmr/bx/n/14.4 (-20) Segment|  
+ []
+
+
+Overfull \hbox (2.54042pt too wide) in paragraph at lines 178--178
+[]|\T2A/lmr/bx/n/14.4 (-20) Arousal|  
+ []
+
+
+Overfull \hbox (2.06929pt too wide) in paragraph at lines 178--178
+[]|\T2A/lmr/bx/n/14.4 (-20) Valence|  
+ []
+
+
+Overfull \hbox (7.32404pt too wide) in paragraph at lines 178--179
+[]|\T2A/lmr/bx/n/14.4 (-20) Среднее|  
+ []
+
+
+Overfull \hbox (6.07355pt too wide) in paragraph at lines 182--182
+[]|\T2A/lmr/bx/n/14.4 (-20) CNN+BiLSTM 
+ []
+
+
+Overfull \hbox (5.85146pt too wide) in paragraph at lines 183--183
+[]|\T2A/lmr/bx/n/14.4 (-20) PANNs+Linear 
+ []
+
+
+Overfull \hbox (19.741pt too wide) in paragraph at lines 184--184
+[]|\T2A/lmr/bx/n/14.4 (-20) PANNs+BiLSTM 
+ []
+
+[47]
+Overfull \hbox (11.014pt too wide) in paragraph at lines 191--192
+[]\T2A/lmr/bx/n/14.4 (-20) Победители по задачам распределились следующим образ
+ом. На структурной
+ []
+
+
+Overfull \hbox (23.04398pt too wide) in paragraph at lines 191--192
+\T2A/lmr/bx/n/14.4 (-20) 30-секундных фрагментах GTZAN in-duc-tive bias свјртки
+ оказывается эффективнее
+ []
+
+<figures/fig_comparison_5configs.png, id=674, 858.92896pt x 425.6703pt>
+File: figures/fig_comparison_5configs.png Graphic file (type png)
+<use figures/fig_comparison_5configs.png>
+Package pdftex.def Info: figures/fig_comparison_5configs.png  used on input lin
+e 195.
+(pdftex.def)             Requested size: 314.39998pt x 155.81328pt.
+
+Overfull \hbox (2.28433pt too wide) in paragraph at lines 202--203
+[]\T2A/lmr/bx/n/14.4 (-20) Для оценки вклада постобработки выполнен отдельный a
+b-la-tion на тестовом
+ []
+
+[48 <./figures/fig_comparison_5configs.png>]) (./chapters/06_prototype.tex
+[49]
+{\cyrillictext \CYRG \cyrl \cyra \cyrv \cyra } 6.
+
+Overfull \hbox (30.44371pt too wide) in paragraph at lines 3--4
+[]\T2A/lmr/bx/n/14.4 (-20) Для интерактивной демонстрации возможностей разработ
+анной мультизадачной
+ []
+
+
+Overfull \hbox (34.89299pt too wide) in paragraph at lines 11--12
+[]\T2A/lmr/bx/n/14.4 (-20) Центральное решение прототипа на стороне интерфейса 
+это синхронизированный
+ []
+
+
+Overfull \hbox (7.87494pt too wide) in paragraph at lines 11--12
+\T2A/lmr/bx/n/14.4 (-20) дашборд из шести панелей с общим временным курсором (p
+lay-head). Изначально
+ []
+
+[50
+
+]
+Overfull \hbox (19.0363pt too wide) in paragraph at lines 13--14
+[]\T2A/lmr/bx/n/14.4 (-20) Синхронизация реализована через Re-act Con-text (\T2
+A/lmtt/m/n/14.4 DashboardContext\T2A/lmr/bx/n/14.4 (-20) ), который
+ []
+
+
+Overfull \hbox (3.18652pt too wide) in paragraph at lines 15--16
+[]\T2A/lmr/bx/n/14.4 (-20) Шесть панелей дашборда покрывают разные аспекты анал
+иза. Структурная
+ []
+
+
+Overfull \hbox (59.48552pt too wide) in paragraph at lines 15--16
+\T2A/lmr/bx/n/14.4 (-20) перематывает плеер к его началу. Эмоциональная панель 
+совмещает классификационные
+ []
+
+
+Overfull \hbox (20.70901pt too wide) in paragraph at lines 15--16
+\T2A/lmr/bx/n/14.4 (-20) временные ряды для возбуждения и валентности с непреры
+вными регрессионными
+ []
+
+
+Overfull \hbox (32.90149pt too wide) in paragraph at lines 17--18
+[]\T2A/lmr/bx/n/14.4 (-20) Жанровая панель устроена с прицелом на честное сообщ
+ение о неопределјнности:
+ []
+
+
+Overfull \hbox (8.75769pt too wide) in paragraph at lines 19--20
+[]\T2A/lmr/bx/n/14.4 (-20) Панель эмоциональной траектории отображает квадрат Р
+асселла с четырьмя
+ []
+
+
+Overfull \hbox (14.36362pt too wide) in paragraph at lines 19--20
+\T2A/lmr/bx/n/14.4 (-20) точки траектории рассчитываются не из регрессионных, а
+ из классификационных
+ []
+
+[51]
+Overfull \hbox (33.89853pt too wide) in paragraph at lines 27--28
+[]\T2A/lmr/bx/n/14.4 (-20) Несколько решений на стороне интерфейса заслуживают 
+отдельного упоминания,
+ []
+
+
+Overfull \hbox (0.57004pt too wide) in paragraph at lines 31--32
+[]\T2A/lmr/bx/n/14.4 (-20) Эмоциональная траектория строится по классификационн
+ым вероятностям,
+ []
+
+
+Overfull \hbox (7.06285pt too wide) in paragraph at lines 31--32
+\T2A/lmr/bx/n/14.4 (-20) а не по регрессионным предсказаниям. Это устраняет сис
+тематическое смещение
+ []
+
+
+Overfull \hbox (9.38582pt too wide) in paragraph at lines 33--34
+\T2A/lmr/bx/n/14.4 (-20) сегментацию (\T2A/lmtt/m/n/14.4 web/frontend/src/utils
+/displayName.ts\T2A/lmr/bx/n/14.4 (-20) ). Файл \T2A/lmtt/m/n/14.4 0375_dy-na-m
+ite.mp3
+ []
+
+
+Overfull \hbox (17.26707pt too wide) in paragraph at lines 35--36
+[]\T2A/lmr/bx/n/14.4 (-20) Загрузка любых тяжјлых элементов сопровождается shim
+mer-плейсхолдерами
+ []
+
+
+Overfull \hbox (69.56439pt too wide) in paragraph at lines 35--36
+\T2A/lmr/bx/n/14.4 (-20) воспринимаемое время отклика, особенно ощутимое на пер
+вом анализе свежезагруженного
+ []
+
+
+Overfull \hbox (31.48376pt too wide) in paragraph at lines 39--40
+[]\T2A/lmr/bx/n/14.4 (-20) Цветовая палитра приглушјнная, на базе Tableau 10 mu
+t-ed с двумя выделенными
+ []
+
+
+Overfull \hbox (0.83272pt too wide) in paragraph at lines 56--56
+[]|\T2A/lmr/bx/n/14.4 (-20) Визуализация|  
+ []
+
+[52]
+Overfull \hbox (10.86923pt too wide) in paragraph at lines 63--64
+[]\T2A/lmr/bx/n/14.4 (-20) На уровне фронтенда мы сознательно не использовали н
+есколько популярных
+ []
+
+
+Overfull \hbox (22.7313pt too wide) in paragraph at lines 63--64
+\T2A/lmr/bx/n/14.4 (-20) примерно четырјхкратной скорости старта, что критично 
+при частых перезапусках
+ []
+
+
+Overfull \hbox (2.39832pt too wide) in paragraph at lines 67--68
+\T2A/lmr/bx/n/14.4 (-20) эффектом размытия фона на тјмной подложке, поверх кото
+рой многослойными
+ []
+
+
+Overfull \hbox (43.85838pt too wide) in paragraph at lines 67--68
+\T2A/lmr/bx/n/14.4 (-20) из его эмоционального профиля. Типографика построена н
+а сочетании моноширинных
+ []
+
+[53]
+Overfull \hbox (8.10826pt too wide) in paragraph at lines 69--70
+\T2A/lmtt/m/n/14.4 dio-Con-text.outputLatency \T2A/lmr/bx/n/14.4 (-20) в диапаз
+оне 40-80 миллисекунд, без чего визуализация
+ []
+
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 7
+1.
+(/usr/local/texlive/2026basic/texmf-dist/tex/latex/lm/ts1lmr.fd
+File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+Overfull \hbox (65.81839pt too wide) in paragraph at lines 71--72
+\T2A/lmr/bx/n/14.4 (-20) wave-form и монохромными маркерами сегментов, прозрачн
+ость которых пропорциональна
+ []
+
+) (./chapters/07_analysis.tex
+Overfull \hbox (7.90883pt too wide) in paragraph at lines 73--1
+[]\T2A/lmr/bx/n/14.4 (-20) Галерея треков превратилась в grid в стиле Ap-ple Mu
+-sic и Spo-ti-fy: квадратные
+ []
+
+
+Overfull \hbox (12.00336pt too wide) in paragraph at lines 73--1
+\T2A/lmr/bx/n/14.4 (-20) cover-плитки с соотношением сторон 1:1, fallback-гради
+ент по ѕцвету настроенияї,
+ []
+
+[54{/usr/local/texlive/2026basic/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
+{\cyrillictext \CYRG \cyrl \cyra \cyrv \cyra } 7.
+
+Overfull \hbox (43.66429pt too wide) in paragraph at lines 7--8
+[]\T2A/lmr/bx/n/14.4 (-20) Жизнеспособность мультизадачного подхода (RQ1) подтв
+ердилась. Конфигурация
+ []
+
+
+Overfull \hbox (26.07178pt too wide) in paragraph at lines 7--8
+\T2A/lmr/bx/n/14.4 (-20) обучение приведјт к катастрофической деградации одной 
+из задач), не оправдалось.
+ []
+
+
+Overfull \hbox (8.91022pt too wide) in paragraph at lines 9--10
+[]\T2A/lmr/bx/n/14.4 (-20) Что касается надстройки BiL-STM (RQ2), еј эффект ока
+зался неоднозначным.
+ []
+
+
+Overfull \hbox (28.66252pt too wide) in paragraph at lines 9--10
+\T2A/lmr/bx/n/14.4 (-20) На свјрточном бэкбоне рекуррентный слой действительно 
+помогает эмоциональным
+ []
+
+[55
+
+]
+Overfull \hbox (37.72537pt too wide) in paragraph at lines 13--14
+[]\T2A/lmr/bx/n/14.4 (-20) На вопрос о главном факторе влияния (RQ4) ответ пара
+доксально неоднозначный:
+ []
+
+
+Overfull \hbox (23.41328pt too wide) in paragraph at lines 13--14
+\T2A/lmr/bx/n/14.4 (-20) конфигурациями составила всего 3-5 процентных пунктов.
+ Реальный качественный
+ []
+
+
+Overfull \hbox (32.81134pt too wide) in paragraph at lines 19--20
+[]\T2A/lmr/bx/n/14.4 (-20) По сумме результатов в качестве production-модели в 
+веб-прототипе используется
+ []
+
+[56]
+Overfull \hbox (9.68022pt too wide) in paragraph at lines 44--45
+[]\T2A/lmr/bx/n/14.4 (-20) Эта конфигурация обеспечивает наилучший баланс качес
+тва при приемлемой
+ []
+
+[57] [58]
+Overfull \hbox (15.33731pt too wide) in paragraph at lines 73--73
+\T2A/lmr/bx/n/14.4 (-20) (PANNs+LSTM)|  
+ []
+
+
+Overfull \hbox (15.33731pt too wide) in paragraph at lines 74--74
+\T2A/lmr/bx/n/14.4 (-20) (PANNs+LSTM)|  
+ []
+
+
+Overfull \hbox (31.51715pt too wide) in paragraph at lines 81--82
+\T2A/lmr/bx/n/14.4 (-20) обучение делалось на одной видеокарте 12 ГБ за три час
+а, тогда как опубликованные
+ []
+
+
+Overfull \hbox (3.18565pt too wide) in paragraph at lines 81--82
+\T2A/lmr/bx/n/14.4 (-20) суммарно три и более тысяч треков. Наконец, работа изн
+ачально планировалась
+ []
+
+[59]
+Overfull \hbox (16.48666pt too wide) in paragraph at lines 87--88
+\T2A/lmr/bx/n/14.4 (-20) Прежде всего, систематического сравнения пяти архитект
+ур для мультизадачного
+ []
+
+
+Overfull \hbox (34.8392pt too wide) in paragraph at lines 87--88
+\T2A/lmr/bx/n/14.4 (-20) результаты в академических работах обычно остаются в н
+езаписанных лабораторных
+ []
+
+
+Overfull \hbox (1.54135pt too wide) in paragraph at lines 87--88
+\T2A/lmr/bx/n/14.4 (-20) Композитный пайплайн постобработки (декодер Витерби с 
+матрицей переходов,
+ []
+
+
+Overfull \hbox (31.83247pt too wide) in paragraph at lines 87--88
+\T2A/lmr/bx/n/14.4 (-20) позиционными приорами и итеративным слиянием коротких 
+сегментов) представлен
+ []
+
+
+Overfull \hbox (32.55284pt too wide) in paragraph at lines 87--88
+\T2A/lmr/bx/n/14.4 (-20) проблемы out-of-distribution для классификации с завед
+омо устаревшей таксономией. 
+ []
+
+)
+Overfull \hbox (17.68388pt too wide) in paragraph at lines 89--335
+\T2A/lmr/bx/n/14.4 (-20) эксперименты управляются YAML-конфигами в \T2A/lmtt/m/
+n/14.4 con-figs/\T2A/lmr/bx/n/14.4 (-20) ) и как демонстрационная
+ []
+
+(./chapters/99_conclusion.tex [60]
+Overfull \hbox (19.86804pt too wide) in paragraph at lines 5--6
+[]\T2A/lmr/bx/n/14.4 (-20) Поставленная цель достигнута. Разработан прототип си
+стемы автоматического
+ []
+
+
+Overfull \hbox (5.50624pt too wide) in paragraph at lines 5--6
+\T2A/lmr/bx/n/14.4 (-20) аудио за один проход модели формирует структурную разм
+етку, эмоциональный
+ []
+
+
+Overfull \hbox (3.43529pt too wide) in paragraph at lines 5--6
+\T2A/lmr/bx/n/14.4 (-20) дисбаланса даст ещј прирост к сегментной задаче, не по
+дтвердилась с обратным
+ []
+
+
+Overfull \hbox (6.56424pt too wide) in paragraph at lines 5--6
+\T2A/lmr/bx/n/14.4 (-20) трансформерной архитектуре. По ходу работы получены сл
+едующие результаты. 
+ []
+
+
+Overfull \hbox (18.23772pt too wide) in paragraph at lines 7--8
+[]\T2A/lmr/bx/n/14.4 (-20) Реализованы и обучены пять архитектур мультизадачных
+ моделей: свјрточная
+ []
+
+
+Overfull \hbox (6.58348pt too wide) in paragraph at lines 11--12
+[]\T2A/lmr/bx/n/14.4 (-20) Реализован композитный пайплайн постобработки сегмен
+тных предсказаний
+ []
+
+
+Overfull \hbox (13.7927pt too wide) in paragraph at lines 11--12
+\T2A/lmr/bx/n/14.4 (-20) (декодер Витерби с асимметричной матрицей переходов, п
+озиционными приорами
+ []
+
+
+Overfull \hbox (6.05486pt too wide) in paragraph at lines 11--12
+\T2A/lmr/bx/n/14.4 (-20) и поклассовыми ограничениями минимальной длительности)
+. Полный пайплайн
+ []
+
+
+Overfull \hbox (16.94737pt too wide) in paragraph at lines 13--14
+[]\T2A/lmr/bx/n/14.4 (-20) Разработан веб-прототип с трјхзвенной архитектурой (
+FastAPI для инференса,
+ []
+
+[61
+
+]
+Overfull \hbox (19.91068pt too wide) in paragraph at lines 15--16
+\T2A/lmr/bx/n/14.4 (-20) подхода. Жанровая голова плохо работает на современной
+ музыке, отсутствующей
+ []
+
+
+Overfull \hbox (0.49957pt too wide) in paragraph at lines 15--16
+\T2A/lmr/bx/n/14.4 (-20) наконец, текущая постановка не поддерживает мульти-жан
+ровые предсказания. 
+ []
+
+
+Overfull \hbox (7.97852pt too wide) in paragraph at lines 19--20
+[]\T2A/lmr/bx/n/14.4 (-20) Главное направление развития, способное дать наиболь
+ший прирост качества
+ []
+
+)
+Overfull \hbox (7.69763pt too wide) in paragraph at lines 27--338
+[]\T2A/lmr/bx/n/14.4 (-20) В перспективе интересны и более глубокие изменения п
+арадигмы: совместное
+ []
+
+
+Overfull \hbox (1.55759pt too wide) in paragraph at lines 27--338
+\T2A/lmr/bx/n/14.4 (-20) обучение с генеративными задачами, self-supervised pre
+-train-ing непосредственно
+ []
+
+[62]
+pdfTeX warning (font expansion): font should be expanded before its first use
+[63
+
+
+] [64]
+Overfull \hbox (0.19798pt too wide) in paragraph at lines 340--340
+\T2A/lmr/m/sl/14.4 (-20) S.[]Y. Wang, J.[]C. Wang, Y.[]H. Yang [и др.] [] IEEE 
+International Conference
+ []
+
+
+Overfull \hbox (0.11568pt too wide) in paragraph at lines 340--340
+[]\T2A/lmr/m/sl/14.4 (-20) Ullrich, K. Boundary detection in music structure an
+alysis using convolutional
+ []
+
+[65] (./chapters/A_appendices.tex [66]
+Overfull \hbox (12.28008pt too wide) in paragraph at lines 24--25
+[]\T2A/lmr/m/sl/14.4 (-20) Маппинг 17 категорий Har-monix Set в 6 базовых меток
+ сегментов выполняется
+ []
+
+[67
+
+] [68]
+Overfull \hbox (41.6364pt too wide) in paragraph at lines 63--64
+[]\T2A/lmr/m/sl/14.4 (-20) Общие для всех конфигураций: win-dow=10с, hop=1с, $\
+OML/lmm/m/it/14.4 n[] [] \OT1/lmr/m/n/14.4 (-20) 128$\T2A/lmr/m/sl/14.4 (-20) ,
+ hop_length=512,
+ []
+
+[69
+
+]
+Overfull \hbox (1.11105pt too wide) in paragraph at lines 70--71
+[]\T2A/lmr/m/sl/14.4 (-20) cnn_v2/cm_{segment,arousal,valence,genre}.png --- co
+n-fu-sion ma-tri-ces CNN
+ []
+
+[70
+
+] [71
+
+] [72
+
+]) [73] (./main.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+ ***********
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: 501DEC4E39D232D811BDA3B684D5281B;16026.
+Package logreq Info: Writing requests to 'main.run.xml'.
+\openout1 = `main.run.xml'.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 30486 strings out of 469006
+ 530512 string characters out of 5454813
+ 1872706 words of memory out of 5000000
+ 58283 multiletter control sequences out of 15000+600000
+ 689162 words of font info for 204 fonts, out of 8000000 for 9000
+ 319 hyphenation exceptions out of 8191
+ 78i,12n,92p,2468b,3117s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></u
+sr/local/texlive/2026basic/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/lo
+cal/texlive/2026basic/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/local/t
+exlive/2026basic/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></usr/local/texliv
+e/2026basic/texmf-dist/fonts/type1/public/lm/lmmi7.pfb></usr/local/texlive/2026
+basic/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2026basic/
+texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2026basic/texmf-
+dist/fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2026basic/texmf-dist/f
+onts/type1/public/lm/lmr7.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/ty
+pe1/public/lm/lmsy10.pfb></Users/mihailanonov/Library/texmf/fonts/type1/public/
+amsfonts/symbols/msbm10.pfb></Users/mihailanonov/Library/texmf/fonts/type1/publ
+ic/cm-super/sfrm0700.pfb></Users/mihailanonov/Library/texmf/fonts/type1/public/
+cm-super/sfrm1000.pfb></Users/mihailanonov/Library/texmf/fonts/type1/public/cm-
+super/sfrm1200.pfb></Users/mihailanonov/Library/texmf/fonts/type1/public/cm-sup
+er/sfrm1440.pfb></Users/mihailanonov/Library/texmf/fonts/type1/public/cm-super/
+sfrm1728.pfb></Users/mihailanonov/Library/texmf/fonts/type1/public/cm-super/sfr
+m2074.pfb></Users/mihailanonov/Library/texmf/fonts/type1/public/cm-super/sfrm24
+88.pfb></Users/mihailanonov/Library/texmf/fonts/type1/public/cm-super/sfrm2986.
+pfb></Users/mihailanonov/Library/texmf/fonts/type1/public/cm-super/sfrm3583.pfb
+>
+Output written on main.pdf (73 pages, 727729 bytes).
+PDF statistics:
+ 1044 PDF objects out of 1200 (max. 8388607)
+ 914 compressed objects within 10 object streams
+ 287 named destinations out of 1000 (max. 500000)
+ 56267 words of extra memory for PDF output out of 61914 (max. 10000000)
+

@@ -19,9 +19,9 @@ Inter-ann. agreement & $\rho_a\,{=}\,0{,}59$; $\rho_v\,{=}\,0{,}55$ & $\sim 75\%
 \end{tabular}
 \end{table}
 
-\textbf{DEAM} используется для обучения голов arousal\_cls / valence\_cls (3 класса каждая, дискретизация порогами $\pm 0{,}2$) и регрессионных голов.
+Датасет DEAM используется для обучения голов arousal\_cls и valence\_cls (по три класса, дискретизация порогами $\pm 0{,}2$) и регрессионных голов.
 
-\textbf{Harmonix Set} маппинг 17$\to$6 классов сегментов:
+Маппинг 17 категорий Harmonix Set в 6 базовых меток сегментов выполняется следующим образом:
 
 \begin{lstlisting}
 intro*                -> Intro
@@ -32,7 +32,7 @@ instrumental, solo    -> Instrumental
 outro, fadeout        -> Outro
 \end{lstlisting}
 
-\textbf{GTZAN} --- жанры: blues, classical, country, disco, hiphop, jazz, metal, pop, reggae, rock (по 100 треков).
+Жанровые метки GTZAN: blues, classical, country, disco, hiphop, jazz, metal, pop, reggae, rock (по 100 треков на класс).
 
 \chapter{Гиперпараметры экспериментов}\label{app:B}
 
@@ -107,7 +107,13 @@ Trainable params & $\sim 800$\,тыс. & $\sim 14{,}4$\,млн & $\sim 800$\,т�
 
 \chapter{CLI-команды воспроизведения}\label{app:E}
 
+Полный исходный код проекта (модель, пайплайн обучения, веб-прототип и автоматические тесты) опубликован в открытом репозитории GitHub: \url{https://github.com/mindtnv/musicml-timeline}.
+
 \begin{lstlisting}
+# Source code
+git clone https://github.com/mindtnv/musicml-timeline
+cd musicml-timeline
+
 # Environment
 source .venv/bin/activate     # Linux/Mac
 .venv/Scripts/activate        # Windows
