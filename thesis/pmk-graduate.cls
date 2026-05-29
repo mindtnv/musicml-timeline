@@ -280,7 +280,8 @@
     
     \captionsetup[figure]{name={\IeC {\CYRR }\IeC {\cyri }\IeC {\cyrs }.},labelsep=period}
     \captionsetup[table]{name={\IeC {\CYRT }\IeC {\cyra }\IeC {\cyrb }\IeC {\cyrl }\IeC {\cyri }\IeC {\cyrc }\IeC {\cyra }},labelsep=period}
-    
+    \captionsetup[lstlisting]{labelsep=period}
+        
     \def\textso#1{\textls[200]{#1}}
     \def\so{\SetTracking{encoding=*}{200}\lsstyle}
     \let\emph\textso
