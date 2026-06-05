@@ -1,0 +1,23 @@
+% !TEX program = pdflatex
+%
+% Раскладка автореферата Р. Н. Майоршина «книжкой» (для печати и фальцовки).
+% Берёт готовый autoreferat_mayorshin.pdf (страницы A5) и раскладывает их
+% по 2 на лист A4 в альбомной ориентации, в порядке фальцовки (booklet
+% imposition) — опция signature пакета pdfpages.
+%
+% Порядок действий:
+%   1) pdflatex autoreferat_mayorshin            (сначала собрать содержание, A5)
+%   2) pdflatex autoreferat_mayorshin_booklet    (затем разложить книжкой, A4)
+%
+% Печать: двусторонняя, «переворот по короткой стороне», затем сложить пополам
+% и скрепить по сгибу.
+%
+% signature кратно 4 и не меньше числа страниц автореферата.
+%
+\documentclass[a4paper]{article}
+\usepackage{pdfpages}
+\pagestyle{empty}
+
+\begin{document}
+\includepdf[pages=-,signature=8,landscape]{autoreferat_mayorshin.pdf}
+\end{document}
